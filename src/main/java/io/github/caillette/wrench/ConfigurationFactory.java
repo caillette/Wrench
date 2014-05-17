@@ -60,14 +60,17 @@ class ConfigurationFactory< C extends Configuration > implements Configuration.F
 
     final Map< String, ValuedProperty> values = new HashMap<>() ;
     final List< ConfigurationException > exceptions = new ArrayList<>() ;
-    
+
+    for( final Configuration.Source source : sources ) {
+      checkPropertyNamesAllDeclared( source, source.map().keySet(), properties, exceptions ) ;
+    }
+
     for( final Map.Entry< String, Configuration.Property< C >> entry
         : properties.entrySet()
     ) {
       final Configuration.Property< C > propertyProperty = entry.getValue() ;
       final String propertyName = entry.getKey() ;
       for( final Configuration.Source source : sources ) {
-        checkPropertyNamesAllDeclared( source, source.map().keySet(), properties, exceptions ) ;
         final Object convertedValue ;
         final String valueFromSource = source.map().get( propertyName ) ;
         if( source instanceof PropertyDefaultSource ) {

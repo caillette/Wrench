@@ -209,6 +209,16 @@ public interface Configuration {
       String value() ;
     }
 
+    /**
+     * Regular expression to obfuscate password or other sensitive information.
+     */
+    @Retention( RUNTIME )
+    @Target( METHOD )
+    @Documented
+    @interface Obfuscator {
+      String value() ;
+    }
+
   }
 
 }
