@@ -9,10 +9,10 @@ import static io.github.caillette.wrench.Sources.newSource;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.junit.Assert.fail;
 
+@SuppressWarnings( "UnusedDeclaration" )
 public class FailFastOnUndefinedProperty {
 
   public interface Simple extends Configuration {
-    @SuppressWarnings( "UnusedDeclaration" )
     String string() ;
   }
 

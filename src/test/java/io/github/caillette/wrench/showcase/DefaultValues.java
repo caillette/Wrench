@@ -12,8 +12,10 @@ import static org.fest.assertions.Assertions.assertThat;
 public class DefaultValues {
 
   public interface WithDefaults extends Configuration {
+
     @DefaultValue( "1" )
     int number() ;
+
     @DefaultNull // Compiler refuses @DefaultValue( null )
     String string() ;
   }
