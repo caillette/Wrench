@@ -47,5 +47,6 @@ Got the idea? There is more:
 - Property overriding when using multiple sources.
 - Sources can be files, or command-line parameters, or anything.
 - Lightweight validation (applies on the whole ´Configuration´ object).
+- Pattern-based obfuscation of sensible parts (like passwords), specified by annotations.
 
 See tests for more details.
