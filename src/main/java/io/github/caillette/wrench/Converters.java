@@ -21,14 +21,14 @@ public final class Converters {
     }
   }
 
-  public static class ConverterToString extends AbstractConverter< String > {
+  public static class IntoString extends AbstractConverter< String > {
     @Override
     public String convert( Method definingMethod, String input ) {
       return input ;
     }
   }
 
-  public static class ConverterToIntegerPrimitive extends AbstractConverter< Integer > {
+  public static class IntoIntegerPrimitive extends AbstractConverter< Integer > {
     @Override
     public Integer convert( Method definingMethod, String input ) throws ConvertException {
       try {
@@ -39,7 +39,7 @@ public final class Converters {
     }
   }
 
-  public static class ConverterToIntegerObject extends AbstractConverter< Integer > {
+  public static class IntoIntegerObject extends AbstractConverter< Integer > {
     @Override
     public Integer convert( Method definingMethod, String input ) throws Exception {
       if( Strings.isNullOrEmpty( input ) ) {
@@ -55,9 +55,9 @@ public final class Converters {
 
   public static final ImmutableMap< Class< ? >, Converter > DEFAULTS
       = ImmutableMap.of(
-          ( Class< ? > ) String.class, ( Converter ) new ConverterToString(),
-          Integer.TYPE, new ConverterToIntegerPrimitive(),
-          Integer.class, new ConverterToIntegerObject()
+          ( Class< ? > ) String.class, ( Converter ) new IntoString(),
+          Integer.TYPE, new IntoIntegerPrimitive(),
+          Integer.class, new IntoIntegerObject()
       )
   ;
 

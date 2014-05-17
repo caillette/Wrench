@@ -16,11 +16,11 @@ import static org.fest.assertions.Assertions.assertThat;
 public class Conversion {
 
   public interface Converted extends Configuration {
-    @Convert( IntoPatternConverter.class )
+    @Convert( IntoPattern.class )
     Pattern pattern() ;
   }
 
-  public static class IntoPatternConverter implements Converter< Pattern > {
+  public static class IntoPattern implements Converter< Pattern > {
     @Override
     public Pattern convert( Method definingMethod, String input ) {
       return Pattern.compile( input ) ;

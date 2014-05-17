@@ -215,8 +215,6 @@ class ConfigurationFactory< C extends Configuration > implements Configuration.F
       if( valueFromSource != null ) {
         return property.converter().convert( property.declaringMethod(), valueFromSource ) ;
       }
-    } catch ( final ConvertException e ) {
-      exceptions.add( e ) ;
     } catch ( final Exception e ) {
       exceptions.add( ConvertException.toConvertException( e, property, source ) ) ;
     }
