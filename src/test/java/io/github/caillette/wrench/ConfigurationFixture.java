@@ -66,8 +66,8 @@ public interface ConfigurationFixture {
     @Override
     public ImmutableSet< Infrigement< Validated > > validate( Validated configuration ) {
       return new Accumulator<>( configuration )
-          .verify( "FOO".equals( configuration.foo() ), "Should be 'FOO'" )
-          .verify( "BAR".equals( configuration.bar() ), "Should be 'BAR'" )
+          .smartVerify( "FOO".equals( configuration.foo() ), "Should be 'FOO'" )
+          .smartVerify( "BAR".equals( configuration.bar() ), "Should be 'BAR'" )
           .done()
       ;
     }

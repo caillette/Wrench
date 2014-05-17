@@ -13,10 +13,12 @@ public class ValidationException extends ConfigurationException {
     final StringBuilder stringBuilder = new StringBuilder() ;
     for( final Validator.Infrigement infrigement : causes ) {
       stringBuilder.append( "\n    " ) ;
-      stringBuilder.append( infrigement.property.name() ) ;
-      stringBuilder.append( " -> '" ) ;
-      stringBuilder.append( infrigement.propertyValue ) ;
-      stringBuilder.append( "' - " ) ;
+      if( infrigement.property != null ) {
+        stringBuilder.append( infrigement.property.name() ) ;
+        stringBuilder.append( " -> '" ) ;
+        stringBuilder.append( infrigement.propertyValue ) ;
+        stringBuilder.append( "' - " ) ;
+      }
       stringBuilder.append( infrigement.message ) ;
       if( infrigement.source == null ) {
         stringBuilder.append( " - No source " ) ;

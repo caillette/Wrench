@@ -35,10 +35,17 @@ public interface Validator< C extends Configuration > {
     }
 
     public Infrigement(
-        final Configuration.Property<C> property,
+        final Configuration.Property< C > property,
         final String message
     ) {
       this.property = checkNotNull( property ) ;
+      this.propertyValue = null ;
+      this.source = null ;
+      this.message = message ;
+    }
+
+    public Infrigement( final String message ) {
+      this.property = null ;
       this.propertyValue = null ;
       this.source = null ;
       this.message = message ;
@@ -65,32 +72,50 @@ public interface Validator< C extends Configuration > {
     }
 
     public void throwExceptionIfHasInfrigements() throws ValidationException {
-      final ImmutableSet< Infrigement > done = ( ImmutableSet< Infrigement >  ) ( ImmutableSet ) done() ;
+      final ImmutableSet< Infrigement > done
+          = ( ImmutableSet< Infrigement >  ) ( ImmutableSet ) done() ;
       if( done.size() > 0 ) {
         throw new ValidationException( done ) ;
       }
     }
 
-    public Accumulator< C > verify( final boolean mustBeTrue ) {
-      if( ! mustBeTrue ) {
-        addInfrigement( null ) ;
-      }
-      return this ;
-    }
 
     public Accumulator< C > verify( final boolean mustBeTrue, String message ) {
       if( ! mustBeTrue ) {
-        addInfrigement( message ) ;
+        add( message ) ;
       }
       return this ;
     }
 
-    public Accumulator< C > addInfrigement( String message ) {
-      final Configuration.Property< C > property = support.lastAccessed() ;
-      return addInfrigement( property, message ) ;
+
+
+    public Accumulator< C > add( String message ) {
+      builder.add( new Infrigement< C >( message ) ) ;
+      return this ;
     }
 
-    public Accumulator< C > addInfrigement(
+
+
+    public Accumulator< C > smartVerify( final boolean mustBeTrue ) {
+      if( ! mustBeTrue ) {
+        smartAdd( null ) ;
+      }
+      return this ;
+    }
+
+    public Accumulator< C > smartVerify( final boolean mustBeTrue, String message ) {
+      if( ! mustBeTrue ) {
+        smartAdd( message ) ;
+      }
+      return this ;
+    }
+
+    public Accumulator< C > smartAdd( String message ) {
+      final Configuration.Property< C > property = support.lastAccessed() ;
+      return smartAdd( property, message ) ;
+    }
+
+    public Accumulator< C > smartAdd(
         final Configuration.Property< C > property,
         String message
     ) {
