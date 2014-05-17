@@ -1,10 +1,7 @@
 package io.github.caillette.wrench;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableCollection;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.ImmutableSortedMap;
+import com.google.common.collect.*;
 import com.google.common.reflect.AbstractInvocationHandler;
 
 import java.lang.reflect.Method;
@@ -143,6 +140,11 @@ class ConfigurationFactory< C extends Configuration > implements Configuration.F
     final ThreadLocal< Configuration.Property< C > > lastAccessedProperty = new ThreadLocal<>() ;
     final Configuration.Support support
         = new ConfigurationSupport( properties, lastAccessedProperty ) ;
+    final ImmutableMap.Builder< Method, ValuedProperty > builder = ImmutableMap.builder() ;
+    for( final ValuedProperty valuedProperty : properties.values() ) {
+      builder.put( valuedProperty.property.declaringMethod(), valuedProperty ) ;
+    }
+    final ImmutableMap< Method, ValuedProperty > valuedPropertiesByMethod = builder.build() ;
     return ( C ) Proxy.newProxyInstance(
         getClass().getClassLoader(),
         new Class[]{ configurationClass, ConfigurationSupport.SupportEnabled.class },
@@ -163,7 +165,7 @@ class ConfigurationFactory< C extends Configuration > implements Configuration.F
               }
             }
 
-            final ValuedProperty valuedProperty = properties.get( method.getName() ) ;
+            final ValuedProperty valuedProperty = valuedPropertiesByMethod.get( method ) ;
             lastAccessedProperty.set( valuedProperty.property ) ;
             return valuedProperty.resolvedValue ;
           }
@@ -171,7 +173,7 @@ class ConfigurationFactory< C extends Configuration > implements Configuration.F
           @Override
           public String toString() {
             return getNiceName( configurationClass ) + "{"
-                + ConfigurationFactory.toString( properties.values() )
+                + ConfigurationFactory.toString( valuedPropertiesByMethod.values() )
                 + "}"
                 ;
           }
