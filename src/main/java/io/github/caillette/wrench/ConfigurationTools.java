@@ -9,6 +9,8 @@ import java.util.TreeSet;
 import java.util.regex.Pattern;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static io.github.caillette.wrench.Configuration.Annotations;
+import static io.github.caillette.wrench.Configuration.Annotations.Convert;
 import static io.github.caillette.wrench.Configuration.Factory;
 import static io.github.caillette.wrench.Configuration.Support;
 
@@ -57,7 +59,7 @@ public final class ConfigurationTools {
               ? null : pack.defaultValue.value() ;
           final Configuration.Converter converter ;
           try {
-            converter = resolveConverter( method.getReturnType(), converters ) ;
+            converter = resolveConverter( method, converters ) ;
           } catch ( ConvertException e ) {
             throw new DefinitionException( e ) ;
           }
@@ -118,57 +120,72 @@ public final class ConfigurationTools {
   /**
    * @return a non-null object.
    */
-  static< T > Configuration.Converter< T > resolveConverter(
-      final Class< T > targetClass,
+  static Configuration.Converter resolveConverter(
+      final Method method,
       final ImmutableMap< Class< ? >, Configuration.Converter > converters
-  ) throws ConvertException {
+  ) throws ConvertException, DefinitionException {
 
-    @SuppressWarnings( "unchecked" )
-    final Configuration.Converter< T > converter = converters.get( targetClass ) ;
+    final Convert convertAnnotation = method.getAnnotation( Convert.class ) ;
+    if( convertAnnotation == null ) {
+      @SuppressWarnings( "unchecked" )
+      final Class targetClass = method.getReturnType() ;
 
-    if( converter == null ) {
-      throw new ConvertException( "Unsupported: " + targetClass + " in " + converters ) ;
+      @SuppressWarnings( "unchecked" )
+      final Configuration.Converter converter = converters.get( targetClass ) ;
+
+      if( converter == null ) {
+        throw new ConvertException( "Unsupported: " + targetClass + " in " + converters ) ;
+      }
+      return converter ;
+    } else {
+      try {
+        @SuppressWarnings( "unchecked" )
+        final Configuration.Converter converter = convertAnnotation.value().newInstance() ;
+        return converter ;
+      } catch ( InstantiationException | IllegalAccessException e ) {
+        throw new DefinitionException( "Could not instantiate " + convertAnnotation.value(), e ) ;
+      }
     }
-    return converter ;
+
   }
 
 
   private static class AnnotationPack< C extends Configuration > {
-    final private Configuration.Annotations.Name name ;
-    final private Configuration.Annotations.DefaultNull defaulNull ;
-    final private Configuration.Annotations.TransformName fieldTransformName ;
-    final private Configuration.Annotations.DefaultValue defaultValue ;
-    final Configuration.Annotations.TransformName classTransformName ;
-    final Configuration.Annotations.Obfuscator obfuscator ;
+    final private Annotations.Name name ;
+    final private Annotations.DefaultNull defaulNull ;
+    final private Annotations.TransformName fieldTransformName ;
+    final private Annotations.DefaultValue defaultValue ;
+    final Annotations.TransformName classTransformName ;
+    final Annotations.Obfuscator obfuscator ;
 
 
     public AnnotationPack( Class< C > configurationClass, Method method ) {
       classTransformName
-          = configurationClass.getAnnotation( Configuration.Annotations.TransformName.class ) ;
+          = configurationClass.getAnnotation( Annotations.TransformName.class ) ;
       name
-          = method.getAnnotation( Configuration.Annotations.Name.class ) ;
+          = method.getAnnotation( Annotations.Name.class ) ;
       defaulNull
-          = method.getAnnotation( Configuration.Annotations.DefaultNull.class ) ;
+          = method.getAnnotation( Annotations.DefaultNull.class ) ;
       fieldTransformName
-          = method.getAnnotation( Configuration.Annotations.TransformName.class ) ;
+          = method.getAnnotation( Annotations.TransformName.class ) ;
       defaultValue
-          = method.getAnnotation( Configuration.Annotations.DefaultValue.class ) ;
+          = method.getAnnotation( Annotations.DefaultValue.class ) ;
       obfuscator
-          = method.getAnnotation( Configuration.Annotations.Obfuscator.class ) ;
+          = method.getAnnotation( Annotations.Obfuscator.class ) ;
 
       if( name != null && fieldTransformName != null ) {
         throw new DefinitionException(
             "Can't define at the same time "
-                + Configuration.Annotations.Name.class.getName() + " and "
-                + Configuration.Annotations.TransformName.class + " in "
+                + Annotations.Name.class.getName() + " and "
+                + Annotations.TransformName.class + " in "
                 + configurationClass.getName() )
             ;
       }
       if( defaulNull != null && defaultValue != null ) {
         throw new DefinitionException(
             "Can't define at the same time "
-                + Configuration.Annotations.DefaultNull.class.getName() + " and "
-                + Configuration.Annotations.DefaultValue.class + " in "
+                + Annotations.DefaultNull.class.getName() + " and "
+                + Annotations.DefaultValue.class + " in "
                 + configurationClass.getName() )
             ;
       }

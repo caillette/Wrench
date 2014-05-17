@@ -44,7 +44,13 @@ class ConfigurationProperty< C extends Configuration >
     if( defaultValueAsString == null ) {
       defaultValue = null ;
     } else {
-      defaultValue = converter.convert( type(), defaultValueAsString ) ;
+      try {
+        defaultValue = converter.convert( method, defaultValueAsString ) ;
+      } catch ( final ConvertException e ) {
+        throw e ;
+      } catch ( Exception e ) {
+        throw ConvertException.toConvertException( e, converter, method ) ;
+      }
       checkArgument( ! maybeNull ) ;
     }
 

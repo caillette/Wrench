@@ -2,6 +2,8 @@ package io.github.caillette.wrench;
 
 import com.google.common.collect.ImmutableSet;
 
+import java.lang.reflect.Method;
+
 import static io.github.caillette.wrench.Configuration.Annotations.*;
 import static io.github.caillette.wrench.NameTransformers.LowerDot;
 import static io.github.caillette.wrench.NameTransformers.LowerHyphen;
@@ -70,6 +72,41 @@ public interface ConfigurationFixture {
           .smartVerify( "BAR".equals( configuration.bar() ), "Should be 'BAR'" )
           .done()
       ;
+    }
+  }
+
+  interface WithName extends Configuration {
+    @Convert( IntoNameConverter.class )
+    Name name1() ;
+
+    Name name2() ;
+  }
+
+  class Name {
+    private final String name;
+
+    public Name( String name ) {
+      this.name = name ;
+    }
+  }
+
+  class IntoNameConverter extends Converters.AbstractConverter< Name > {
+    private final boolean enforceUpper ;
+
+    public IntoNameConverter() {
+      this( false ) ;
+    }
+
+    public IntoNameConverter( final boolean enforceUpper ) {
+      this.enforceUpper = enforceUpper ;
+    }
+
+    @Override
+    public Name convert( Method definingMethod, String input ) throws ConvertException {
+      if( enforceUpper && ! input.toUpperCase().equals( input ) ) {
+        throw new ConvertException( "Should be all upper case: '" + input + "'" ) ;
+      }
+      return new Name( input ) ;
     }
   }
 }

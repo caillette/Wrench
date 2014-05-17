@@ -213,19 +213,17 @@ class ConfigurationFactory< C extends Configuration > implements Configuration.F
   ) {
     try {
       if( valueFromSource != null ) {
-        return property.converter().convert( property.type(), valueFromSource ) ;
+        return property.converter().convert( property.declaringMethod(), valueFromSource ) ;
       }
     } catch ( final ConvertException e ) {
-      exceptions.add( new ConvertException(
-          "From " + property.converter().toString() + ": "
-          + e.getMessage()
-          + " for property '" + property.name()
-          + "' — in " + source.sourceName() ) ) ;
+      exceptions.add( e ) ;
+    } catch ( final Exception e ) {
+      exceptions.add( ConvertException.toConvertException( e, property, source ) ) ;
     }
     return CONVERSION_FAILED ;
   }
 
-  private static String getNiceName( final Class originClass ) {
+  static String getNiceName( final Class originClass ) {
     String className = originClass.getSimpleName() ;
     Class enclosingClass = originClass.getEnclosingClass() ;
     while( enclosingClass != null ) {
@@ -260,7 +258,7 @@ class ConfigurationFactory< C extends Configuration > implements Configuration.F
   }
 
   @Override
-  public ImmutableMap< String, Configuration.Property< C >> properties() {
+  public ImmutableMap< String, Configuration.Property< C > > properties() {
     return properties;
   }
 }

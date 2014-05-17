@@ -9,4 +9,8 @@ public class DeclarationException extends ConfigurationException {
   public DeclarationException( String message ) {
     super( message ) ;
   }
+
+  public DeclarationException( String message, Throwable cause ) {
+    super( message, cause );
+  }
 }

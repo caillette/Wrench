@@ -1,7 +1,9 @@
 package io.github.caillette.wrench;
 
+import com.google.common.collect.ImmutableMap;
 import org.junit.Test;
 
+import static io.github.caillette.wrench.Configuration.Converter;
 import static io.github.caillette.wrench.Configuration.Factory;
 import static io.github.caillette.wrench.ConfigurationTools.newFactory;
 import static io.github.caillette.wrench.Sources.newSource;
@@ -169,6 +171,25 @@ public class ConfigurationToolsTest {
       e.printStackTrace( System.out ) ;
       assertThat( e.getMessage() ).contains( "foo -> 'Foo' - Should be 'FOO'" ) ;
       assertThat( e.getMessage() ).contains( "bar -> 'Bar' - Should be 'BAR'" ) ;
+    }
+  }
+
+  @Test
+  public void converterFailsToConvert() throws Exception {
+    final Factory< ConfigurationFixture.WithName > factory = newFactory(
+        ConfigurationFixture.WithName.class,
+        ImmutableMap.< Class< ? >, Converter >of(
+            ConfigurationFixture.Name.class,
+            new ConfigurationFixture.IntoNameConverter( true )
+        )
+    ) ;
+    try {
+      factory.create( newSource( "name1 = one", "name2 = two" ) ) ;
+      fail( "Should have thrown an exception" ) ;
+    } catch ( ConfigurationException e ) {
+      e.printStackTrace( System.out ) ;
+      assertThat( e.getMessage() ).contains(
+          "Should be all upper case: 'two' for property 'name2'" ) ;
     }
   }
 }

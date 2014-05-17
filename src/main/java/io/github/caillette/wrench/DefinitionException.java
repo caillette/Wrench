@@ -12,4 +12,8 @@ public class DefinitionException extends RuntimeException {
   public DefinitionException( Exception e ) {
     super( e ) ;
   }
+
+  public DefinitionException( String message, Throwable cause ) {
+    super( message, cause );
+  }
 }

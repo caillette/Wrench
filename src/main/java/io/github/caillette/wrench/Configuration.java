@@ -98,14 +98,18 @@ public interface Configuration {
     boolean maybeNull() ;
 
 
-    Comparator<Property> COMPARATOR = ConfigurationProperty.COMPARATOR ;
+    Comparator< Property > COMPARATOR = ConfigurationProperty.COMPARATOR ;
   }
 
   /**
    * Transforms a plain {@code String} into a property value.
    */
   public static interface Converter< T > {
-    T convert( Class< T > targetClass, String input ) throws ConvertException ;
+    /**
+     * @param definingMethod the defining method, could help in some cases.
+     * @param input a possibly null {@code String}
+     */
+    T convert( Method definingMethod, String input ) throws Exception ;
   }
 
 
@@ -215,6 +219,16 @@ public interface Configuration {
     @Documented
     @interface Documentation {
       String value() ;
+    }
+
+    /**
+     * Dedicated {@link Converter}.
+     */
+    @Retention( RUNTIME )
+    @Target( METHOD )
+    @Documented
+    @interface Convert {
+      Class< ? extends Converter > value() ;
     }
 
     /**
