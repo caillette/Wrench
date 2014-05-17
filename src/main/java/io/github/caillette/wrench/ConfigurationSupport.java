@@ -47,9 +47,22 @@ class ConfigurationSupport< C extends Configuration > implements Configuration.S
   }
 
   @Override
-  public String stringValueOf( Configuration.Property< C > property ) {
+  public String stringValueOf( final Configuration.Property< C > property ) {
     final ValuedProperty valuedProperty = properties.get( property.name() ) ;
     return valuedProperty == null ? null : valuedProperty.stringValue ;
+  }
+
+  @Override
+  public String safeValueOf(
+      final Configuration.Property< C > property,
+      final String replacement
+  ) {
+    final String stringValue = valuedSlot( property ).stringValue ;
+    if( property.obfuscatorPattern() == null ) {
+      return stringValue ;
+    } else {
+      return property.obfuscatorPattern().matcher( stringValue ).replaceAll( replacement ) ;
+    }
   }
 
   @Override

@@ -7,6 +7,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 import java.lang.reflect.Method;
 import java.util.Comparator;
+import java.util.regex.Pattern;
 
 import static java.lang.annotation.ElementType.METHOD;
 import static java.lang.annotation.ElementType.TYPE;
@@ -78,10 +79,19 @@ public interface Configuration {
 
     /**
      * Original representation of {@link #defaultValue()} as a {@code String}.
+     *
      * @return always {@code null} if {@link #defaultValue()} returns {@code null} or if
      *     {@link #maybeNull()} returns {@code true}.
      */
     String defaultValueAsString() ;
+
+    /**
+     * A pattern indicating sensible part that should not appear in clear in logs.
+     *
+     * @see Configuration.Support#safeValueOf(Configuration.Property, String)
+     * @return a possibly {@code null} value.
+     */
+    Pattern obfuscatorPattern() ;
 
     Converter converter() ;
 
@@ -122,6 +132,12 @@ public interface Configuration {
     Source sourceOf( Property< C > property ) ;
 
     String stringValueOf( Property< C > property ) ;
+
+    /**
+     * Returns a possibly obfuscated value if property was annotated with an
+     * {@link io.github.caillette.wrench.Configuration.Annotations.Obfuscator}.
+     */
+    String safeValueOf( Property< C > property, String replacement ) ;
 
     /**
      * Returns the {@link io.github.caillette.wrench.Configuration.Property} corresponding

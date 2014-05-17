@@ -6,6 +6,7 @@ import com.google.common.collect.ImmutableSet;
 import java.lang.reflect.Method;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.regex.Pattern;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static io.github.caillette.wrench.Configuration.Factory;
@@ -60,13 +61,17 @@ public final class ConfigurationTools {
           } catch ( ConvertException e ) {
             throw new DefinitionException( e ) ;
           }
+          final Pattern obfuscatorPattern = pack.obfuscator == null
+              ? null : Pattern.compile( pack.obfuscator.value() ) ;
+
           final Configuration.Property< C > property
               = new ConfigurationProperty<>(
                   method,
                   name,
                   converter,
                   defaultValueAsString,
-                  pack.defaulNull != null
+                  pack.defaulNull != null,
+                  obfuscatorPattern
               )
           ;
 
@@ -129,11 +134,12 @@ public final class ConfigurationTools {
 
 
   private static class AnnotationPack< C extends Configuration > {
-    final private Configuration.Annotations.Name name;
+    final private Configuration.Annotations.Name name ;
     final private Configuration.Annotations.DefaultNull defaulNull ;
     final private Configuration.Annotations.TransformName fieldTransformName ;
     final private Configuration.Annotations.DefaultValue defaultValue ;
-    final Configuration.Annotations.TransformName classTransformName;
+    final Configuration.Annotations.TransformName classTransformName ;
+    final Configuration.Annotations.Obfuscator obfuscator ;
 
 
     public AnnotationPack( Class< C > configurationClass, Method method ) {
@@ -147,6 +153,8 @@ public final class ConfigurationTools {
           = method.getAnnotation( Configuration.Annotations.TransformName.class ) ;
       defaultValue
           = method.getAnnotation( Configuration.Annotations.DefaultValue.class ) ;
+      obfuscator
+          = method.getAnnotation( Configuration.Annotations.Obfuscator.class ) ;
 
       if( name != null && fieldTransformName != null ) {
         throw new DefinitionException(
