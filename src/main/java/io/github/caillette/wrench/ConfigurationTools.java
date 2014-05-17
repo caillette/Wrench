@@ -12,8 +12,8 @@ import static io.github.caillette.wrench.Configuration.Factory;
 import static io.github.caillette.wrench.Configuration.Support;
 
 /**
- *
- * @author Laurent Caillette
+ * Utility methods to create {@link Configuration.Factory} and {@link Configuration.Support}
+ * objects.
  */
 public final class ConfigurationTools {
 
@@ -39,9 +39,9 @@ public final class ConfigurationTools {
 // Our own cooking
 // ===============
 
-  static< C extends Configuration > ImmutableSet<Configuration.Property< C >> extractProperties(
-      final Class<C> configurationClass,
-      final ImmutableMap<Class<?>, Configuration.Converter> converters
+  static< C extends Configuration > ImmutableSet<Configuration.Property< C > > extractProperties(
+      final Class< C > configurationClass,
+      final ImmutableMap< Class< ? >, Configuration.Converter > converters
   ) throws ConvertException, DefinitionException {
     checkNotNull( configurationClass ) ;
     final Set<Configuration.Property< C >> builder = new TreeSet<>() ;

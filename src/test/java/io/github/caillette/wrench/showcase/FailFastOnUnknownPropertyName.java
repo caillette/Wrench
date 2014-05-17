@@ -17,11 +17,13 @@ public class FailFastOnUnknownPropertyName {
   public void test() throws Exception {
     final Configuration.Factory< Empty > factory
         = ConfigurationTools.newFactory( Empty.class ) ;
+
     try {
       factory.create( newSource( "foo=bar" ) ) ;
       fail( "Should have thrown an exception" ) ;
     } catch ( ConfigurationException e ) {
-      assertThat( e.getMessage() ).contains( "Unknown property name 'foo'" ) ;
+      assertThat( e.getMessage() ).contains(
+          "Unknown property name 'foo' from java:io.github.caillette.wrench.source.StringSource" ) ;
     }
   }
 

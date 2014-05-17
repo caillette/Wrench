@@ -6,8 +6,6 @@ import com.google.common.collect.ImmutableSet;
 /**
  * Internal {@link Configuration.Source} that represents values set using
  * {@link Configuration.Annotations.DefaultValue}.
- *
- * @author Laurent Caillette
  */
 class PropertyDefaultSource implements Configuration.Source {
 

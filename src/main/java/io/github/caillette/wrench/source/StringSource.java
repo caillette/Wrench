@@ -11,8 +11,6 @@ import java.util.Properties;
 
 /**
  * Reads a single {@code String} under {@code java.util.Properties} format.
- *
- * @author Laurent Caillette
  */
 public class StringSource implements Configuration.Source {
 

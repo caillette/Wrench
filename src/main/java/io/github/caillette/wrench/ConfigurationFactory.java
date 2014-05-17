@@ -11,9 +11,6 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.*;
 
-/**
- * @author Laurent Caillette
- */
 class ConfigurationFactory< C extends Configuration > implements Configuration.Factory< C > {
 
   private final Class< C > configurationClass ;

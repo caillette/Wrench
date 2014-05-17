@@ -8,8 +8,6 @@ import static com.google.common.base.Preconditions.checkState;
 /**
  * Validates a whole {@link Configuration} before a {@link Configuration.Factory}
  * makes it available.
- *
- * @author Laurent Caillette
  */
 public interface Validator< C extends Configuration > {
 
@@ -50,8 +48,6 @@ public interface Validator< C extends Configuration > {
 
   /**
    * Offers built-in validation methods that accumulate {@link Validator.Infrigement} instances.
-   *
-   * @author Laurent Caillette
    */
   class Accumulator< C extends Configuration > {
 

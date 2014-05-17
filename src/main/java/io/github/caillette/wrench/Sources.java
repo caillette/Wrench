@@ -11,8 +11,6 @@ import java.io.IOException;
 
 /**
  * Static methods for quick creation of {@link Configuration.Source} objects.
- *
- * @author Laurent Caillette
  */
 public final class Sources {
 

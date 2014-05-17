@@ -27,8 +27,6 @@ import static com.google.common.base.Preconditions.checkArgument;
  * </pre>
  * It creates 3 sources, for {@code file1}, {@code file2}, and {@code key1->value1, key2->value2}
  * respectively. If several sources define different values for the same keys, the last wins.
- *
- * @author Laurent Caillette
  */
 public final class CommandLineSources {
 

@@ -5,8 +5,6 @@ import com.google.common.collect.ImmutableMap;
 
 /**
  * Default {@link Configuration.Converter}s.
- *
- * @author Laurent Caillette
  */
 public final class Converters {
 

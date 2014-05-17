@@ -12,9 +12,6 @@ import java.io.File;
 
 import static org.fest.assertions.Assertions.assertThat;
 
-/**
- * @author Laurent Caillette
- */
 public class CommandLineSourcesTest {
 
   @Test

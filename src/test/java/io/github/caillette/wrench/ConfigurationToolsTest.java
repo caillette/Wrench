@@ -8,9 +8,6 @@ import static io.github.caillette.wrench.Sources.newSource;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.junit.Assert.fail;
 
-/**
- * @author Laurent Caillette
- */
 public class ConfigurationToolsTest {
 
   @Test

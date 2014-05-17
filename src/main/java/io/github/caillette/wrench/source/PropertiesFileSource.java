@@ -11,8 +11,6 @@ import java.net.MalformedURLException;
 
 /**
  * Reads a {@code java.util.Properties} file.
- *
- * @author Laurent Caillette
  */
 public class PropertiesFileSource implements Configuration.Source {
 

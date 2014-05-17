@@ -20,6 +20,7 @@ public class FailFastOnUndefinedProperty {
   public void test() throws Exception {
     final Configuration.Factory< Simple > factory
         = ConfigurationTools.newFactory( Simple.class ) ;
+
     try {
       factory.create( newSource( "" ) ) ;
       fail( "Should have thrown an exception" ) ;

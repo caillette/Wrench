@@ -1,7 +1,7 @@
 package io.github.caillette.wrench;
 
 /**
- * @author Laurent Caillette
+ * Base class for exceptions thrown when something goes bad.
  */
 public class ConfigurationException extends Exception {
 

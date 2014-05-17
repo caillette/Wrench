@@ -6,9 +6,6 @@ import static io.github.caillette.wrench.Configuration.Annotations.*;
 import static io.github.caillette.wrench.NameTransformers.LowerDot;
 import static io.github.caillette.wrench.NameTransformers.LowerHyphen;
 
-/**
- * @author Laurent Caillette
- */
 @SuppressWarnings( "UnusedDeclaration" )
 public interface ConfigurationFixture {
 

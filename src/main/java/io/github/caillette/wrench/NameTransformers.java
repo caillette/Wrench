@@ -5,8 +5,6 @@ import com.google.common.base.CaseFormat;
 /**
  * Class to reference using the
  * {@link io.github.caillette.wrench.Configuration.Annotations.TransformName} annotation.
- *
- * @author Laurent Caillette
  */
 public final class NameTransformers {
 

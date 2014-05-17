@@ -2,9 +2,6 @@ package io.github.caillette.wrench;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-/**
- * @author Laurent Caillette
- */
 class ValuedProperty {
 
   public final Configuration.Property property ;

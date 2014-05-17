@@ -20,7 +20,6 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
  *
  * @see io.github.caillette.wrench.Configuration.Annotations
  *
- * @author Laurent Caillette
  */
 public interface Configuration {
 
@@ -41,8 +40,7 @@ public interface Configuration {
   /**
    * Creates a {@link Configuration} object given one or more {@link Source}s.
    *
-   * @author Laurent Caillette
-   */
+     */
   public static interface Factory< C extends Configuration > {
 
     /**
@@ -58,8 +56,6 @@ public interface Configuration {
   /**
    * Defines the behavior and the constraints of a property corresponding to a method
    * in a {@link Configuration}.
-   *
-   * @author Laurent Caillette
    */
   public static interface Property< C extends Configuration > {
 
@@ -107,8 +103,6 @@ public interface Configuration {
    * Transforms a Java method name from an interface defining a {@link Configuration}
    * into another kind of name that could use forbidden characters, like full stop (aka dot)
    * or hyphen (aka dash).
-   *
-   * @author Laurent Caillette
    */
   interface NameTransformer {
 
@@ -118,8 +112,6 @@ public interface Configuration {
 
   /**
    * Exposes {@link Configuration} metadata.
-   *
-   * @author Laurent Caillette
    */
   public static interface Support< C extends Configuration> {
 

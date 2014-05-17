@@ -1,7 +1,8 @@
 package io.github.caillette.wrench;
 
 /**
- * @author Laurent Caillette
+ * Thrown if there is an inconsistency in the interface defining the {@link Configuration}
+ * (this includes the annotations).
  */
 public class DefinitionException extends RuntimeException {
   public DefinitionException( String message ) {

@@ -5,9 +5,6 @@ import com.google.common.collect.ImmutableSortedMap;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-/**
- * @author Laurent Caillette
- */
 class ConfigurationSupport< C extends Configuration > implements Configuration.Support< C > {
 
   private final ImmutableSortedMap< String, ValuedProperty> properties ;

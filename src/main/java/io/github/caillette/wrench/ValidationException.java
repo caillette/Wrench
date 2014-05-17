@@ -1,7 +1,7 @@
 package io.github.caillette.wrench;
 
 /**
- * @author Laurent Caillette
+ * Thrown if values read from {@link Configuration.Source}s infrige some validation rules.
  */
 public class ValidationException extends ConfigurationException {
 

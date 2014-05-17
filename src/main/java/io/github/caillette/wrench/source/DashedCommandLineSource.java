@@ -25,8 +25,6 @@ import static com.google.common.base.Preconditions.checkArgument;
  * <p>
  * This class is subject to the limitations of {@link com.google.common.base.CaseFormat}.
  * This means behavior is unspecificed with non-ASCII characters.
- *
- * @author Laurent Caillette
  */
 public class DashedCommandLineSource implements Configuration.Source {
 

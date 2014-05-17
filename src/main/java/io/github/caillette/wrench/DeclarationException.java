@@ -1,7 +1,9 @@
 package io.github.caillette.wrench;
 
 /**
- * @author Laurent Caillette
+ * Thrown if there is something wrong in a {@link Configuration.Source} regarding the
+ * definition enforced by a {@link Configuration.Factory}.
+ *
  */
 public class DeclarationException extends ConfigurationException {
   public DeclarationException( String message ) {
