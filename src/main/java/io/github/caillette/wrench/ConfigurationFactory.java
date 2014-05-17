@@ -31,7 +31,7 @@ class ConfigurationFactory< C extends Configuration > implements Configuration.F
     } catch ( ConvertException e ) {
       throw new DefinitionException( e ) ;
     }
-    final Map< String, Configuration.Property< C >> builder = new HashMap<>();
+    final Map< String, Configuration.Property< C > > builder = new HashMap<>();
     for( final Configuration.Property< C > property : propertySet ) {
       if( builder.containsKey( property.name() ) ) {
         throw new DefinitionException(
@@ -68,27 +68,27 @@ class ConfigurationFactory< C extends Configuration > implements Configuration.F
     for( final Map.Entry< String, Configuration.Property< C >> entry
         : properties.entrySet()
     ) {
-      final Configuration.Property< C > propertyProperty = entry.getValue() ;
+      final Configuration.Property< C > property = entry.getValue() ;
       final String propertyName = entry.getKey() ;
       for( final Configuration.Source source : sources ) {
         final Object convertedValue ;
         final String valueFromSource = source.map().get( propertyName ) ;
         if( source instanceof PropertyDefaultSource ) {
-          if( propertyProperty.maybeNull() ) {
+          if( property.maybeNull() ) {
             convertedValue = null ;
           } else {
-            convertedValue = propertyProperty.defaultValueAsString() == null
+            convertedValue = property.defaultValueAsString() == null
                 ? CONVERSION_FAILED
-                : propertyProperty.defaultValue()
+                : property.defaultValue()
             ;
           }
         } else {
           convertedValue
-              = convertSafe( exceptions, propertyProperty, valueFromSource, source ) ;
+              = convertSafe( exceptions, property, valueFromSource, source ) ;
         }
         if ( convertedValue != CONVERSION_FAILED ) {
           final ValuedProperty valuedProperty = new ValuedProperty(
-              propertyProperty, source, valueFromSource, convertedValue ) ;
+              property, source, valueFromSource, convertedValue ) ;
           values.put( propertyName, valuedProperty ) ;
         }
       }
@@ -98,10 +98,14 @@ class ConfigurationFactory< C extends Configuration > implements Configuration.F
       throw new ConfigurationException( exceptions ) ;
     }
 
-    final ImmutableSortedMap< String, ValuedProperty> properties
+    final ImmutableSortedMap< String, ValuedProperty > valuedProperties
         = ImmutableSortedMap.copyOf( values ) ;
 
-    final C configuration = createProxy( properties ) ;
+
+    final C configuration = createProxy( valuedProperties ) ;
+
+    verifyNoUndefinedProperty( configuration, properties, valuedProperties ) ;
+
     final Configuration.Annotations.ValidateWith validateWithAnnotation
         = configurationClass.getAnnotation( Configuration.Annotations.ValidateWith.class ) ;
     if( validateWithAnnotation != null ) {
@@ -120,6 +124,21 @@ class ConfigurationFactory< C extends Configuration > implements Configuration.F
 
     }
     return configuration ;
+  }
+
+  private static < C extends Configuration > void verifyNoUndefinedProperty(
+      final C configuration,
+      final ImmutableMap< String, Configuration.Property< C > > properties,
+      final ImmutableSortedMap< String, ValuedProperty > valuedProperties
+  ) throws ValidationException {
+    final Validator.Accumulator< C > accumulator = new Validator.Accumulator<>( configuration ) ;
+    for( final Configuration.Property< C > property : properties.values() ) {
+      final ValuedProperty valuedProperty = valuedProperties.get( property.name() ) ;
+      if( valuedProperty == null ) {
+        accumulator.addInfrigementForNullity( property, "No value set" ) ;
+      }
+    }
+    accumulator.throwExceptionIfHasInfrigements() ;
   }
 
   @SuppressWarnings( "unchecked" )
@@ -165,15 +184,15 @@ class ConfigurationFactory< C extends Configuration > implements Configuration.F
 
   private static boolean checkPropertyNamesAllDeclared(
       final Configuration.Source source,
-      final ImmutableSet< String > propertyNames,
-      final ImmutableMap< String, ? extends Configuration.Property > properties,
+      final ImmutableSet< String > actualPropertyNames,
+      final ImmutableMap< String, ? extends Configuration.Property > declaredProperties,
       final List< ConfigurationException > exceptions
   ) {
     boolean good = true ;
-    for( final String propertyName : propertyNames ) {
-      if( ! properties.containsKey( propertyName ) ) {
+    for( final String actualPropertyName : actualPropertyNames ) {
+      if( ! declaredProperties.containsKey( actualPropertyName ) ) {
         exceptions.add( new DeclarationException(
-            "Unknown property name '" + propertyName + "' from " + source.sourceName() ) ) ;
+            "Unknown property name '" + actualPropertyName + "' from " + source.sourceName() ) ) ;
         good = false ;
       }
     }
@@ -189,20 +208,19 @@ class ConfigurationFactory< C extends Configuration > implements Configuration.F
 
   private static Object convertSafe(
       final List< ConfigurationException > exceptions,
-      final Configuration.Property propertyProperty,
+      final Configuration.Property property,
       final String valueFromSource,
       final Configuration.Source source
   ) {
     try {
       if( valueFromSource != null ) {
-        return propertyProperty.converter().convert(
-            propertyProperty.type(), valueFromSource ) ;
+        return property.converter().convert( property.type(), valueFromSource ) ;
       }
     } catch ( final ConvertException e ) {
       exceptions.add( new ConvertException(
-          "From " + propertyProperty.converter().toString() + ": "
+          "From " + property.converter().toString() + ": "
           + e.getMessage()
-          + " for property '" + propertyProperty.name()
+          + " for property '" + property.name()
           + "' — in " + source.sourceName() ) ) ;
     }
     return CONVERSION_FAILED ;

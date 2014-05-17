@@ -19,22 +19,33 @@ public interface Validator< C extends Configuration > {
   ImmutableSet< Infrigement< C > > validate( C configuration ) ;
 
   class Infrigement< C extends Configuration > {
-    public final Configuration.Property< C > propertyProperty;
+    public final Configuration.Property< C > property ;
     public final String propertyValue ;
     public final String message ;
     public final Configuration.Source source ;
 
     public Infrigement(
-        final Configuration.Property< C > propertyProperty,
+        final Configuration.Property< C > property,
         final String propertyValue,
         final Configuration.Source source,
         final String message
     ) {
-      this.propertyProperty = checkNotNull( propertyProperty ) ;
+      this.property = checkNotNull( property ) ;
       this.propertyValue = propertyValue ;
       this.source = checkNotNull( source ) ;
       this.message = message ;
     }
+
+    public Infrigement(
+        final Configuration.Property<C> property,
+        final String message
+    ) {
+      this.property = checkNotNull( property ) ;
+      this.propertyValue = null ;
+      this.source = null ;
+      this.message = message ;
+    }
+
   }
 
   /**
@@ -57,6 +68,13 @@ public interface Validator< C extends Configuration > {
       return builder.build() ;
     }
 
+    public void throwExceptionIfHasInfrigements() throws ValidationException {
+      final ImmutableSet< Infrigement > done = ( ImmutableSet< Infrigement >  ) ( ImmutableSet ) done() ;
+      if( done.size() > 0 ) {
+        throw new ValidationException( done ) ;
+      }
+    }
+
     public Accumulator< C > verify( final boolean mustBeTrue ) {
       if( ! mustBeTrue ) {
         addInfrigement( null ) ;
@@ -73,11 +91,30 @@ public interface Validator< C extends Configuration > {
 
     public Accumulator< C > addInfrigement( String message ) {
       final Configuration.Property< C > property = support.lastAccessed() ;
+      return addInfrigement( property, message ) ;
+    }
+
+    public Accumulator< C > addInfrigement(
+        final Configuration.Property< C > property,
+        String message
+    ) {
       checkState( property != null ) ;
       builder.add( new Infrigement<>(
           property,
           support.stringValueOf( property ),
           support.sourceOf( property ),
+          message
+      ) ) ;
+      return this ;
+    }
+
+    Accumulator< C > addInfrigementForNullity(
+        final Configuration.Property< C > property,
+        String message
+    ) {
+      checkState( property != null ) ;
+      builder.add( new Infrigement<>(
+          property,
           message
       ) ) ;
       return this ;

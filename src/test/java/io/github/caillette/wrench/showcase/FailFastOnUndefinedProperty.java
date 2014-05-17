@@ -12,6 +12,7 @@ import static org.junit.Assert.fail;
 public class FailFastOnUndefinedProperty {
 
   public interface Simple extends Configuration {
+    @SuppressWarnings( "UnusedDeclaration" )
     String string() ;
   }
 
@@ -23,7 +24,7 @@ public class FailFastOnUndefinedProperty {
       factory.create( newSource( "" ) ) ;
       fail( "Should have thrown an exception" ) ;
     } catch ( ConfigurationException e ) {
-      assertThat( e.getMessage() ).contains( "Unknown property name 'foo'" ) ;
+      assertThat( e.getMessage() ).contains( "string -> 'null' - No value set - No source" ) ;
     }
   }
 

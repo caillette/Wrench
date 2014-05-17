@@ -51,7 +51,8 @@ class ConfigurationSupport< C extends Configuration > implements Configuration.S
 
   @Override
   public String stringValueOf( Configuration.Property< C > property ) {
-    return valuedSlot( property ).stringValue ;
+    final ValuedProperty valuedProperty = properties.get( property.name() ) ;
+    return valuedProperty == null ? null : valuedProperty.stringValue ;
   }
 
   @Override
