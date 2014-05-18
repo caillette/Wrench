@@ -17,7 +17,7 @@ public final class Converters {
   public static abstract class AbstractConverter< T > implements Converter< T > {
     @Override
     public String toString() {
-      return ConfigurationFactory.getNiceName( getClass() ) ;
+      return ConfigurationTools.getNiceName( getClass() ) ;
     }
   }
 

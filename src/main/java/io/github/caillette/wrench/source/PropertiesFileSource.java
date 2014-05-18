@@ -12,7 +12,7 @@ import java.net.MalformedURLException;
 /**
  * Reads a {@code java.util.Properties} file.
  */
-public class PropertiesFileSource implements Configuration.Source {
+public class PropertiesFileSource implements Configuration.Source.Stringified {
 
   private final ImmutableMap<String, String> map ;
   private final File source ;

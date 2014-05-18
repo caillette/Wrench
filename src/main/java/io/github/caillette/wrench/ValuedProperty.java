@@ -20,4 +20,14 @@ class ValuedProperty {
     this.stringValue = stringValue ;
     this.resolvedValue = resolvedValue ;
   }
+  public ValuedProperty(
+      final Configuration.Property property,
+      final Configuration.Source source,
+      final Object resolvedValue
+  ) {
+    this.property = checkNotNull( property ) ;
+    this.source = checkNotNull( source ) ;
+    this.stringValue = resolvedValue == null ? "<null>" : resolvedValue.toString() ;
+    this.resolvedValue = resolvedValue ;
+  }
 }

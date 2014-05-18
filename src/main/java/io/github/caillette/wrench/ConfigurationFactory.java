@@ -8,10 +8,12 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.*;
 
+import static io.github.caillette.wrench.Configuration.Source;
+
 class ConfigurationFactory< C extends Configuration > implements Configuration.Factory< C > {
 
   private final Class< C > configurationClass ;
-  private final ImmutableMap< String, Configuration.Property< C >> properties ;
+  private final ImmutableMap< String, Configuration.Property< C > > properties ;
 
   public ConfigurationFactory(
       final Class< C > configurationClass,
@@ -39,10 +41,10 @@ class ConfigurationFactory< C extends Configuration > implements Configuration.F
   }
 
   @Override
-  public C create( Configuration.Source source1, Configuration.Source... others )
+  public C create( Source source1, Source... others )
       throws ConfigurationException
   {
-    final List< Configuration.Source > sources = new ArrayList<>( others.length + 2 ) ;
+    final List< Source > sources = new ArrayList<>( others.length + 2 ) ;
     sources.add(
         new PropertyDefaultSource(
             configurationClass,
@@ -55,35 +57,44 @@ class ConfigurationFactory< C extends Configuration > implements Configuration.F
     final Map< String, ValuedProperty> values = new HashMap<>() ;
     final List< ConfigurationException > exceptions = new ArrayList<>() ;
 
-    for( final Configuration.Source source : sources ) {
-      checkPropertyNamesAllDeclared( source, source.map().keySet(), properties, exceptions ) ;
+    for( final Source source : sources ) {
+      if( source instanceof Source.Stringified ) {
+        final Source.Stringified stringified = ( Source.Stringified ) source ;
+        checkPropertyNamesAllDeclared(
+            stringified, stringified.map().keySet(), properties, exceptions ) ;
+      } else if( source instanceof Source.Raw ) {
+        final Source.Raw raw = ( Source.Raw< C > ) source ;
+        final ImmutableMap< Method, Configuration.Property< C > > propertiesByMethod
+            = ConfigurationTools.remap( properties ) ;
+        checkPropertyNamesAllDeclared(
+            raw,
+            raw.map().keySet(),
+            ImmutableSet.copyOf( properties.values() ),
+            exceptions
+        ) ;
+      } else {
+        throw new IllegalArgumentException( "Unknown: " + source ) ;
+      }
     }
 
-    for( final Map.Entry< String, Configuration.Property< C >> entry
-        : properties.entrySet()
-    ) {
+    for( final Map.Entry< String, Configuration.Property< C > > entry : properties.entrySet() ) {
       final Configuration.Property< C > property = entry.getValue() ;
-      final String propertyName = entry.getKey() ;
-      for( final Configuration.Source source : sources ) {
-        final Object convertedValue ;
-        final String valueFromSource = source.map().get( propertyName ) ;
-        if( source instanceof PropertyDefaultSource ) {
-          if( property.maybeNull() ) {
-            convertedValue = null ;
+      for( final Source source : sources ) {
+        if( source instanceof Source.Stringified ) {
+          feedValues( values, exceptions, property, source ) ;
+        } else if( source instanceof Source.Raw ) {
+          final Source.Raw rawSource = ( Source.Raw ) source ;
+          final Object value = rawSource.map().get( property ) ;
+          if( value == null ) {
+            if( ! property.maybeNull() ) {
+              throw new UnsupportedOperationException( "TODO" ) ;
+            }
           } else {
-            convertedValue = property.defaultValueAsString() == null
-                ? CONVERSION_FAILED
-                : property.defaultValue()
-            ;
+            if( ! property.type().isAssignableFrom( value.getClass() ) ) {
+              throw new UnsupportedOperationException( "TODO" ) ;
+            }
           }
-        } else {
-          convertedValue
-              = convertSafe( exceptions, property, valueFromSource, source ) ;
-        }
-        if ( convertedValue != CONVERSION_FAILED ) {
-          final ValuedProperty valuedProperty = new ValuedProperty(
-              property, source, valueFromSource, convertedValue ) ;
-          values.put( propertyName, valuedProperty ) ;
+          values.put( property.name(), new ValuedProperty( property, source, value ) ) ;
         }
       }
     }
@@ -118,6 +129,34 @@ class ConfigurationFactory< C extends Configuration > implements Configuration.F
 
     }
     return configuration ;
+  }
+
+  private static< C extends Configuration > void feedValues(
+      final Map< String, ValuedProperty > values,
+      final List< ConfigurationException > exceptions,
+      final Configuration.Property< C > property,
+      final Source source
+  ) {
+    final Object convertedValue ;
+    final String valueFromSource = ( ( Source.Stringified ) source ).map().get( property.name() ) ;
+    if( source instanceof PropertyDefaultSource ) {
+      if( property.maybeNull() ) {
+        convertedValue = null ;
+      } else {
+        convertedValue = property.defaultValueAsString() == null
+            ? CONVERSION_FAILED
+            : property.defaultValue()
+        ;
+      }
+    } else {
+      convertedValue
+          = convertSafe( exceptions, property, valueFromSource, source ) ;
+    }
+    if ( convertedValue != CONVERSION_FAILED ) {
+      final ValuedProperty valuedProperty = new ValuedProperty(
+          property, source, valueFromSource, convertedValue ) ;
+      values.put( property.name(), valuedProperty ) ;
+    }
   }
 
   private static < C extends Configuration > void verifyNoUndefinedProperty(
@@ -172,7 +211,7 @@ class ConfigurationFactory< C extends Configuration > implements Configuration.F
 
           @Override
           public String toString() {
-            return getNiceName( configurationClass ) + "{"
+            return ConfigurationTools.getNiceName( configurationClass ) + "{"
                 + ConfigurationFactory.toString( valuedPropertiesByMethod.values() )
                 + "}"
                 ;
@@ -182,7 +221,7 @@ class ConfigurationFactory< C extends Configuration > implements Configuration.F
   }
 
   private static boolean checkPropertyNamesAllDeclared(
-      final Configuration.Source source,
+      final Source source,
       final ImmutableSet< String > actualPropertyNames,
       final ImmutableMap< String, ? extends Configuration.Property > declaredProperties,
       final List< ConfigurationException > exceptions
@@ -192,6 +231,24 @@ class ConfigurationFactory< C extends Configuration > implements Configuration.F
       if( ! declaredProperties.containsKey( actualPropertyName ) ) {
         exceptions.add( new DeclarationException(
             "Unknown property name '" + actualPropertyName + "' from " + source.sourceName() ) ) ;
+        good = false ;
+      }
+    }
+    return good ;
+  }
+
+  private static< C extends Configuration > boolean checkPropertyNamesAllDeclared(
+      final Source.Raw source,
+      final ImmutableSet<Configuration.Property< C > > actualProperties,
+      final ImmutableSet< Configuration.Property< C > > declaredProperties,
+      final List< ConfigurationException > exceptions
+  ) {
+    boolean good = true ;
+    for( final Configuration.Property actualProperty : actualProperties ) {
+      if( ! declaredProperties.contains( actualProperty ) ) {
+        exceptions.add( new DeclarationException(
+            "Unknown property '" + actualProperty + "' "
+                + "from " + source.sourceName() ) ) ;
         good = false ;
       }
     }
@@ -209,7 +266,7 @@ class ConfigurationFactory< C extends Configuration > implements Configuration.F
       final List< ConfigurationException > exceptions,
       final Configuration.Property property,
       final String valueFromSource,
-      final Configuration.Source source
+      final Source source
   ) {
     try {
       if( valueFromSource != null ) {
@@ -219,16 +276,6 @@ class ConfigurationFactory< C extends Configuration > implements Configuration.F
       exceptions.add( ConvertException.toConvertException( e, property, source ) ) ;
     }
     return CONVERSION_FAILED ;
-  }
-
-  static String getNiceName( final Class originClass ) {
-    String className = originClass.getSimpleName() ;
-    Class enclosingClass = originClass.getEnclosingClass() ;
-    while( enclosingClass != null ) {
-      className = enclosingClass.getSimpleName() + "$" + className ;
-      enclosingClass = enclosingClass.getEnclosingClass() ;
-    }
-    return className ;
   }
 
   private static String toString(

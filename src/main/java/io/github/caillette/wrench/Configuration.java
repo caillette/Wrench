@@ -25,18 +25,34 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 public interface Configuration {
 
   /**
-   * Represents something that may represent a part of or a whole {@link Configuration}.
+   * Represents something a part of, or a whole {@link Configuration}.
    */
   public interface Source {
-
-    ImmutableMap< String, String > map() ;
 
     /**
      * Helps identifying the file or the code values come from.
      */
     String sourceName() ;
 
+
+    /**
+     * Contains {@code String}s to
+     * {@link io.github.caillette.wrench.Configuration.Converter#convert(java.lang.reflect.Method, String) convert}
+     * into expected type.
+     */
+    interface Stringified extends Source {
+      ImmutableMap< String, String > map() ;
+    }
+
+    /**
+     * Contains property values as {@link io.github.caillette.wrench.Configuration} methods
+     * should return them.
+     */
+    interface Raw< C extends Configuration > extends Source {
+      ImmutableMap< Property< C >, Object > map() ;
+    }
   }
+
 
   /**
    * Creates a {@link Configuration} object given one or more {@link Source}s.

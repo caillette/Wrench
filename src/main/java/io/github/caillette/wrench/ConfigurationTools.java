@@ -4,6 +4,8 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 
 import java.lang.reflect.Method;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.regex.Pattern;
@@ -191,5 +193,26 @@ public final class ConfigurationTools {
       }
     }
 
+  }
+
+  public static String getNiceName( final Class originClass ) {
+    String className = originClass.getSimpleName() ;
+    Class enclosingClass = originClass.getEnclosingClass() ;
+    while( enclosingClass != null ) {
+      className = enclosingClass.getSimpleName() + "$" + className ;
+      enclosingClass = enclosingClass.getEnclosingClass() ;
+    }
+    return className ;
+  }
+
+
+  public static< C extends Configuration > ImmutableMap< Method, Configuration.Property< C > >
+  remap( ImmutableMap< String, Configuration.Property< C > > propertiesByName ) {
+    final ImmutableMap.Builder< Method, Configuration.Property< C > > propertiesByMethod
+        = ImmutableMap.builder() ;
+    for( final Configuration.Property< C > property : propertiesByName.values() ) {
+      propertiesByMethod.put( property.declaringMethod(), property ) ;
+    }
+    return propertiesByMethod.build() ;
   }
 }

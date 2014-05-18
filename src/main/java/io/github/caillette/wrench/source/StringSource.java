@@ -12,7 +12,7 @@ import java.util.Properties;
 /**
  * Reads a single {@code String} under {@code java.util.Properties} format.
  */
-public class StringSource implements Configuration.Source {
+public class StringSource implements Configuration.Source.Stringified {
 
   private final ImmutableMap< String, String > map ;
 
