@@ -14,7 +14,9 @@ import java.util.Map;
  * This is an alternative to {@link Configuration.Annotations.DefaultValue} annotation which
  * implies parsing.
  */
-public abstract class ObjectSource< C extends Configuration > implements Configuration.Source.Raw< C > {
+public abstract class ObjectSource< C extends Configuration >
+    implements Configuration.Source.Raw< C >
+{
 
   protected final ImmutableMap< Configuration.Property< C >, Object > valuedProperties  ;
 
@@ -37,7 +39,7 @@ public abstract class ObjectSource< C extends Configuration > implements Configu
         final Configuration.Factory< C > factory,
         final ImmutableMap< Method, Configuration.Property< C > > properties
     ) {
-      //noinspection unchecked
+      //noinspection unchecked,NullableProblems
       template = ( C ) Proxy.newProxyInstance(
           getClass().getClassLoader(),
           new Class< ? >[] { factory.configurationClass() },
@@ -80,13 +82,9 @@ public abstract class ObjectSource< C extends Configuration > implements Configu
   }
 
   /**
+   * Use like this:
    * <pre>
-   *   collector.template().someProperty() ;
-   *   collector.set( "Some default value" ) ;
-   *
-   *   // More verbosely:
-   *   collector.template().someProperty() ;
-   *   collector.set( collector.lastAccessedProperty(), "Some default value" ) ;
+   *   collector.with( template.someProperty() ).put( consistentDefault ) ;
    * </pre>
    */
   protected abstract void record( Collector collector, C template ) ;

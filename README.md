@@ -37,6 +37,7 @@ assertThat( configuration.number() ).isEqualTo( 43 ) ;
 Got the idea? There is more:
 
 - Default values by annotations.
+- Default values using method capture, enforcing static typing.
 - Fail-fast on unknown property names.
 - Fail-fast on undefined properties.
 - Error messages with source location.
