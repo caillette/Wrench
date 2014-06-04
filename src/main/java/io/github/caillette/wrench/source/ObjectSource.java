@@ -2,7 +2,9 @@ package io.github.caillette.wrench.source;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.reflect.AbstractInvocationHandler;
-import io.github.caillette.wrench.*;
+import io.github.caillette.wrench.Configuration;
+import io.github.caillette.wrench.ConfigurationTools;
+import io.github.caillette.wrench.DeclarationException;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
@@ -18,7 +20,8 @@ public abstract class ObjectSource< C extends Configuration >
     implements Configuration.Source.Raw< C >
 {
 
-  protected final ImmutableMap< Configuration.Property< C >, Object > valuedProperties  ;
+  private final Collector collector ;
+  protected final C template ;
 
   public ObjectSource( Configuration.Factory< C > factory ) {
     final ImmutableMap.Builder< Method, Configuration.Property< C > > builder
@@ -26,12 +29,15 @@ public abstract class ObjectSource< C extends Configuration >
     for( final Configuration.Property< C > property : factory.properties().values() ) {
       builder.put( property.declaringMethod(), property ) ;
     }
-    final Collector collector = new Collector( factory, builder.build() ) ;
-    record( collector, collector.template ) ;
-    valuedProperties = collector.values() ;
+    collector = new Collector( factory, builder.build() ) ;
+    template = collector.template ;
   }
 
-  protected final class Collector {
+  protected final < T > Collector.ValueReceiver< T > on( final T templateCallResult ) {
+    return collector.on( templateCallResult ) ;
+  }
+
+  private final class Collector {
     private final C template ;
     private Configuration.Property< C > lastAccessed = null ;
 
@@ -67,35 +73,29 @@ public abstract class ObjectSource< C extends Configuration >
       return ImmutableMap.copyOf( builder ) ;
     }
 
-    public < T > ValueReceiver< T > with(
+    /**
+     * Don't call outside of {@link io.github.caillette.wrench.source.ObjectSource()}.
+     */
+    public final < T > ValueReceiver< T > on(
         @SuppressWarnings( "UnusedParameters" ) T methodCallResult
     ) {
       return new ValueReceiver<>() ;
     }
 
     public final class ValueReceiver< T > {
-      public void put( T value ) {
+      public void defaultValue( T value ) {
         builder.put( lastAccessed, value ) ;
       }
     }
-
-  }
-
-  /**
-   * Use like this:
-   * <pre>
-   *   collector.with( template.someProperty() ).put( consistentDefault ) ;
-   * </pre>
-   */
-  protected abstract void record( Collector collector, C template ) ;
-
-  @Override
-  public ImmutableMap< Configuration.Property< C >, Object > map() {
-    return valuedProperties ;
   }
 
   @Override
-  public String sourceName() {
+  public final ImmutableMap< Configuration.Property< C >, Object > map() {
+    return collector.values() ;
+  }
+
+  @Override
+  public final String sourceName() {
     return ConfigurationTools.getNiceName( getClass() ) ;
   }
 }

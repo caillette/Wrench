@@ -64,8 +64,6 @@ class ConfigurationFactory< C extends Configuration > implements Configuration.F
             stringified, stringified.map().keySet(), properties, exceptions ) ;
       } else if( source instanceof Source.Raw ) {
         final Source.Raw raw = ( Source.Raw< C > ) source ;
-        final ImmutableMap< Method, Configuration.Property< C > > propertiesByMethod
-            = ConfigurationTools.remap( properties ) ;
         checkPropertyNamesAllDeclared(
             raw,
             raw.map().keySet(),
@@ -73,7 +71,7 @@ class ConfigurationFactory< C extends Configuration > implements Configuration.F
             exceptions
         ) ;
       } else {
-        throw new IllegalArgumentException( "Unknown: " + source ) ;
+        throw new IllegalArgumentException( "Unsupported: " + source ) ;
       }
     }
 
@@ -86,15 +84,20 @@ class ConfigurationFactory< C extends Configuration > implements Configuration.F
           final Source.Raw rawSource = ( Source.Raw ) source ;
           final Object value = rawSource.map().get( property ) ;
           if( value == null ) {
-            if( ! property.maybeNull() ) {
-              throw new UnsupportedOperationException( "TODO" ) ;
+            if( rawSource.map().containsKey( property ) ) {
+              if( property.maybeNull() ) {
+                values.put( property.name(), new ValuedProperty( property, source, null ) ) ;
+              } else {
+                throw new UnsupportedOperationException( "TODO: accumulate" ) ;
+              }
             }
           } else {
-            if( ! property.type().isAssignableFrom( value.getClass() ) ) {
-              throw new UnsupportedOperationException( "TODO" ) ;
+            if( property.type().isAssignableFrom( value.getClass() ) ) {
+              values.put( property.name(), new ValuedProperty( property, source, value ) ) ;
+            } else {
+              throw new UnsupportedOperationException( "TODO: accumulate" ) ;
             }
           }
-          values.put( property.name(), new ValuedProperty( property, source, value ) ) ;
         }
       }
     }
