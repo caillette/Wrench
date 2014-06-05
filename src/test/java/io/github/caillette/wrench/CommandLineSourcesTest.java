@@ -28,7 +28,7 @@ public class CommandLineSourcesTest {
     ) ;
 
     final Configuration.Factory< ConfigurationFixture.StringAndNumber > factory
-        = ConfigurationTools.newFactory( ConfigurationFixture.StringAndNumber.class ) ;
+        = ConfigurationTools.newAnnotationBasedFactory( ConfigurationFixture.StringAndNumber.class ) ;
 
     final ConfigurationFixture.StringAndNumber configuration
         = CommandLineSources.createConfiguration( factory, arguments ) ;

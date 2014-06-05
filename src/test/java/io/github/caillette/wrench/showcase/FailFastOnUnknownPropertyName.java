@@ -15,8 +15,7 @@ public class FailFastOnUnknownPropertyName {
 
   @Test
   public void test() throws Exception {
-    final Configuration.Factory< Empty > factory
-        = ConfigurationTools.newFactory( Empty.class ) ;
+    final Configuration.Factory< Empty > factory = ConfigurationTools.newFactory( Empty.class ) ;
 
     try {
       factory.create( newSource( "foo=bar" ) ) ;

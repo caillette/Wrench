@@ -301,11 +301,28 @@ public interface Configuration {
      * Don't call this after calling {@link #mandatory()}.
      */
     public PropertySetup2< C, T > defaultValue( T value ) {
-      setupAcceptor.accept( lastAccessed, Feature.DEFAULT_VALUE, value ) ;
+      setupAcceptor.accept(
+          lastAccessed,
+          Feature.DEFAULT_VALUE,
+          value == null ? ValuedProperty.NULL_VALUE : value
+      ) ;
       return this ;
     }
 
+    /**
+     * Don't call this after calling
+     * {@link #nameTransformer(io.github.caillette.wrench.Configuration.NameTransformer)}.
+     */
     public PropertySetup2< C, T > name( final String name ) {
+      setupAcceptor.accept( lastAccessed, Feature.NAME, name ) ;
+      return this ;
+    }
+
+    /**
+     * Don't call this after calling {@link #name(String)}.
+     */
+    public PropertySetup2< C, T > nameTransformer( final NameTransformer nameTransformer ) {
+      setupAcceptor.accept( lastAccessed, Feature.NAME_TRANSFORMER, nameTransformer ) ;
       return this ;
     }
 
@@ -313,6 +330,7 @@ public interface Configuration {
      * Don't call this after calling {@link #mandatory()}.
      */
     public PropertySetup2< C, T > maybeNull() {
+      setupAcceptor.accept( lastAccessed, Feature.MAYBE_NULL, true ) ;
       return this ;
     }
 
@@ -320,18 +338,22 @@ public interface Configuration {
      * Don't call this after calling {@link #defaultValue(Object)} or {@link #maybeNull()}.
      */
     public PropertySetup2< C, T > mandatory() {
+      setupAcceptor.accept( lastAccessed, Feature.MANDATORY, true ) ;
       return this ;
     }
 
     public PropertySetup2< C, T > converter( final Converter converter ) {
+      setupAcceptor.accept( lastAccessed, Feature.CONVERTER, converter ) ;
       return this ;
     }
 
     public PropertySetup2< C, T > obfuscator( final Pattern pattern ) {
+      setupAcceptor.accept( lastAccessed, Feature.OBFUSCATOR, pattern ) ;
       return this ;
     }
 
     public PropertySetup2< C, T > documentation( final String text ) {
+      setupAcceptor.accept( lastAccessed, Feature.DOCUMENTATION, text ) ;
       return this ;
     }
 
@@ -339,12 +361,14 @@ public interface Configuration {
      * Call only after a call to {@link #defaultValue(Object)}.
      */
     public PropertySetup2< C, T > stringValueForDefault( final String text ) {
+      setupAcceptor.accept( lastAccessed, Feature.DEFAULT_VALUE_AS_STRING, text ) ;
       return this ;
     }
 
     enum Feature {
       DEFAULT_VALUE,
       NAME,
+      NAME_TRANSFORMER,
       MAYBE_NULL,
       MANDATORY,
       CONVERTER,

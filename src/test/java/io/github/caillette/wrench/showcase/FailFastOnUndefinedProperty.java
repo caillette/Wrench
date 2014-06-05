@@ -8,7 +8,6 @@ import org.junit.Test;
 import static io.github.caillette.wrench.Sources.newSource;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.junit.Assert.fail;
-
 @SuppressWarnings( "UnusedDeclaration" )
 public class FailFastOnUndefinedProperty {
 
@@ -18,8 +17,7 @@ public class FailFastOnUndefinedProperty {
 
   @Test
   public void test() throws Exception {
-    final Configuration.Factory< Simple > factory
-        = ConfigurationTools.newFactory( Simple.class ) ;
+    final Configuration.Factory< Simple > factory = ConfigurationTools.newFactory( Simple.class ) ;
 
     try {
       factory.create( newSource( "" ) ) ;

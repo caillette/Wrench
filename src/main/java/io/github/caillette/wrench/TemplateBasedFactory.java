@@ -134,7 +134,7 @@ public abstract class TemplateBasedFactory< C extends Configuration >
   buildPropertyMap(
       final Map< Method, Map<Configuration.PropertySetup2.Feature, Object > > allFeatures,
       final ImmutableMap< Class< ? >, Configuration.Converter > defaultConverters,
-      final Configuration.NameTransformer nameTransformer
+      final Configuration.NameTransformer globalNameTransformer
   ) throws DefinitionException {
 
     final Map< String, Configuration.Property< C > > propertyBuilder = new HashMap<>() ;
@@ -147,7 +147,11 @@ public abstract class TemplateBasedFactory< C extends Configuration >
 
       final Configuration.Converter converter
           = resolveConverter( method, features, defaultConverters ) ;
-      final String propertyName = resolvePropertyName( method, nameTransformer ) ;
+      final Configuration.NameTransformer specificNameTransformer
+          = resolveNameTransformer( features ) ;
+      final String explicitName = resolveExplicitName( features ) ;
+      final String propertyName = resolvePropertyName(
+          method, explicitName, specificNameTransformer, globalNameTransformer ) ;
       checkUniqueName( method, propertyBuilder, propertyName ) ;
       final Object defaultValue = resolveDefaultValue( features ) ;
       final String defaultValueAsString
@@ -184,14 +188,46 @@ public abstract class TemplateBasedFactory< C extends Configuration >
     }
   }
 
-  private static Object resolveDefaultValue( Map<Configuration.PropertySetup2.Feature, Object> features ) {
+  private static Object resolveDefaultValue(
+      final Map< Configuration.PropertySetup2.Feature, Object > features
+  ) {
     return features.get(
         Configuration.PropertySetup2.Feature.DEFAULT_VALUE );
   }
 
-  private static String resolvePropertyName( Method method, Configuration.NameTransformer nameTransformer ) {
-    return nameTransformer == null
-        ? method.getName() : nameTransformer.transform( method.getName() );
+  private static String resolvePropertyName(
+      final Method method,
+      final String explicitName,
+      final Configuration.NameTransformer specificNameTransformer,
+      final Configuration.NameTransformer globalNameTransformer
+  ) {
+    if( explicitName == null ) {
+      if( specificNameTransformer == null ) {
+        if( globalNameTransformer == null ) {
+          return method.getName() ;
+        } else {
+          return globalNameTransformer.transform( method.getName() ) ;
+        }
+      } else {
+        return specificNameTransformer.transform( method.getName() ) ;
+      }
+    } else {
+      return explicitName ;
+    }
+  }
+
+  private static String resolveExplicitName(
+      final Map<Configuration.PropertySetup2.Feature, Object> features
+  ) {
+    return ( String ) features.get(
+        Configuration.PropertySetup2.Feature.NAME ) ;
+  }
+
+  private static Configuration.NameTransformer resolveNameTransformer(
+      final Map< Configuration.PropertySetup2.Feature, Object > features
+  ) {
+    return ( Configuration.NameTransformer ) features.get(
+        Configuration.PropertySetup2.Feature.NAME_TRANSFORMER );
   }
 
   private static Configuration.Converter resolveConverter(
@@ -255,16 +291,11 @@ public abstract class TemplateBasedFactory< C extends Configuration >
 // ======================
 
   @Override
-  public C create( Configuration.Source source1, Configuration.Source... others )
+  public final C create( Configuration.Source source1, Configuration.Source... others )
       throws ConfigurationException
   {
     final List< Configuration.Source > sources = new ArrayList<>( others.length + 2 ) ;
-    sources.add(
-        new PropertyDefaultSource(
-            configurationClass,
-            ImmutableSet.copyOf( propertySet.values() )
-        )
-    ) ;
+    sources.add( new PropertyDefaultSource2< C >( ImmutableSet.copyOf( propertySet.values() ) ) ) ;
     sources.add( source1 ) ;
     Collections.addAll( sources, others ) ;
 
@@ -309,6 +340,8 @@ public abstract class TemplateBasedFactory< C extends Configuration >
           } else {
             if( property.type().isAssignableFrom( value.getClass() ) ) {
               values.put( property.name(), new ValuedProperty( property, source, value ) ) ;
+            } else if( value == ValuedProperty.NULL_VALUE ) {
+              values.put( property.name(), new ValuedProperty( property, source, null ) ) ;
             } else {
               throw new UnsupportedOperationException( "TODO: accumulate" ) ;
             }
@@ -329,23 +362,11 @@ public abstract class TemplateBasedFactory< C extends Configuration >
 
     verifyNoUndefinedProperty( configuration, propertySet, valuedProperties ) ;
 
-    final Configuration.Annotations.ValidateWith validateWithAnnotation
-        = configurationClass.getAnnotation( Configuration.Annotations.ValidateWith.class ) ;
-    if( validateWithAnnotation != null ) {
-      try {
-        @SuppressWarnings( "unchecked" )
-        final Validator validator = validateWithAnnotation.value().newInstance() ;
-        @SuppressWarnings( "unchecked" )
-        final ImmutableSet< Validator.Infrigement > validation
-            = validator.validate( configuration ) ;
-        if( ! validation.isEmpty() ) {
-          throw new ValidationException( validation ) ;
-        }
-      } catch ( InstantiationException | IllegalAccessException e ) {
-        throw new DefinitionException( e ) ;
-      }
-
+    final ImmutableSet< Validator.Infrigement< C > > validation = validate( configuration ) ;
+    if( ! validation.isEmpty() ) {
+      throw new ValidationException( ( Iterable< Validator.Infrigement > ) ( Object ) validation ) ;
     }
+
     return configuration ;
   }
 

@@ -5,34 +5,34 @@ import io.github.caillette.wrench.*;
 import org.junit.Test;
 
 import static io.github.caillette.wrench.Configuration.Annotations.ValidateWith;
+import static io.github.caillette.wrench.Validator.Accumulator;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.junit.Assert.fail;
 
 public class LightweightValidation {
 
-  @ValidateWith( BoundsAndRelationships.class )
   public interface Validated extends Configuration {
     int x() ;
     int y() ;
   }
 
-  public static class BoundsAndRelationships implements Validator< Validated > {
-    @Override
-    public ImmutableSet< Infrigement< Validated > > validate( Validated configuration ) {
-      final Accumulator< Validated > accumulator = new Accumulator<>( configuration ) ;
-      // The smart*( ... ) methods remember last accessed property and add it to the message.
-      accumulator.smartVerify( configuration.x() > 0, "Must be > 0" ) ;
-      accumulator.smartVerify( configuration.y() > 0, "Must be > 0" ) ;
-      accumulator.verify( configuration.x() + configuration.y() < 10, "Sum must be < 10" ) ;
-      return accumulator.done() ;
-    }
-  }
-
-
   @Test
   public void test() throws Exception {
     final Configuration.Factory< Validated > factory
-        = ConfigurationTools.newFactory( Validated.class ) ;
+        = new TemplateBasedFactory< Validated >( Validated.class )
+    {
+      @Override
+      protected ImmutableSet< Validator.Infrigement< Validated > > validate(
+          final Validated configuration
+      ) {
+        final Accumulator< Validated > accumulator = new Accumulator<>( configuration ) ;
+        // The smart*( ... ) methods remember last accessed property and prepend it to the message.
+        accumulator.smartVerify( configuration.x() > 0, "Must be > 0" ) ;
+        accumulator.smartVerify( configuration.y() > 0, "Must be > 0" ) ;
+        accumulator.verify( configuration.x() + configuration.y() < 10, "Sum must be < 10" ) ;
+        return accumulator.done() ;
+      }
+    } ;
 
     try {
       factory.create( Sources.newSource( "x = 12", "y = -1" ) ) ;

@@ -5,7 +5,7 @@ import org.junit.Test;
 
 import static io.github.caillette.wrench.Configuration.Converter;
 import static io.github.caillette.wrench.Configuration.Factory;
-import static io.github.caillette.wrench.ConfigurationTools.newFactory;
+import static io.github.caillette.wrench.ConfigurationTools.newAnnotationBasedFactory;
 import static io.github.caillette.wrench.Sources.newSource;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.junit.Assert.fail;
@@ -15,7 +15,7 @@ public class ConfigurationToolsTest {
   @Test
   public void simpleStringAndNumber() throws Exception {
     final Factory< ConfigurationFixture.StringAndNumber > factory
-        = newFactory( ConfigurationFixture.StringAndNumber.class ) ;
+        = ConfigurationTools.newAnnotationBasedFactory( ConfigurationFixture.StringAndNumber.class ) ;
     System.out.println( "Properties: " + factory.properties() ) ;
 
     final ConfigurationFixture.StringAndNumber configuration
@@ -35,7 +35,7 @@ public class ConfigurationToolsTest {
   @Test
   public void resolveStringDefault() throws Exception {
     final Factory< ConfigurationFixture.StringWithDefault > factory
-        = newFactory( ConfigurationFixture.StringWithDefault.class ) ;
+        = ConfigurationTools.newAnnotationBasedFactory( ConfigurationFixture.StringWithDefault.class ) ;
     final ConfigurationFixture.StringWithDefault configuration
         = factory.create( newSource( "" ) ) ;
 
@@ -44,13 +44,13 @@ public class ConfigurationToolsTest {
 
   @Test( expected = DefinitionException.class )
   public void unparseableDefault() throws Exception {
-    newFactory( ConfigurationFixture.UnparseableDefault.class ) ;
+    ConfigurationTools.newAnnotationBasedFactory( ConfigurationFixture.UnparseableDefault.class ) ;
   }
 
   @Test
   public void allowNullityFromDefault() throws Exception {
     final Factory< ConfigurationFixture.StringWithDefaultNull > factory
-        = newFactory( ConfigurationFixture.StringWithDefaultNull.class ) ;
+        = ConfigurationTools.newAnnotationBasedFactory( ConfigurationFixture.StringWithDefaultNull.class ) ;
     final ConfigurationFixture.StringWithDefaultNull configuration
         = factory.create( newSource( "" ) ) ;
 
@@ -60,7 +60,7 @@ public class ConfigurationToolsTest {
   @Test
   public void allowExplicitNullity() throws Exception {
     final Factory< ConfigurationFixture.JustInteger > factory
-        = newFactory( ConfigurationFixture.JustInteger.class ) ;
+        = ConfigurationTools.newAnnotationBasedFactory( ConfigurationFixture.JustInteger.class ) ;
     final ConfigurationFixture.JustInteger configuration
         = factory.create( newSource( "number=" ) ) ;
 
@@ -70,14 +70,14 @@ public class ConfigurationToolsTest {
   @Test( expected = DefinitionException.class )
   public void incompatibleAnnotations() throws Exception {
     final Factory< ConfigurationFixture.IncompatibleAnnotations > factory
-        = newFactory( ConfigurationFixture.IncompatibleAnnotations.class ) ;
+        = ConfigurationTools.newAnnotationBasedFactory( ConfigurationFixture.IncompatibleAnnotations.class ) ;
     factory.create( newSource( "" ) ) ;
   }
 
   @Test
   public void undefinedProperties() throws Exception {
     final Factory< ConfigurationFixture.StringWithDefault > factory
-        = newFactory( ConfigurationFixture.StringWithDefault.class ) ;
+        = ConfigurationTools.newAnnotationBasedFactory( ConfigurationFixture.StringWithDefault.class ) ;
     try {
       factory.create( newSource( "foo=bar", "boo=yaa" ) ) ;
       fail( "Should have thrown an exception" ) ;
@@ -90,7 +90,7 @@ public class ConfigurationToolsTest {
   @Test
   public void unparseableroperty() throws Exception {
     final Factory< ConfigurationFixture.StringAndNumber > factory
-        = newFactory( ConfigurationFixture.StringAndNumber.class ) ;
+        = ConfigurationTools.newAnnotationBasedFactory( ConfigurationFixture.StringAndNumber.class ) ;
     try {
       factory.create( newSource( "string=bar", "number=UNPARSEABLE" ) ) ;
       fail( "Should have thrown an exception" ) ;
@@ -102,7 +102,7 @@ public class ConfigurationToolsTest {
   @Test
   public void localNameTransformer() throws Exception {
     final Factory< ConfigurationFixture.LocalNameTransformation > factory
-        = newFactory( ConfigurationFixture.LocalNameTransformation.class ) ;
+        = ConfigurationTools.newAnnotationBasedFactory( ConfigurationFixture.LocalNameTransformation.class ) ;
     System.out.println( "Properties: " + factory.properties() ) ;
 
     assertThat( factory.properties() ).hasSize( 1 ) ;
@@ -114,7 +114,7 @@ public class ConfigurationToolsTest {
   @Test
   public void globalNameTransformer() throws Exception {
     final Factory< ConfigurationFixture.GlobalNameTransformation > factory
-        = newFactory( ConfigurationFixture.GlobalNameTransformation.class ) ;
+        = ConfigurationTools.newAnnotationBasedFactory( ConfigurationFixture.GlobalNameTransformation.class ) ;
     System.out.println( "Properties: " + factory.properties() ) ;
 
     assertThat( factory.properties() ).hasSize( 1 ) ;
@@ -126,7 +126,7 @@ public class ConfigurationToolsTest {
   @Test
   public void mixedNameTransformer() throws Exception {
     final Factory< ConfigurationFixture.MixedNameTransformation > factory
-        = newFactory( ConfigurationFixture.MixedNameTransformation.class ) ;
+        = ConfigurationTools.newAnnotationBasedFactory( ConfigurationFixture.MixedNameTransformation.class ) ;
     System.out.println( "Properties: " + factory.properties() ) ;
 
     assertThat( factory.properties() ).hasSize( 1 ) ;
@@ -138,7 +138,7 @@ public class ConfigurationToolsTest {
   @Test
   public void support() throws Exception {
     final Factory< ConfigurationFixture.StringWithDefault > factory
-        = newFactory( ConfigurationFixture.StringWithDefault.class ) ;
+        = ConfigurationTools.newAnnotationBasedFactory( ConfigurationFixture.StringWithDefault.class ) ;
     final ConfigurationFixture.StringWithDefault configuration
         = factory.create( newSource( "" ) ) ;
 
@@ -163,7 +163,7 @@ public class ConfigurationToolsTest {
   @Test
   public void validation() throws Exception {
     final Factory< ConfigurationFixture.Validated > factory
-        = newFactory( ConfigurationFixture.Validated.class ) ;
+        = ConfigurationTools.newAnnotationBasedFactory( ConfigurationFixture.Validated.class ) ;
     try {
       factory.create( newSource( "foo=Foo", "bar=Bar" ) ) ;
       fail( "Should have thrown an exception" ) ;
@@ -176,9 +176,9 @@ public class ConfigurationToolsTest {
 
   @Test
   public void converterFailsToConvert() throws Exception {
-    final Factory< ConfigurationFixture.WithName > factory = newFactory(
+    final Factory< ConfigurationFixture.WithName > factory = newAnnotationBasedFactory(
         ConfigurationFixture.WithName.class,
-        ImmutableMap.< Class< ? >, Converter >of(
+        ImmutableMap.<Class<?>, Converter>of(
             ConfigurationFixture.Name.class,
             new ConfigurationFixture.IntoNameConverter( true )
         )

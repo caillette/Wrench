@@ -4,8 +4,6 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 
 import java.lang.reflect.Method;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.regex.Pattern;
@@ -23,14 +21,22 @@ import static io.github.caillette.wrench.Configuration.Support;
 public final class ConfigurationTools {
 
   public static < C extends Configuration > Factory< C > newFactory(
-      Class< C > configurationClass
+      final Class< C > configurationClass
   ) {
-    return newFactory( configurationClass, Converters.DEFAULTS ) ;
+    return new TemplateBasedFactory< C >( configurationClass ) { } ;
   }
 
-  public static < C extends Configuration > Factory< C > newFactory(
-      Class< C > configurationClass,
-      ImmutableMap< Class< ? >, Configuration.Converter > converters
+  @Deprecated
+  public static < C extends Configuration > Factory< C > newAnnotationBasedFactory(
+      Class<C> configurationClass
+  ) {
+    return newAnnotationBasedFactory( configurationClass, Converters.DEFAULTS ) ;
+  }
+
+  @Deprecated
+  public static < C extends Configuration > Factory< C > newAnnotationBasedFactory(
+      Class<C> configurationClass,
+      ImmutableMap<Class<?>, Configuration.Converter> converters
   ) {
     return new ConfigurationFactory<>( configurationClass, converters ) ;
   }

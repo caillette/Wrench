@@ -1,29 +1,30 @@
 package io.github.caillette.wrench.showcase;
 
 import io.github.caillette.wrench.Configuration;
-import io.github.caillette.wrench.ConfigurationTools;
 import io.github.caillette.wrench.Sources;
+import io.github.caillette.wrench.TemplateBasedFactory;
 import org.junit.Test;
 
-import static io.github.caillette.wrench.Configuration.Annotations.DefaultNull;
-import static io.github.caillette.wrench.Configuration.Annotations.DefaultValue;
 import static org.fest.assertions.Assertions.assertThat;
 
 public class DefaultValues {
 
   public interface WithDefaults extends Configuration {
-
-    @DefaultValue( "1" )
-    int number() ;
-
-    @DefaultNull // Compiler refuses @DefaultValue( null )
+    Integer number() ;
     String string() ;
   }
 
   @Test
   public void test() throws Exception {
     final Configuration.Factory< WithDefaults > factory
-        = ConfigurationTools.newFactory( WithDefaults.class ) ;
+        = new TemplateBasedFactory< WithDefaults >( WithDefaults.class )
+    {
+      @Override
+      protected void initialize() {
+        on( template.number() ).defaultValue( 1 ) ;
+        on( template.string() ).defaultValue( null ) ;
+      }
+    } ;
     final WithDefaults configuration = factory.create( Sources.newSource( "" ) ) ;
 
     assertThat( configuration.number( ) ).isEqualTo( 1 ) ;

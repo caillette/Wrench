@@ -7,6 +7,7 @@ import com.google.common.collect.ImmutableSet;
  * Internal {@link Configuration.Source} that represents values set using
  * {@link Configuration.Annotations.DefaultValue}.
  */
+@Deprecated
 class PropertyDefaultSource implements Configuration.Source.Stringified {
 
   private final String sourceName ;

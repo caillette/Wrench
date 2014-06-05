@@ -4,17 +4,14 @@ import com.google.common.collect.ImmutableSet;
 import io.github.caillette.wrench.*;
 import org.junit.Test;
 
-import java.lang.reflect.Method;
-
-import static io.github.caillette.wrench.ConfigurationTools.newFactory;
 import static io.github.caillette.wrench.Validator.Infrigement;
 import static org.fest.assertions.Assertions.assertThat;
 
 public class TemplateBasedDefinition {
 
   public interface Simple extends Configuration {
-    Integer number() ;
-    String string() ;
+    Integer myNumber() ;
+    String myString() ;
   }
 
   @Test
@@ -23,11 +20,11 @@ public class TemplateBasedDefinition {
     factory = new TemplateBasedFactory< Simple >( Simple.class ) {
       @Override
       protected void initialize() {
-        on( template.number() )
+        on( template.myNumber() )
             .defaultValue( INTEGER )
             .maybeNull()
             .converter( new Converters.IntoIntegerObject() )
-            .documentation( "Just a number property." )
+            .documentation( "Just a number." )
         ;
         setGlobalNameTransformer( NameTransformers.LOWER_HYPHEN ) ;
       }
@@ -37,10 +34,10 @@ public class TemplateBasedDefinition {
         return super.validate( configuration ) ; // TODO: illustrate validation.
       }
     } ;
-    final Simple configuration = factory.create( Sources.newSource( "string = foo" ) ) ;
+    final Simple configuration = factory.create( Sources.newSource( "my-string = foo" ) ) ;
 
-    assertThat( configuration.number() ).isSameAs( INTEGER ) ;
-    assertThat( configuration.string() ).isEqualTo( "foo" ) ;
+    assertThat( configuration.myNumber() ).isSameAs( INTEGER ) ;
+    assertThat( configuration.myString() ).isEqualTo( "foo" ) ;
   }
 
   private static final Integer INTEGER = 123 ;

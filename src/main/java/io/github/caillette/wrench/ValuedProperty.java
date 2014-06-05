@@ -27,7 +27,14 @@ class ValuedProperty {
   ) {
     this.property = checkNotNull( property ) ;
     this.source = checkNotNull( source ) ;
-    this.stringValue = resolvedValue == null ? "<null>" : resolvedValue.toString() ;
+    this.stringValue = resolvedValue == null ? "<not-set>" : resolvedValue.toString() ;
     this.resolvedValue = resolvedValue ;
   }
+
+  public static final Object NULL_VALUE = new Object() {
+    @Override
+    public String toString() {
+      return ValuedProperty.class.getSimpleName() + "#NULL_VALUE{}" ;
+    }
+  } ;
 }
