@@ -23,11 +23,15 @@ public final class NameTransformers {
     }
   }
 
+  public static final Configuration.NameTransformer LOWER_HYPHEN = new LowerHyphen() ;
+
   public static class LowerHyphen extends WithCaseFormat {
     public LowerHyphen() {
       super( CaseFormat.LOWER_HYPHEN ) ;
     }
   }
+
+  public static final Configuration.NameTransformer LOWER_DOT = new LowerDot() ;
 
   public static class LowerDot implements Configuration.NameTransformer {
     private static final Configuration.NameTransformer LOWER_HYPHEN = new LowerHyphen() ;
@@ -36,4 +40,13 @@ public final class NameTransformers {
       return LOWER_HYPHEN.transform( javaMethodName ).replace( '-', '.' ) ;
     }
   }
+
+  public static final Configuration.NameTransformer IDENTITY = new Configuration.NameTransformer() {
+    @Override
+    public String transform( String javaMethodName ) {
+      return javaMethodName ;
+    }
+  };
+
+
 }

@@ -7,6 +7,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 import java.lang.reflect.Method;
 import java.util.Comparator;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 import static java.lang.annotation.ElementType.METHOD;
@@ -171,6 +172,29 @@ public interface Configuration {
 
   }
 
+  interface PropertySetup {
+
+    public final class DefaultValue< C extends Configuration, T > {
+
+      private final Property< C > lastAccessed ;
+      private final Map< Property< C >, Object > builder ;
+
+      public DefaultValue(
+          final Property< C > lastAccessed,
+          final Map< Property< C >, Object > builder
+      ) {
+        this.lastAccessed = lastAccessed ;
+        this.builder = builder ;
+      }
+
+      public void defaultValue( T value ) {
+        builder.put( lastAccessed, value ) ;
+      }
+    }
+
+  }
+
+
   interface Annotations {
 
     /**
@@ -259,4 +283,79 @@ public interface Configuration {
 
   }
 
+  public final class PropertySetup2< C extends Configuration, T > {
+
+    private final Method lastAccessed ;
+    private final SetupAcceptor setupAcceptor ;
+
+
+    public PropertySetup2(
+        final Method lastAccessed,
+        final SetupAcceptor setupAcceptor
+    ) {
+      this.lastAccessed = lastAccessed ;
+      this.setupAcceptor = setupAcceptor ;
+    }
+
+    /**
+     * Don't call this after calling {@link #mandatory()}.
+     */
+    public PropertySetup2< C, T > defaultValue( T value ) {
+      setupAcceptor.accept( lastAccessed, Feature.DEFAULT_VALUE, value ) ;
+      return this ;
+    }
+
+    public PropertySetup2< C, T > name( final String name ) {
+      return this ;
+    }
+
+    /**
+     * Don't call this after calling {@link #mandatory()}.
+     */
+    public PropertySetup2< C, T > maybeNull() {
+      return this ;
+    }
+
+    /**
+     * Don't call this after calling {@link #defaultValue(Object)} or {@link #maybeNull()}.
+     */
+    public PropertySetup2< C, T > mandatory() {
+      return this ;
+    }
+
+    public PropertySetup2< C, T > converter( final Converter converter ) {
+      return this ;
+    }
+
+    public PropertySetup2< C, T > obfuscator( final Pattern pattern ) {
+      return this ;
+    }
+
+    public PropertySetup2< C, T > documentation( final String text ) {
+      return this ;
+    }
+
+    /**
+     * Call only after a call to {@link #defaultValue(Object)}.
+     */
+    public PropertySetup2< C, T > stringValueForDefault( final String text ) {
+      return this ;
+    }
+
+    enum Feature {
+      DEFAULT_VALUE,
+      NAME,
+      MAYBE_NULL,
+      MANDATORY,
+      CONVERTER,
+      OBFUSCATOR,
+      DOCUMENTATION,
+      DEFAULT_VALUE_AS_STRING
+    }
+
+    interface SetupAcceptor {
+      void accept( Method method, Feature feature, Object object ) ;
+    }
+
+  }
 }

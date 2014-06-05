@@ -58,6 +58,24 @@ class ConfigurationProperty< C extends Configuration >
 
     this.obfuscatorPattern = obfuscatorPattern ;
   }
+  ConfigurationProperty(
+      final Method method,
+      final String name,
+      final Object defaultValue,
+      final String defaultValueAsString,
+      final Configuration.Converter converter,
+      final boolean maybeNull,
+      final Pattern obfuscatorPattern
+  ) {
+    checkArgument( ! Strings.isNullOrEmpty( name ) ) ;
+    this.method = checkNotNull( method ) ;
+    this.name = name ;
+    this.defaultValue = defaultValue ;
+    this.defaultValueAsString = defaultValueAsString ;
+    this.converter = checkNotNull( converter ) ;
+    this.maybeNull = maybeNull ;
+    this.obfuscatorPattern = obfuscatorPattern ;
+  }
 
 
   @Override
