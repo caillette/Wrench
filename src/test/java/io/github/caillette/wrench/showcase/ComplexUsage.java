@@ -25,18 +25,18 @@ public class ComplexUsage {
     factory = new TemplateBasedFactory< Simple >( Simple.class ) {
       @Override
       protected void initialize() {
-        on( template.myNumber() )
+        property( using.myNumber() )
             .name( "my-binary-number" )
             .maybeNull()
-            .converter( new Configuration.Converter() {
+            .converter( new Configuration.Converter< Integer >() {
               @Override
-              public Object convert( Method definingMethod, String input ) throws Exception {
-                return Integer.parseInt( input, 2 ) ;
+              public Integer convert( Method definingMethod, String input ) {
+                return input == null ? null : Integer.parseInt( input, 2 ) ;
               }
             } )
             .documentation( "Just a number." )
         ;
-        on( template.myString() )
+        property( using.myString() )
             .defaultValue( "FOO" )
             .documentation( "Just a string." )
             .obfuscator( Pattern.compile( "OO" ) )
@@ -67,7 +67,7 @@ public class ComplexUsage {
     assertThat( configuration.myString() ).isEqualTo( "FOO" ) ;
     assertThat( inspector.usingDefault( inspector.lastAccessed() ) ).isTrue() ;
     assertThat( inspector.lastAccessed().name() ).isEqualTo( "my-string" ) ;
-    assertThat( inspector.safeValueOf( inspector.lastAccessed(), "**" ) ).isEqualTo( "F**" ) ;
+    assertThat( inspector.safeValueOf( inspector.lastAccessed(), "*" ) ).isEqualTo( "F*" ) ;
   }
 
 

@@ -3,11 +3,13 @@ Wrench
 
 Wrench is a Java library for reading configuration files and command-line arguments in the safest possible way. It use static typing and fail-fast wherever it can.
 
-Wrench started as a conceptual spin-off of the [OWNER](https://github.com/lviggiano/owner) project. Annotations quickly showed their limits when defining default values or property constraints, which must be Strings or classes instead of real objects. Wrench promotes a purely imperative approach.    
+Wrench started as a conceptual spin-off of the [OWNER](https://github.com/lviggiano/owner) project. Annotations quickly showed their limits when defining default values or property constraints, which must be strings or classes instead of real objects. Wrench promotes a purely imperative approach.    
 
 Wrench is tailored for usage in a closed-source project. So it's main purpose here on Github is to showcase a pair of coding ideas.
 
-Wrench requires at least Java 7. It doesn't use Java 8 constructs yet, but this is planned (first-class methods look promising). 
+Wrench relies on Java 7 syntax. 
+ 
+Feel free to use and fork Wrench under the terms of the Gnu Public License, version 3.
 
 
 Basic usage
@@ -16,32 +18,29 @@ Basic usage
 Declare an interface like this:
 
 ```java
-  public interface Simple extends Configuration {
-    Integer number() ;
-    String string() ;
-  }
+public interface Simple extends Configuration {
+  Integer myNumber() ;
+  String myString() ;
+}
 ```
 
 Create a `my.properties` file:
 
 ```properties
-string = Hello
-number = 43
+myString = Hello
+myNumber = 43
 ```
 
 Read the file and get an implementation:
 
 ```java
 final Configuration.Factory< Simple > factory = ConfigurationTools.newFactory( Simple.class ) ;
-final Simple configuration = factory.create( Sources.newSource(
-    "myNumber = 123",
-    "myString = foo"
-) ) ;
+final Simple configuration = factory.create( Sources.newSource( new File( "my.properties" ) ) ;
 
-assertThat( configuration.myNumber() ).isEqualTo( 123 ) ;
-assertThat( configuration.myString() ).isEqualTo( "foo" ) ;
+assertThat( configuration.myNumber() ).isEqualTo( 43 ) ;
+assertThat( configuration.myString() ).isEqualTo( "Hello" ) ;
 assertThat( configuration.toString() )
-    .isEqualTo( "SimplestUsage$Simple{myNumber=123; myString=foo}" ) ;
+    .isEqualTo( "SimplestUsage$Simple{myNumber=43; myString=Hello}" ) ;
 ```
 
 Got the idea? There is more.
@@ -53,34 +52,36 @@ Features
 - Fail-fast on unknown property names.
 - Fail-fast on undefined properties.
 - Error messages with source location.
-- Multiple error messages for batching corrections.
+- Raises as many errors as possible in a single run, for batched corrections.
 - Custom property names.
+- Default and custom converters to build objects from strings.
 - Bulk transformation of method names (`myName() -> 'my.name' or 'my-name'`).
-- Immutability wherever possible, using Guava's `Immutable*`. Wrench heavily depends on Guava.
-- Property overriding when using multiple sources.
-- Sources can be files, or command-line parameters, or anything.
-- Lightweight validation (applies on the whole ´Configuration´ object).
-- Pattern-based obfuscation of sensible parts (like passwords), specified by annotations.
+- Immutability wherever possible, using Guava's `Immutable*`. Wrench heavily relies on Guava.
+- Sources can be files, or command-line parameters, or anything. 
+- Property overriding when using multiple sources. So you can cascade several files and command-line parameters.
+- Bulk validation (applies to a whole `Configuration` object).
+- Pattern-based obfuscation of the string representation of sensible parts (like passwords).
+- Configuration object metadata (with the `Inspector`). 
 
-The snippet below illustrate some of those features.
+The snippet below illustrates some of those features.
 
 ```java
 final Configuration.Factory< Simple > factory ;
 factory = new TemplateBasedFactory< Simple >( Simple.class ) {
   @Override
   protected void initialize() {
-    on( template.myNumber() )
+    property( using.myNumber() )
         .name( "my-binary-number" )
         .maybeNull()
-        .converter( new Configuration.Converter() {
+        .converter( new Configuration.Converter< Integer >() {
           @Override
-          public Object convert( Method definingMethod, String input ) throws Exception {
-            return Integer.parseInt( input, 2 ) ;
+          public Integer convert( Method definingMethod, String input ) {
+            return input == null ? null : Integer.parseInt( input, 2 ) ;
           }
         } )
         .documentation( "Just a number." )
     ;
-    on( template.myString() )
+    property( using.myString() )
         .defaultValue( "FOO" )
         .documentation( "Just a string." )
         .obfuscator( Pattern.compile( "OO" ) )
@@ -111,9 +112,23 @@ assertThat( inspector.usingDefault( inspector.lastAccessed() ) ).isFalse() ;
 assertThat( configuration.myString() ).isEqualTo( "FOO" ) ;
 assertThat( inspector.usingDefault( inspector.lastAccessed() ) ).isTrue() ;
 assertThat( inspector.lastAccessed().name() ).isEqualTo( "my-string" ) ;
-assertThat( inspector.safeValueOf( inspector.lastAccessed(), "**" ) ).isEqualTo( "F**" ) ;
+assertThat( inspector.safeValueOf( inspector.lastAccessed(), "*" ) ).isEqualTo( "F*" ) ;
 ```
+
+All the magic lies in `using` and `inspector` objects that capture a method call to designate the property to use immediately after. It's not different of what [Mockito](http://mockito.org) and other testing frameworks do. 
 
 See [tests](https://github.com/caillette/Wrench/tree/master/src/test/java/io/github/caillette/wrench/showcase) for more use cases.
 
+Future
+------
 
+Things that Wrench will never do:
+- Use annotations to define property behaviors.
+- Mutate a `Configuration` object.
+- Support some XML format (but it lets you implement your own `Source`).
+- Try to get famous.
+
+Things that it will probably do:
+- Use Java 8 closures and its first-class methods, if it makes sense.
+- Support nested `Configuration` objects.
+- Offer more default `Converter`s.

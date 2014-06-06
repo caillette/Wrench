@@ -23,7 +23,7 @@ public class Obfuscation {
     {
       @Override
       protected void initialize() {
-        on( template.credential() ).obfuscator( Pattern.compile( "(?<=^.*:).*" ) ) ;
+        property( using.credential() ).obfuscator( Pattern.compile( "(?<=^.*:).*" ) ) ;
       }
     } ;
     System.out.println( "Properties: " + factory.properties() ) ;

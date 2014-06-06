@@ -21,7 +21,7 @@ public interface Configuration {
   public interface Source {
 
     /**
-     * Helps identifying the file or the code values come from.
+     * Helps identifying the file or the code the values come from.
      */
     String sourceName() ;
 
@@ -175,7 +175,7 @@ public interface Configuration {
 
   /**
    * Builder-like object to use after a call to
-   * {@link io.github.caillette.wrench.TemplateBasedFactory#on(Object)}.
+   * {@link io.github.caillette.wrench.TemplateBasedFactory#property(Object)}.
    */
   public final class PropertySetup< C extends Configuration, T > {
 
@@ -222,7 +222,7 @@ public interface Configuration {
       return this ;
     }
 
-    public PropertySetup< C, T > converter( final Converter converter ) {
+    public PropertySetup< C, T > converter( final Converter< T > converter ) {
       setupAcceptor.accept( lastAccessed, Feature.CONVERTER, converter ) ;
       return this ;
     }

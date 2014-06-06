@@ -33,8 +33,8 @@ public class CustomPropertyNames {
     {
       @Override
       protected void initialize() {
-        on( template.stringZero() ).name( "string-zero" ) ;
-        on( template.stringOne() ).nameTransformer( NameTransformers.LOWER_DOT ) ;
+        property( using.stringZero() ).name( "string-zero" ) ;
+        property( using.stringOne() ).nameTransformer( NameTransformers.LOWER_DOT ) ;
         setGlobalNameTransformer( ALL_UPPER_CASE ) ;
       }
     } ;

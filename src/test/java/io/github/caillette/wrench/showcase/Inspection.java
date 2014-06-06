@@ -24,7 +24,7 @@ public class Inspection {
     {
       @Override
       protected void initialize() {
-        on( template.number() ).defaultValue( 1 ).documentation( "Some number." ) ;
+        property( using.number() ).defaultValue( 1 ).documentation( "Some number." ) ;
       }
     } ;
     final Simple configuration = factory.create( Sources.newSource( "string = foo" ) ) ;

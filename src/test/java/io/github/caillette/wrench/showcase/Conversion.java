@@ -30,7 +30,7 @@ public class Conversion {
     final Factory< Converted > factory = new TemplateBasedFactory< Converted >( Converted.class ) {
       @Override
       protected void initialize() {
-        on( template.pattern() ).converter( CONVERTER_INTO_PATTERN ) ;
+        property( using.pattern() ).converter( CONVERTER_INTO_PATTERN ) ;
       }
     } ;
     final Converted configuration = factory.create( newSource( "pattern = .*" ) ) ;

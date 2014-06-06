@@ -21,8 +21,8 @@ public class DefaultValues {
     {
       @Override
       protected void initialize() {
-        on( template.number() ).defaultValue( 1 ) ;
-        on( template.string() ).defaultValue( null ) ;
+        property( using.number() ).defaultValue( 1 ) ;
+        property( using.string() ).defaultValue( null ) ;
       }
     } ;
     final WithDefaults configuration = factory.create( Sources.newSource( "" ) ) ;

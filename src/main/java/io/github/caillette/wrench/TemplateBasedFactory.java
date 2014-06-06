@@ -27,7 +27,7 @@ public abstract class TemplateBasedFactory< C extends Configuration >
 {
   private final Class< C > configurationClass ;
   private ConstructionKit< C > constructionKit = new ConstructionKit<>() ;
-  protected final C template ;
+  protected final C using;
   private final ImmutableMap< String, Configuration.Property< C > > propertySet ;
 
   protected TemplateBasedFactory( final Class< C > configurationClass ) throws DefinitionException {
@@ -60,7 +60,7 @@ public abstract class TemplateBasedFactory< C extends Configuration >
           }
         }
     ) ;
-    template = constructionKit.collector.template ;
+    using = constructionKit.collector.template ;
     initialize() ;
     propertySet = buildPropertyMap(
         constructionKit.features,
@@ -120,7 +120,7 @@ public abstract class TemplateBasedFactory< C extends Configuration >
 
   protected void initialize() { }
 
-  protected final < T > Configuration.PropertySetup< C, T > on(
+  protected final < T > Configuration.PropertySetup< C, T > property(
       final T templateCallResult
   ) {
     checkInitializing() ;
