@@ -5,6 +5,7 @@ import io.github.caillette.wrench.*;
 import org.junit.Test;
 
 import java.lang.reflect.Method;
+import java.util.regex.Pattern;
 
 import static io.github.caillette.wrench.Configuration.Inspector;
 import static io.github.caillette.wrench.Validator.Accumulator;
@@ -38,6 +39,7 @@ public class ComplexUsage {
         on( template.myString() )
             .defaultValue( "FOO" )
             .documentation( "Just a string." )
+            .obfuscator( Pattern.compile( "OO" ) )
         ;
         setGlobalNameTransformer( NameTransformers.LOWER_HYPHEN ) ;
       }
@@ -65,6 +67,7 @@ public class ComplexUsage {
     assertThat( configuration.myString() ).isEqualTo( "FOO" ) ;
     assertThat( inspector.usingDefault( inspector.lastAccessed() ) ).isTrue() ;
     assertThat( inspector.lastAccessed().name() ).isEqualTo( "my-string" ) ;
+    assertThat( inspector.safeValueOf( inspector.lastAccessed(), "**" ) ).isEqualTo( "F**" ) ;
   }
 
 

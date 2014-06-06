@@ -3,11 +3,11 @@ Wrench
 
 Wrench is a Java library for reading configuration files and command-line arguments in the safest possible way. It use static typing and fail-fast wherever it can.
 
-Wrench started as a conceptual spin-off of the [OWNER](https://github.com/lviggiano/owner) project. Annotations quickly showed their limits when defining default values or property constraints, which must be Strings or classes instead of real objects. Wrench ended up with a purely imperative approach.    
+Wrench started as a conceptual spin-off of the [OWNER](https://github.com/lviggiano/owner) project. Annotations quickly showed their limits when defining default values or property constraints, which must be Strings or classes instead of real objects. Wrench promotes a purely imperative approach.    
 
 Wrench is tailored for usage in a closed-source project. So it's main purpose here on Github is to showcase a pair of coding ideas.
 
-Wrench requires at least Java 7. It doesn't use Java 8 constructs yet.
+Wrench requires at least Java 7. It doesn't use Java 8 constructs yet, but this is planned (first-class methods are insanely great). 
 
 
 Basic usage
@@ -55,8 +55,8 @@ Features
 - Error messages with source location.
 - Multiple error messages for batching corrections.
 - Custom property names.
-- Custom property names by method name transformation (`myName -> my.name or my-name`).
-- Immutability wherever possible, using Guava's `Immutable*`. Yes Wrench heavily depends on Guava.
+- Bulk transformation of method names (`myName() -> 'my.name' or 'my-name'`).
+- Immutability wherever possible, using Guava's `Immutable*`. Wrench heavily depends on Guava.
 - Property overriding when using multiple sources.
 - Sources can be files, or command-line parameters, or anything.
 - Lightweight validation (applies on the whole ´Configuration´ object).
@@ -83,6 +83,7 @@ factory = new TemplateBasedFactory< Simple >( Simple.class ) {
     on( template.myString() )
         .defaultValue( "FOO" )
         .documentation( "Just a string." )
+        .obfuscator( Pattern.compile( "OO" ) )
     ;
     setGlobalNameTransformer( NameTransformers.LOWER_HYPHEN ) ;
   }
@@ -110,7 +111,7 @@ assertThat( inspector.usingDefault( inspector.lastAccessed() ) ).isFalse() ;
 assertThat( configuration.myString() ).isEqualTo( "FOO" ) ;
 assertThat( inspector.usingDefault( inspector.lastAccessed() ) ).isTrue() ;
 assertThat( inspector.lastAccessed().name() ).isEqualTo( "my-string" ) ;
-}
+assertThat( inspector.safeValueOf( inspector.lastAccessed(), "**" ) ).isEqualTo( "F**" ) ;
 ```
 
 See [tests](https://github.com/caillette/Wrench/tree/master/src/test/java/io/github/caillette/wrench/showcase) for more use cases.
