@@ -105,7 +105,7 @@ public interface Configuration {
     /**
      * A pattern indicating sensible part that should not appear in clear in logs.
      *
-     * @see Configuration.Support#safeValueOf(Configuration.Property, String)
+     * @see io.github.caillette.wrench.Configuration.Inspector#safeValueOf(Configuration.Property, String)
      * @return a possibly {@code null} value.
      */
     Pattern obfuscatorPattern() ;
@@ -144,7 +144,7 @@ public interface Configuration {
   /**
    * Exposes {@link Configuration} metadata.
    */
-  public static interface Support< C extends Configuration> {
+  public static interface Inspector< C extends Configuration > {
 
     public ImmutableMap< String, Property< C > > properties() ;
 

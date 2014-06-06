@@ -5,21 +5,21 @@ import com.google.common.collect.ImmutableSortedMap;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-class ConfigurationSupport< C extends Configuration > implements Configuration.Support< C > {
+class ConfigurationInspector< C extends Configuration > implements Configuration.Inspector< C > {
 
   private final ImmutableSortedMap< String, ValuedProperty> properties ;
   private final ThreadLocal<Configuration.Property< C >> lastAccessed ;
 
-  public ConfigurationSupport(
-      final ImmutableSortedMap< String, ValuedProperty> properties,
-      final ThreadLocal<Configuration.Property< C >> lastAccessed
+  public ConfigurationInspector(
+      final ImmutableSortedMap<String, ValuedProperty> properties,
+      final ThreadLocal<Configuration.Property<C>> lastAccessed
   ) {
     this.properties = checkNotNull( properties ) ;
     this.lastAccessed = checkNotNull( lastAccessed ) ;
   }
 
   interface SupportEnabled {
-    Configuration.Support $$support$$() ;
+    Configuration.Inspector $$support$$() ;
   }
 
 // =======

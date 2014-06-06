@@ -142,22 +142,22 @@ public class ConfigurationToolsTest {
     final ConfigurationFixture.StringWithDefault configuration
         = factory.create( newSource( "" ) ) ;
 
-    final Configuration.Support< ConfigurationFixture.StringWithDefault > support
+    final Configuration.Inspector< ConfigurationFixture.StringWithDefault > inspector
         = ConfigurationTools.support( configuration ) ;
     final Configuration.Property< ConfigurationFixture.StringWithDefault >
-        property = support.properties().get( "string" ) ;
+        property = inspector.properties().get( "string" ) ;
 
-    assertThat( support.usingDefault( property ) ).isTrue() ;
-    assertThat( support.sourceOf( property ).sourceName() ).isEqualTo(
+    assertThat( inspector.usingDefault( property ) ).isTrue() ;
+    assertThat( inspector.sourceOf( property ).sourceName() ).isEqualTo(
           "java:Annotations{"
         + ConfigurationFixture.class.getName()
         + '$' + ConfigurationFixture.StringWithDefault.class.getSimpleName()
         + "}"
     ) ;
 
-    assertThat( support.lastAccessed() ).isNull() ;
+    assertThat( inspector.lastAccessed() ).isNull() ;
     configuration.string() ;
-    assertThat( support.lastAccessed() ).isSameAs( property ) ;
+    assertThat( inspector.lastAccessed() ).isSameAs( property ) ;
   }
 
   @Test
