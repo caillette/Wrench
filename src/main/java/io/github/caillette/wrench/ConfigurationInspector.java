@@ -18,7 +18,7 @@ class ConfigurationInspector< C extends Configuration > implements Configuration
     this.lastAccessed = checkNotNull( lastAccessed ) ;
   }
 
-  interface SupportEnabled {
+  interface InspectorEnabled {
     Configuration.Inspector $$inspector$$() ;
   }
 

@@ -417,7 +417,7 @@ public abstract class TemplateBasedFactory< C extends Configuration >
     final ImmutableMap< Method, ValuedProperty > valuedPropertiesByMethod = builder.build() ;
     return ( C ) Proxy.newProxyInstance(
         getClass().getClassLoader(),
-        new Class[]{ configurationClass, ConfigurationInspector.SupportEnabled.class },
+        new Class[]{ configurationClass, ConfigurationInspector.InspectorEnabled.class },
         new AbstractInvocationHandler() {
           @SuppressWarnings( "NullableProblems" )
           @Override
@@ -426,7 +426,9 @@ public abstract class TemplateBasedFactory< C extends Configuration >
               final Method method,
               final Object[] args
           ) throws Throwable {
-            if ( method.getDeclaringClass().equals( ConfigurationInspector.SupportEnabled.class ) ) {
+            if ( method.getDeclaringClass()
+                .equals( ConfigurationInspector.InspectorEnabled.class )
+            ) {
               if ( "$$inspector$$".equals( method.getName() ) ) {
                 return inspector;
               } else {

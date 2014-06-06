@@ -1,12 +1,9 @@
 package io.github.caillette.wrench;
 
-import com.google.common.collect.ImmutableMap;
 import com.google.common.reflect.AbstractInvocationHandler;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
-import java.util.HashMap;
-import java.util.Map;
 
 public final class PropertySetupCollector2< C extends Configuration> {
   public final C template ;

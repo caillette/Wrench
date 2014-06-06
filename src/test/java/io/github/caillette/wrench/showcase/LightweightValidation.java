@@ -4,7 +4,6 @@ import com.google.common.collect.ImmutableSet;
 import io.github.caillette.wrench.*;
 import org.junit.Test;
 
-import static io.github.caillette.wrench.Configuration.Annotations.ValidateWith;
 import static io.github.caillette.wrench.Validator.Accumulator;
 import static org.fest.assertions.Assertions.assertThat;
 import static org.junit.Assert.fail;

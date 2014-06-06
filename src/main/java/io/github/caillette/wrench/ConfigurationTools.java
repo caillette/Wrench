@@ -12,7 +12,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static io.github.caillette.wrench.Configuration.Annotations;
 import static io.github.caillette.wrench.Configuration.Annotations.Convert;
 import static io.github.caillette.wrench.Configuration.Factory;
-import static io.github.caillette.wrench.Configuration.Inspector;
 
 /**
  * Utility methods to create {@link Configuration.Factory} and {@link Configuration.Inspector}
@@ -43,7 +42,7 @@ public final class ConfigurationTools {
 
   @SuppressWarnings( "unchecked" )
   public static < C extends Configuration > Configuration.Inspector< C > inspector( C configuration ) {
-    return ( ( ConfigurationInspector.SupportEnabled ) configuration ).$$inspector$$() ;
+    return ( ( ConfigurationInspector.InspectorEnabled ) configuration ).$$inspector$$() ;
   }
   
 // ===============

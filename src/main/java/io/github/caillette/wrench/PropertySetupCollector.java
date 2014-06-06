@@ -2,8 +2,6 @@ package io.github.caillette.wrench;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.reflect.AbstractInvocationHandler;
-import io.github.caillette.wrench.Configuration;
-import io.github.caillette.wrench.DeclarationException;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;

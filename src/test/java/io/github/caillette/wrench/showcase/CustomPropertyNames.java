@@ -1,6 +1,9 @@
 package io.github.caillette.wrench.showcase;
 
-import io.github.caillette.wrench.*;
+import io.github.caillette.wrench.Configuration;
+import io.github.caillette.wrench.NameTransformers;
+import io.github.caillette.wrench.Sources;
+import io.github.caillette.wrench.TemplateBasedFactory;
 import org.junit.Test;
 
 import static org.fest.assertions.Assertions.assertThat;

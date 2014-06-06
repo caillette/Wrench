@@ -5,7 +5,6 @@ import io.github.caillette.wrench.ConfigurationTools;
 import io.github.caillette.wrench.Sources;
 import org.junit.Test;
 
-import static io.github.caillette.wrench.Configuration.Annotations.DefaultValue;
 import static org.fest.assertions.Assertions.assertThat;
 
 public class PropertiesOverriding {

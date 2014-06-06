@@ -1,7 +1,10 @@
 package io.github.caillette.wrench;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.*;
+import com.google.common.collect.ImmutableCollection;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.ImmutableSortedMap;
 import com.google.common.reflect.AbstractInvocationHandler;
 
 import java.lang.reflect.Method;
@@ -189,7 +192,7 @@ class ConfigurationFactory< C extends Configuration > implements Configuration.F
     final ImmutableMap< Method, ValuedProperty > valuedPropertiesByMethod = builder.build() ;
     return ( C ) Proxy.newProxyInstance(
         getClass().getClassLoader(),
-        new Class[]{ configurationClass, ConfigurationInspector.SupportEnabled.class },
+        new Class[]{ configurationClass, ConfigurationInspector.InspectorEnabled.class },
         new AbstractInvocationHandler() {
           @SuppressWarnings( "NullableProblems" )
           @Override
@@ -198,7 +201,7 @@ class ConfigurationFactory< C extends Configuration > implements Configuration.F
               final Method method,
               final Object[] args
           ) throws Throwable {
-            if( method.getDeclaringClass().equals( ConfigurationInspector.SupportEnabled.class ) ) {
+            if( method.getDeclaringClass().equals( ConfigurationInspector.InspectorEnabled.class ) ) {
               if( "$$inspector$$".equals( method.getName() ) ) {
                 return inspector;
               } else {

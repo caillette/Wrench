@@ -136,7 +136,7 @@ public class ConfigurationToolsTest {
   }
 
   @Test
-  public void support() throws Exception {
+  public void inspector() throws Exception {
     final Factory< ConfigurationFixture.StringWithDefault > factory
         = ConfigurationTools.newAnnotationBasedFactory( ConfigurationFixture.StringWithDefault.class ) ;
     final ConfigurationFixture.StringWithDefault configuration
