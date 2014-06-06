@@ -158,6 +158,7 @@ public abstract class TemplateBasedFactory< C extends Configuration >
           = resolveDefaultValueAsString( features, defaultValue ) ;
       final boolean maybeNull = resolveMayBeNull( features ) ;
       final Pattern obfuscatorPattern = resolveObfuscatorPattern( features ) ;
+      final String documentation = resolveDocumentation( features ) ;
       final ConfigurationProperty< C > configurationProperty = new ConfigurationProperty<>(
           method,
           propertyName,
@@ -165,7 +166,8 @@ public abstract class TemplateBasedFactory< C extends Configuration >
           defaultValueAsString,
           converter,
           maybeNull,
-          obfuscatorPattern
+          obfuscatorPattern,
+          documentation
       ) ;
       propertyBuilder.put( propertyName, configurationProperty ) ;
     }
@@ -272,6 +274,14 @@ public abstract class TemplateBasedFactory< C extends Configuration >
         Configuration.PropertySetup2.Feature.OBFUSCATOR ) ;
     obfuscatorPattern = explicitPattern ;
     return obfuscatorPattern;
+  }
+
+  private static String resolveDocumentation(
+      final Map< Configuration.PropertySetup2.Feature, Object > features
+  ) {
+    String documentation = ( String ) features.get(
+        Configuration.PropertySetup2.Feature.DOCUMENTATION ) ;
+    return documentation ;
   }
 
   private static String resolveDefaultValueAsString( Map<Configuration.PropertySetup2.Feature, Object> features, Object defaultValue ) {

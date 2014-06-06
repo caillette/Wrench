@@ -22,14 +22,16 @@ class ConfigurationProperty< C extends Configuration >
   private final Object defaultValue ;
   private final boolean maybeNull ;
   private final Pattern obfuscatorPattern ;
+  private final String documentation ;
 
+  @Deprecated
   ConfigurationProperty(
       final Method method,
       final String name,
       final Configuration.Converter converter,
       final String defaultValueAsString,
-      boolean maybeNull,
-      Pattern obfuscatorPattern
+      final boolean maybeNull,
+      final Pattern obfuscatorPattern
   ) throws ConvertException {
 
     this.method = checkNotNull( method ) ;
@@ -57,6 +59,8 @@ class ConfigurationProperty< C extends Configuration >
     this.maybeNull = maybeNull ;
 
     this.obfuscatorPattern = obfuscatorPattern ;
+
+    this.documentation = null ;
   }
   ConfigurationProperty(
       final Method method,
@@ -65,7 +69,8 @@ class ConfigurationProperty< C extends Configuration >
       final String defaultValueAsString,
       final Configuration.Converter converter,
       final boolean maybeNull,
-      final Pattern obfuscatorPattern
+      final Pattern obfuscatorPattern,
+      final String documentation
   ) {
     checkArgument( ! Strings.isNullOrEmpty( name ) ) ;
     this.method = checkNotNull( method ) ;
@@ -75,6 +80,7 @@ class ConfigurationProperty< C extends Configuration >
     this.converter = checkNotNull( converter ) ;
     this.maybeNull = maybeNull ;
     this.obfuscatorPattern = obfuscatorPattern ;
+    this.documentation = documentation == null ? "" : null ;
   }
 
 
@@ -116,6 +122,11 @@ class ConfigurationProperty< C extends Configuration >
   @Override
   public boolean maybeNull() {
     return maybeNull ;
+  }
+
+  @Override
+  public String documentation() {
+    return documentation ;
   }
 
   @Override
