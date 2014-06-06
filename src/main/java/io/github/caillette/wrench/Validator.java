@@ -14,15 +14,15 @@ public interface Validator< C extends Configuration > {
   /**
    * @return a non-{@code null} object.
    */
-  ImmutableSet< Infrigement< C > > validate( C configuration ) ;
+  ImmutableSet< Bad< C > > validate( C configuration ) ;
 
-  class Infrigement< C extends Configuration > {
+  class Bad< C extends Configuration > {
     public final Configuration.Property< C > property ;
     public final String propertyValue ;
     public final String message ;
     public final Configuration.Source source ;
 
-    public Infrigement(
+    public Bad(
         final Configuration.Property< C > property,
         final String propertyValue,
         final Configuration.Source source,
@@ -34,7 +34,7 @@ public interface Validator< C extends Configuration > {
       this.message = message ;
     }
 
-    public Infrigement(
+    public Bad(
         final Configuration.Property< C > property,
         final String message
     ) {
@@ -44,7 +44,7 @@ public interface Validator< C extends Configuration > {
       this.message = message ;
     }
 
-    public Infrigement( final String message ) {
+    public Bad( final String message ) {
       this.property = null ;
       this.propertyValue = null ;
       this.source = null ;
@@ -54,11 +54,11 @@ public interface Validator< C extends Configuration > {
   }
 
   /**
-   * Offers built-in validation methods that accumulate {@link Validator.Infrigement} instances.
+   * Offers built-in validation methods that accumulate {@link io.github.caillette.wrench.Validator.Bad} instances.
    */
   class Accumulator< C extends Configuration > {
 
-    private final ImmutableSet.Builder< Infrigement< C > > builder
+    private final ImmutableSet.Builder< Bad< C > > builder
         = ImmutableSet.builder() ;
 
     private final Configuration.Inspector< C > inspector;
@@ -67,26 +67,49 @@ public interface Validator< C extends Configuration > {
       this.inspector = ConfigurationTools.inspector( configuration ) ;
     }
 
-    public ImmutableSet< Infrigement< C > > done() {
+    public ImmutableSet< Bad< C > > done() {
       return builder.build() ;
     }
 
     public void throwValidationExceptionIfHasInfrigements() throws ValidationException {
-      final ImmutableSet< Infrigement > done
-          = ( ImmutableSet< Infrigement >  ) ( ImmutableSet ) done() ;
+      final ImmutableSet<Bad> done
+          = ( ImmutableSet<Bad>  ) ( ImmutableSet ) done() ;
       if( done.size() > 0 ) {
         throw new ValidationException( done ) ;
       }
     }
 
     public void throwDeclarationExceptionIfHasInfrigements() throws DeclarationException {
-      final ImmutableSet< Infrigement > done
-          = ( ImmutableSet< Infrigement >  ) ( ImmutableSet ) done() ;
+      final ImmutableSet<Bad> done
+          = ( ImmutableSet<Bad>  ) ( ImmutableSet ) done() ;
       if( done.size() > 0 ) {
         DeclarationException.throwWith( done ) ;
       }
     }
 
+
+    public Accumulator< C > justVerify( final boolean mustBeTrue, String message ) {
+      if( ! mustBeTrue ) {
+        justAdd( message ) ;
+      }
+      return this ;
+    }
+
+
+
+    public Accumulator< C > justAdd( String message ) {
+      builder.add( new Bad< C >( message ) ) ;
+      return this ;
+    }
+
+
+
+    public Accumulator< C > verify( final boolean mustBeTrue ) {
+      if( ! mustBeTrue ) {
+        add( null ) ;
+      }
+      return this ;
+    }
 
     public Accumulator< C > verify( final boolean mustBeTrue, String message ) {
       if( ! mustBeTrue ) {
@@ -95,40 +118,17 @@ public interface Validator< C extends Configuration > {
       return this ;
     }
 
-
-
     public Accumulator< C > add( String message ) {
-      builder.add( new Infrigement< C >( message ) ) ;
-      return this ;
-    }
-
-
-
-    public Accumulator< C > smartVerify( final boolean mustBeTrue ) {
-      if( ! mustBeTrue ) {
-        smartAdd( null ) ;
-      }
-      return this ;
-    }
-
-    public Accumulator< C > smartVerify( final boolean mustBeTrue, String message ) {
-      if( ! mustBeTrue ) {
-        smartAdd( message ) ;
-      }
-      return this ;
-    }
-
-    public Accumulator< C > smartAdd( String message ) {
       final Configuration.Property< C > property = inspector.lastAccessed() ;
-      return smartAdd( property, message ) ;
+      return add( property, message ) ;
     }
 
-    public Accumulator< C > smartAdd(
-        final Configuration.Property< C > property,
+    public Accumulator< C > add(
+        final Configuration.Property<C> property,
         String message
     ) {
       checkState( property != null ) ;
-      builder.add( new Infrigement<>(
+      builder.add( new Bad<>(
           property,
           inspector.stringValueOf( property ),
           inspector.sourceOf( property ),
@@ -142,7 +142,7 @@ public interface Validator< C extends Configuration > {
         String message
     ) {
       checkState( property != null ) ;
-      builder.add( new Infrigement<>(
+      builder.add( new Bad<>(
           property,
           message
       ) ) ;

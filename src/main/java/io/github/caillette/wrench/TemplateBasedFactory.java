@@ -360,9 +360,9 @@ public abstract class TemplateBasedFactory< C extends Configuration >
 
     verifyNoUndefinedProperty( configuration, propertySet, valuedProperties ) ;
 
-    final ImmutableSet< Validator.Infrigement< C > > validation = validate( configuration ) ;
+    final ImmutableSet<Validator.Bad< C >> validation = validate( configuration ) ;
     if( ! validation.isEmpty() ) {
-      throw new ValidationException( ( Iterable< Validator.Infrigement > ) ( Object ) validation ) ;
+      throw new ValidationException( ( Iterable<Validator.Bad> ) ( Object ) validation ) ;
     }
 
     return configuration ;
@@ -383,7 +383,7 @@ public abstract class TemplateBasedFactory< C extends Configuration >
     return builder.build() ;
   }
 
-  protected ImmutableSet< Validator.Infrigement< C > > validate( final C configuration ) {
+  protected ImmutableSet<Validator.Bad< C >> validate( final C configuration ) {
     return ImmutableSet.of() ;
   }
 

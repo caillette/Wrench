@@ -19,7 +19,7 @@ public class DeclarationException extends ConfigurationException {
     super( causes ) ;
   }
 
-  public static DeclarationException throwWith( Iterable< Validator.Infrigement > causes )
+  public static DeclarationException throwWith( Iterable<Validator.Bad> causes )
       throws DeclarationException
   {
     throw new DeclarationException( singleMessageFromInfrigements( causes ) ) ;

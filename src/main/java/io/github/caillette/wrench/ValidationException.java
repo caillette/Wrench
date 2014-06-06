@@ -5,7 +5,7 @@ package io.github.caillette.wrench;
  */
 public class ValidationException extends ConfigurationException {
 
-  public ValidationException( Iterable< Validator.Infrigement > causes ) {
+  public ValidationException( Iterable<Validator.Bad> causes ) {
     super( singleMessageFromInfrigements( causes ) ) ;
   }
 

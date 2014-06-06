@@ -10,22 +10,22 @@ import static org.fest.assertions.Assertions.assertThat;
 public class SimplestUsage {
 
   public interface Simple extends Configuration {
-    Integer number() ;
-    String string() ;
+    Integer myNumber() ;
+    String myString() ;
   }
 
   @Test
   public void test() throws Exception {
     final Configuration.Factory< Simple > factory = ConfigurationTools.newFactory( Simple.class ) ;
     final Simple configuration = factory.create( Sources.newSource(
-        "number = 123",
-        "string = foo"
+        "myNumber = 123",
+        "myString = foo"
     ) ) ;
 
-    assertThat( configuration.number() ).isEqualTo( 123 ) ;
-    assertThat( configuration.string() ).isEqualTo( "foo" ) ;
+    assertThat( configuration.myNumber() ).isEqualTo( 123 ) ;
+    assertThat( configuration.myString() ).isEqualTo( "foo" ) ;
     assertThat( configuration.toString() )
-        .isEqualTo( "SimplestUsage$Simple{number=123; string=foo}" ) ;
+        .isEqualTo( "SimplestUsage$Simple{myNumber=123; myString=foo}" ) ;
   }
 
 }

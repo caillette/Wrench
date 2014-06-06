@@ -32,22 +32,23 @@ public class ConfigurationException extends Exception {
     super( cause );
   }
 
-  protected static String singleMessageFromInfrigements( Iterable< Validator.Infrigement > causes ) {
+  protected static String singleMessageFromInfrigements( Iterable<Validator.Bad> causes ) {
     final StringBuilder stringBuilder = new StringBuilder() ;
-    for( final Validator.Infrigement infrigement : causes ) {
+    for( final Validator.Bad bad : causes ) {
       stringBuilder.append( "\n    " ) ;
-      if( infrigement.property != null ) {
-        stringBuilder.append( infrigement.property.name() ) ;
-        stringBuilder.append( " -> '" ) ;
-        stringBuilder.append( infrigement.propertyValue ) ;
-        stringBuilder.append( "' - " ) ;
+      if( bad.property != null ) {
+        stringBuilder.append( "[ " ) ;
+        stringBuilder.append( bad.property.name() ) ;
+        stringBuilder.append( " -> " ) ;
+        stringBuilder.append( bad.propertyValue ) ;
+        stringBuilder.append( " ] " ) ;
       }
-      stringBuilder.append( infrigement.message ) ;
-      if( infrigement.source == null ) {
+      stringBuilder.append( bad.message ) ;
+      if( bad.source == null ) {
         stringBuilder.append( " - No source " ) ;
       } else {
         stringBuilder.append( " - Source: " ) ;
-        stringBuilder.append( infrigement.source.sourceName() ) ;
+        stringBuilder.append( bad.source.sourceName() ) ;
       }
     }
     return stringBuilder.toString() ;
