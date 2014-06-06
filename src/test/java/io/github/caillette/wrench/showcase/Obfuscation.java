@@ -1,6 +1,7 @@
 package io.github.caillette.wrench.showcase;
 
 import io.github.caillette.wrench.Configuration;
+import io.github.caillette.wrench.ConfigurationTools;
 import io.github.caillette.wrench.TemplateBasedFactory;
 import org.junit.Test;
 

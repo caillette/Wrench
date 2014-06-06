@@ -112,7 +112,16 @@ public interface Configuration {
 
     Converter converter() ;
 
+    /**
+     * Allows nullity.
+     * By default there must be a value corresponding to every {@link Property}
+     * in evaluated {@link Source}s.
+     * It also makes sense if there is a default value, when property evaluation
+     * (like with a {@link Converter}) returns {@code null}.
+     */
     boolean maybeNull() ;
+
+    String documentation() ;
 
 
     Comparator< Property > COMPARATOR = ConfigurationProperty.COMPARATOR ;
