@@ -411,8 +411,8 @@ public abstract class TemplateBasedFactory< C extends Configuration >
   @SuppressWarnings( "unchecked" )
   private C createProxy( final ImmutableSortedMap< String, ValuedProperty> properties ) {
     final ThreadLocal< Configuration.Property< C > > lastAccessedProperty = new ThreadLocal<>() ;
-    final Configuration.Support support
-        = new ConfigurationSupport( properties, lastAccessedProperty ) ;
+    final Configuration.Inspector inspector
+        = new ConfigurationInspector( properties, lastAccessedProperty ) ;
     final ImmutableMap.Builder< Method, ValuedProperty > builder = ImmutableMap.builder() ;
     for( final ValuedProperty valuedProperty : properties.values() ) {
       builder.put( valuedProperty.property.declaringMethod(), valuedProperty ) ;
@@ -420,7 +420,7 @@ public abstract class TemplateBasedFactory< C extends Configuration >
     final ImmutableMap< Method, ValuedProperty > valuedPropertiesByMethod = builder.build() ;
     return ( C ) Proxy.newProxyInstance(
         getClass().getClassLoader(),
-        new Class[]{ configurationClass, ConfigurationSupport.SupportEnabled.class },
+        new Class[]{ configurationClass, ConfigurationInspector.SupportEnabled.class },
         new AbstractInvocationHandler() {
           @SuppressWarnings( "NullableProblems" )
           @Override
@@ -429,9 +429,9 @@ public abstract class TemplateBasedFactory< C extends Configuration >
               final Method method,
               final Object[] args
           ) throws Throwable {
-            if ( method.getDeclaringClass().equals( ConfigurationSupport.SupportEnabled.class ) ) {
-              if ( "$$support$$".equals( method.getName() ) ) {
-                return support;
+            if ( method.getDeclaringClass().equals( ConfigurationInspector.SupportEnabled.class ) ) {
+              if ( "$$inspector$$".equals( method.getName() ) ) {
+                return inspector;
               } else {
                 throw new UnsupportedOperationException( "Unsupported: "
                     + method.getDeclaringClass() + "#" + method.getName() );

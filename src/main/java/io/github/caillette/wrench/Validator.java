@@ -61,10 +61,10 @@ public interface Validator< C extends Configuration > {
     private final ImmutableSet.Builder< Infrigement< C > > builder
         = ImmutableSet.builder() ;
 
-    private final Configuration.Support< C > support ;
+    private final Configuration.Inspector< C > inspector;
 
     public Accumulator( C configuration ) {
-      this.support = ConfigurationTools.support( configuration ) ;
+      this.inspector = ConfigurationTools.inspector( configuration ) ;
     }
 
     public ImmutableSet< Infrigement< C > > done() {
@@ -111,7 +111,7 @@ public interface Validator< C extends Configuration > {
     }
 
     public Accumulator< C > smartAdd( String message ) {
-      final Configuration.Property< C > property = support.lastAccessed() ;
+      final Configuration.Property< C > property = inspector.lastAccessed() ;
       return smartAdd( property, message ) ;
     }
 
@@ -122,8 +122,8 @@ public interface Validator< C extends Configuration > {
       checkState( property != null ) ;
       builder.add( new Infrigement<>(
           property,
-          support.stringValueOf( property ),
-          support.sourceOf( property ),
+          inspector.stringValueOf( property ),
+          inspector.sourceOf( property ),
           message
       ) ) ;
       return this ;
