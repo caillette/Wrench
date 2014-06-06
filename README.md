@@ -98,8 +98,9 @@ factory = new TemplateBasedFactory< Simple >( Simple.class ) {
     return accumulator.done() ;
   }
 } ;
-final Simple configuration = factory.create(
-    Sources.newSource( "my-binary-number = 1111011" ) ) ;
+
+final Simple configuration = factory.create( Sources.newSource(
+    "my-binary-number = 1111011" ) ) ;
 
 final Inspector< Simple > inspector = ConfigurationTools.inspector( configuration ) ;
 assertThat( configuration.myNumber() ).isEqualTo( 123 ) ;
@@ -107,8 +108,9 @@ assertThat( inspector.usingDefault( inspector.lastAccessed() ) ).isFalse() ;
 assertThat( configuration.myString() ).isEqualTo( "FOO" ) ;
 assertThat( inspector.usingDefault( inspector.lastAccessed() ) ).isTrue() ;
 assertThat( inspector.lastAccessed().name() ).isEqualTo( "my-string" ) ;
+}
 ```
 
-See tests for more use cases.
+See [tests](https://github.com/caillette/Wrench/tree/master/src/test/java/io/github/caillette/wrench/showcase) for more use cases.
 
 
