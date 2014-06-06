@@ -134,6 +134,8 @@ public interface Configuration {
     /**
      * @param definingMethod the defining method, could help in some cases.
      * @param input a possibly null {@code String}
+     * @return the converted value, that can also be {@code null}.
+     * @throws Exception if any problem occured.
      */
     T convert( Method definingMethod, String input ) throws Exception ;
   }

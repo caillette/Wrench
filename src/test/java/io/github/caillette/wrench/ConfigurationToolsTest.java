@@ -147,7 +147,6 @@ public class ConfigurationToolsTest {
     final Configuration.Property< ConfigurationFixture.StringWithDefault >
         property = inspector.properties().get( "string" ) ;
 
-    assertThat( inspector.usingDefault( property ) ).isTrue() ;
     assertThat( inspector.sourceOf( property ).sourceName() ).isEqualTo(
           "java:Annotations{"
         + ConfigurationFixture.class.getName()

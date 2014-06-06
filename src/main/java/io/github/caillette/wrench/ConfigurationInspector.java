@@ -38,7 +38,7 @@ class ConfigurationInspector< C extends Configuration > implements Configuration
 
   @Override
   public boolean usingDefault( Configuration.Property< C > property ) {
-    return valuedSlot( property ).source instanceof PropertyDefaultSource ;
+    return valuedSlot( property ).usingDefault ;
   }
 
   @Override

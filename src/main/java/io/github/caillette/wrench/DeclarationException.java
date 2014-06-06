@@ -6,11 +6,16 @@ package io.github.caillette.wrench;
  *
  */
 public class DeclarationException extends ConfigurationException {
-  public DeclarationException( String message ) {
+
+  public DeclarationException( final String message ) {
     super( message ) ;
   }
 
-  public DeclarationException( String message, Throwable cause ) {
-    super( message, cause );
+  public DeclarationException( final String message, final Throwable cause ) {
+    super( message, cause ) ;
+  }
+
+  public DeclarationException( final Iterable< ConfigurationException > causes ) {
+    super( causes ) ;
   }
 }

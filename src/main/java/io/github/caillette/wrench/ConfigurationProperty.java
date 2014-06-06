@@ -80,7 +80,7 @@ class ConfigurationProperty< C extends Configuration >
     this.converter = checkNotNull( converter ) ;
     this.maybeNull = maybeNull ;
     this.obfuscatorPattern = obfuscatorPattern ;
-    this.documentation = documentation == null ? "" : null ;
+    this.documentation = documentation == null ? "" : documentation ;
   }
 
 
