@@ -3,9 +3,11 @@ Wrench
 
 Wrench is a Java library for reading configuration files and command-line arguments in the safest possible way. It use static typing and fail-fast wherever it can.
 
-Wrench started as a conceptual spin-off of the [OWNER](https://github.com/lviggiano/owner) project. Annotations quickly showed their limits when defining default values or property constraints, which must be Strings or classes instead of real objects. Wrench turns the broken declarative approach into an imperative one, through clever use of a dynamic proxy to transform a method call into property designation.(This esoteric gibberish will probably become clearer after reading the examples below.)   
+Wrench started as a conceptual spin-off of the [OWNER](https://github.com/lviggiano/owner) project. Annotations quickly showed their limits when defining default values or property constraints, which must be Strings or classes instead of real objects. Wrench ended up with a purely imperative approach.    
 
 Wrench is tailored for usage in a closed-source project. So it's main purpose here on Github is to showcase a pair of coding ideas.
+
+Wrench requires at least Java 7. It doesn't use Java 8 constructs yet.
 
 
 Basic usage
