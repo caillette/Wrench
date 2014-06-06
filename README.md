@@ -7,7 +7,7 @@ Wrench started as a conceptual spin-off of the [OWNER](https://github.com/lviggi
 
 Wrench is tailored for usage in a closed-source project. So it's main purpose here on Github is to showcase a pair of coding ideas.
 
-Wrench requires at least Java 7. It doesn't use Java 8 constructs yet, but this is planned (first-class methods are insanely great). 
+Wrench requires at least Java 7. It doesn't use Java 8 constructs yet, but this is planned (first-class methods look promising). 
 
 
 Basic usage
