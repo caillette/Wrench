@@ -68,10 +68,19 @@ factory = new TemplateBasedFactory< Simple >( Simple.class ) {
   @Override
   protected void initialize() {
     on( template.myNumber() )
-        .defaultValue( 123 )
+        .name( "my-binary-number" )
         .maybeNull()
-        .converter( new Converters.IntoIntegerObject() )
+        .converter( new Configuration.Converter() {
+          @Override
+          public Object convert( Method definingMethod, String input ) throws Exception {
+            return Integer.parseInt( input, 2 ) ;
+          }
+        } )
         .documentation( "Just a number." )
+    ;
+    on( template.myString() )
+        .defaultValue( "FOO" )
+        .documentation( "Just a string." )
     ;
     setGlobalNameTransformer( NameTransformers.LOWER_HYPHEN ) ;
   }
@@ -89,10 +98,15 @@ factory = new TemplateBasedFactory< Simple >( Simple.class ) {
     return accumulator.done() ;
   }
 } ;
-final Simple configuration = factory.create( Sources.newSource( "my-string = FOO" ) ) ;
+final Simple configuration = factory.create(
+    Sources.newSource( "my-binary-number = 1111011" ) ) ;
 
+final Inspector< Simple > inspector = ConfigurationTools.inspector( configuration ) ;
 assertThat( configuration.myNumber() ).isEqualTo( 123 ) ;
+assertThat( inspector.usingDefault( inspector.lastAccessed() ) ).isFalse() ;
 assertThat( configuration.myString() ).isEqualTo( "FOO" ) ;
+assertThat( inspector.usingDefault( inspector.lastAccessed() ) ).isTrue() ;
+assertThat( inspector.lastAccessed().name() ).isEqualTo( "my-string" ) ;
 ```
 
 See tests for more use cases.
