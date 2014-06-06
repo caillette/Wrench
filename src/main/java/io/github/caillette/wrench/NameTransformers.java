@@ -3,8 +3,7 @@ package io.github.caillette.wrench;
 import com.google.common.base.CaseFormat;
 
 /**
- * Class to reference using the
- * {@link io.github.caillette.wrench.Configuration.Annotations.TransformName} annotation.
+ * Commonly used {@link io.github.caillette.wrench.Configuration.NameTransformer}s.
  */
 public final class NameTransformers {
 

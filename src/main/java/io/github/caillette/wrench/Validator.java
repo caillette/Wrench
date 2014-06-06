@@ -71,11 +71,19 @@ public interface Validator< C extends Configuration > {
       return builder.build() ;
     }
 
-    public void throwExceptionIfHasInfrigements() throws ValidationException {
+    public void throwValidationExceptionIfHasInfrigements() throws ValidationException {
       final ImmutableSet< Infrigement > done
           = ( ImmutableSet< Infrigement >  ) ( ImmutableSet ) done() ;
       if( done.size() > 0 ) {
         throw new ValidationException( done ) ;
+      }
+    }
+
+    public void throwDeclarationExceptionIfHasInfrigements() throws DeclarationException {
+      final ImmutableSet< Infrigement > done
+          = ( ImmutableSet< Infrigement >  ) ( ImmutableSet ) done() ;
+      if( done.size() > 0 ) {
+        DeclarationException.throwWith( done ) ;
       }
     }
 

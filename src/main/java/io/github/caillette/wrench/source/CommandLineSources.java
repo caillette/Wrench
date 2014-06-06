@@ -46,11 +46,11 @@ public final class CommandLineSources {
   }
 
   public static < C extends Configuration > C createConfiguration(
-      final Configuration.Factory<C> factory,
+      final Configuration.Factory< C > factory,
       final String fileListArgumentName,
       final String propertyNameMarker,
       final String argumentListEndMarker,
-      final ImmutableList<String> filenamesAndCommandLineArguments
+      final ImmutableList< String > filenamesAndCommandLineArguments
   ) throws ConfigurationException, IOException {
     final Configuration.Source[] sources = createSources(
         fileListArgumentName,

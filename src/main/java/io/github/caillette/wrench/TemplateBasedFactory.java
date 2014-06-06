@@ -17,7 +17,10 @@ import static io.github.caillette.wrench.Configuration.Source;
 import static io.github.caillette.wrench.Configuration.Source.Stringified;
 
 /**
- * @author Laurent Caillette
+ * Extend this class to create a {@link Configuration.Factory} with additional constraints
+ * and defaults.
+ *
+ * @see ConfigurationTools#newFactory(Class)
  */
 public abstract class TemplateBasedFactory< C extends Configuration >
     implements Configuration.Factory< C >
@@ -36,7 +39,7 @@ public abstract class TemplateBasedFactory< C extends Configuration >
       for( final Method method : methods ) {
         if( method.getParameterTypes().length == 0 ) {
           constructionKit.features.put(
-              method, new HashMap< Configuration.PropertySetup2.Feature, Object >() ) ;
+              method, new HashMap< Configuration.PropertySetup.Feature, Object >() ) ;
         } else {
           throw new DefinitionException(
               "Should have no parameters: " + method.toGenericString() ) ;
@@ -44,13 +47,13 @@ public abstract class TemplateBasedFactory< C extends Configuration >
       }
       currentClass = currentClass.getSuperclass() ;
     }
-    constructionKit.collector = new PropertySetupCollector2<>(
+    constructionKit.collector = new PropertySetupCollector<>(
         configurationClass,
-        new Configuration.PropertySetup2.SetupAcceptor() {
+        new Configuration.PropertySetup.SetupAcceptor() {
           @Override
           public void accept(
               final Method method,
-              final Configuration.PropertySetup2.Feature feature,
+              final Configuration.PropertySetup.Feature feature,
               final Object object
           ) {
             acceptFeature( method, feature, object ) ;
@@ -68,9 +71,9 @@ public abstract class TemplateBasedFactory< C extends Configuration >
   }
 
   private static class ConstructionKit< C extends Configuration > {
-    private final Map< Method, Map< Configuration.PropertySetup2.Feature, Object > > features
+    private final Map< Method, Map< Configuration.PropertySetup.Feature, Object > > features
         = new HashMap<>() ;
-    public PropertySetupCollector2< C > collector ;
+    public PropertySetupCollector< C > collector ;
     public ImmutableMap< Class< ? >, Configuration.Converter > transientConverters
         = Converters.DEFAULTS ;
     public Configuration.NameTransformer transientNameTransformer = NameTransformers.IDENTITY ;
@@ -78,10 +81,10 @@ public abstract class TemplateBasedFactory< C extends Configuration >
 
   private void acceptFeature(
       final Method method,
-      final Configuration.PropertySetup2.Feature feature,
+      final Configuration.PropertySetup.Feature feature,
       final Object object
   ) {
-    final Map< Configuration.PropertySetup2.Feature, Object > propertyFeaturesMap
+    final Map< Configuration.PropertySetup.Feature, Object > propertyFeaturesMap
         = constructionKit.features.get( method ) ;
     if( propertyFeaturesMap == null ) {
       throw new IllegalArgumentException( "Unknown: " + method ) ;
@@ -117,7 +120,7 @@ public abstract class TemplateBasedFactory< C extends Configuration >
 
   protected void initialize() { }
 
-  protected final < T > Configuration.PropertySetup2< C, T > on(
+  protected final < T > Configuration.PropertySetup< C, T > on(
       final T templateCallResult
   ) {
     checkInitializing() ;
@@ -134,18 +137,18 @@ public abstract class TemplateBasedFactory< C extends Configuration >
 
   private static< C extends Configuration > ImmutableMap< String, Configuration.Property< C > >
   buildPropertyMap(
-      final Map< Method, Map<Configuration.PropertySetup2.Feature, Object > > allFeatures,
+      final Map< Method, Map<Configuration.PropertySetup.Feature, Object > > allFeatures,
       final ImmutableMap< Class< ? >, Configuration.Converter > defaultConverters,
       final Configuration.NameTransformer globalNameTransformer
   ) throws DefinitionException {
 
     final Map< String, Configuration.Property< C > > propertyBuilder = new HashMap<>() ;
 
-    for( final Map.Entry< Method, Map< Configuration.PropertySetup2.Feature, Object > > entry
+    for( final Map.Entry< Method, Map< Configuration.PropertySetup.Feature, Object > > entry
         : allFeatures.entrySet()
     ) {
       final Method method = entry.getKey() ;
-      final Map< Configuration.PropertySetup2.Feature, Object > features = entry.getValue() ;
+      final Map< Configuration.PropertySetup.Feature, Object > features = entry.getValue() ;
 
       final Configuration.Converter converter
           = resolveConverter( method, features, defaultConverters ) ;
@@ -193,10 +196,10 @@ public abstract class TemplateBasedFactory< C extends Configuration >
   }
 
   private static Object resolveDefaultValue(
-      final Map< Configuration.PropertySetup2.Feature, Object > features
+      final Map< Configuration.PropertySetup.Feature, Object > features
   ) {
     return features.get(
-        Configuration.PropertySetup2.Feature.DEFAULT_VALUE );
+        Configuration.PropertySetup.Feature.DEFAULT_VALUE );
   }
 
   private static String resolvePropertyName(
@@ -221,27 +224,27 @@ public abstract class TemplateBasedFactory< C extends Configuration >
   }
 
   private static String resolveExplicitName(
-      final Map<Configuration.PropertySetup2.Feature, Object> features
+      final Map<Configuration.PropertySetup.Feature, Object> features
   ) {
     return ( String ) features.get(
-        Configuration.PropertySetup2.Feature.NAME ) ;
+        Configuration.PropertySetup.Feature.NAME ) ;
   }
 
   private static Configuration.NameTransformer resolveNameTransformer(
-      final Map< Configuration.PropertySetup2.Feature, Object > features
+      final Map< Configuration.PropertySetup.Feature, Object > features
   ) {
     return ( Configuration.NameTransformer ) features.get(
-        Configuration.PropertySetup2.Feature.NAME_TRANSFORMER );
+        Configuration.PropertySetup.Feature.NAME_TRANSFORMER );
   }
 
   private static Configuration.Converter resolveConverter(
       final Method method,
-      final Map< Configuration.PropertySetup2.Feature, Object > features,
+      final Map< Configuration.PropertySetup.Feature, Object > features,
       final ImmutableMap< Class< ? >, Configuration.Converter > defaultConverters
   ) {
     final Configuration.Converter converter ;
     final Configuration.Converter explicitConverter = ( Configuration.Converter )
-        features.get( Configuration.PropertySetup2.Feature.CONVERTER ) ;
+        features.get( Configuration.PropertySetup.Feature.CONVERTER ) ;
     if( explicitConverter == null ) {
       final Configuration.Converter defaultConverter
           = defaultConverters.get( method.getReturnType() ) ;
@@ -259,37 +262,37 @@ public abstract class TemplateBasedFactory< C extends Configuration >
   }
 
   private static boolean resolveMayBeNull(
-      final Map< Configuration.PropertySetup2.Feature, Object > features
+      final Map< Configuration.PropertySetup.Feature, Object > features
   ) {
     boolean maybeNull;
     final Boolean explicitMayBeNull = ( Boolean ) features.get(
-        Configuration.PropertySetup2.Feature.MAYBE_NULL ) ;
+        Configuration.PropertySetup.Feature.MAYBE_NULL ) ;
     maybeNull = explicitMayBeNull != null && explicitMayBeNull ;
     return maybeNull ;
   }
 
   private static Pattern resolveObfuscatorPattern(
-      final Map< Configuration.PropertySetup2.Feature, Object > features
+      final Map< Configuration.PropertySetup.Feature, Object > features
   ) {
     Pattern obfuscatorPattern;
     final Pattern explicitPattern =  ( Pattern ) features.get(
-        Configuration.PropertySetup2.Feature.OBFUSCATOR ) ;
+        Configuration.PropertySetup.Feature.OBFUSCATOR ) ;
     obfuscatorPattern = explicitPattern ;
     return obfuscatorPattern;
   }
 
   private static String resolveDocumentation(
-      final Map< Configuration.PropertySetup2.Feature, Object > features
+      final Map< Configuration.PropertySetup.Feature, Object > features
   ) {
     String documentation = ( String ) features.get(
-        Configuration.PropertySetup2.Feature.DOCUMENTATION ) ;
+        Configuration.PropertySetup.Feature.DOCUMENTATION ) ;
     return documentation ;
   }
 
-  private static String resolveDefaultValueAsString( Map<Configuration.PropertySetup2.Feature, Object> features, Object defaultValue ) {
+  private static String resolveDefaultValueAsString( Map<Configuration.PropertySetup.Feature, Object> features, Object defaultValue ) {
     final String defaultValueAsString ;
     final String explicitValueAsString = ( String ) features.get(
-        Configuration.PropertySetup2.Feature.DEFAULT_VALUE_AS_STRING ) ;
+        Configuration.PropertySetup.Feature.DEFAULT_VALUE_AS_STRING ) ;
     if( explicitValueAsString == null && defaultValue != null ) {
       defaultValueAsString = defaultValue.toString() ;
     } else {
@@ -307,7 +310,7 @@ public abstract class TemplateBasedFactory< C extends Configuration >
       throws ConfigurationException
   {
     final List< Source > sources = new ArrayList<>( others.length + 2 ) ;
-    sources.add( new PropertyDefaultSource2< C >( ImmutableSet.copyOf( propertySet.values() ) ) ) ;
+    sources.add( new PropertyDefaultSource< C >( ImmutableSet.copyOf( propertySet.values() ) ) ) ;
     sources.add( source1 ) ;
     Collections.addAll( sources, others ) ;
 
@@ -392,7 +395,7 @@ public abstract class TemplateBasedFactory< C extends Configuration >
       final C configuration,
       final ImmutableMap< String, Configuration.Property< C > > properties,
       final ImmutableSortedMap< String, ValuedProperty > valuedProperties
-  ) throws ValidationException {
+  ) throws DeclarationException {
     final Validator.Accumulator< C > accumulator = new Validator.Accumulator<>( configuration ) ;
     for( final Configuration.Property< C > property : properties.values() ) {
       final ValuedProperty valuedProperty = valuedProperties.get( property.name() ) ;
@@ -402,7 +405,7 @@ public abstract class TemplateBasedFactory< C extends Configuration >
         accumulator.addInfrigementForNullity( property, "No value set" ) ;
       }
     }
-    accumulator.throwExceptionIfHasInfrigements() ;
+    accumulator.throwDeclarationExceptionIfHasInfrigements() ;
   }
 
   @SuppressWarnings( "unchecked" )
@@ -531,7 +534,7 @@ public abstract class TemplateBasedFactory< C extends Configuration >
       final List< ConfigurationException > exceptions
   ) {
     if( source.map().containsKey( property ) ) {
-      final boolean usingDefault = source instanceof PropertyDefaultSource2 ;
+      final boolean usingDefault = source instanceof PropertyDefaultSource;
       final Object value ;
       {
         final Object valueFromSource = source.map().get( property ) ;
@@ -573,7 +576,7 @@ public abstract class TemplateBasedFactory< C extends Configuration >
   private static final Object CONVERSION_FAILED = new Object() {
     @Override
     public String toString() {
-      return ConfigurationFactory.class.getSimpleName() + "{(magic)CONVERSION_FAILED}" ;
+      return TemplateBasedFactory.class.getSimpleName() + "{(magic)CONVERSION_FAILED}" ;
     }
   } ;
 

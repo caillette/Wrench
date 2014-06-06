@@ -27,8 +27,8 @@ class ConfigurationInspector< C extends Configuration > implements Configuration
 // =======
 
   @Override
-  public ImmutableMap< String, Configuration.Property< C >> properties() {
-    final ImmutableMap.Builder< String, Configuration.Property< C >> builder
+  public ImmutableMap< String, Configuration.Property< C > > properties() {
+    final ImmutableMap.Builder< String, Configuration.Property< C > > builder
         = ImmutableMap.builder() ;
     for( final ValuedProperty valuedProperty : properties.values() ) {
       builder.put( valuedProperty.property.name(), valuedProperty.property ) ;
@@ -70,7 +70,7 @@ class ConfigurationInspector< C extends Configuration > implements Configuration
     return lastAccessed.get() ;
   }
 
-  // ======
+// ======
 // Boring
 // ======
 

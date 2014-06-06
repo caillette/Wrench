@@ -10,33 +10,6 @@ class ValuedProperty {
   public final Object resolvedValue ;
   public final boolean usingDefault ;
 
-  @Deprecated
-  public ValuedProperty(
-      final Configuration.Property property,
-      final Configuration.Source source,
-      final String stringValue,
-      final Object resolvedValue
-  ) {
-    this.property = checkNotNull( property ) ;
-    this.source = checkNotNull( source ) ;
-    this.stringValue = stringValue ;
-    this.resolvedValue = resolvedValue ;
-    this.usingDefault = false ;
-  }
-
-  @Deprecated
-  public ValuedProperty(
-      final Configuration.Property property,
-      final Configuration.Source source,
-      final Object resolvedValue
-  ) {
-    this.property = checkNotNull( property ) ;
-    this.source = checkNotNull( source ) ;
-    this.stringValue = resolvedValue == null ? "<not-set>" : resolvedValue.toString() ;
-    this.resolvedValue = resolvedValue ;
-    this.usingDefault = false ;
-  }
-
   public ValuedProperty(
       final Configuration.Property property,
       final Configuration.Source source,

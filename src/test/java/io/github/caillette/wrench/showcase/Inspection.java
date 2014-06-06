@@ -1,5 +1,6 @@
 package io.github.caillette.wrench.showcase;
 
+import com.google.common.collect.ImmutableMap;
 import io.github.caillette.wrench.Configuration;
 import io.github.caillette.wrench.ConfigurationTools;
 import io.github.caillette.wrench.Sources;
@@ -29,15 +30,27 @@ public class Inspection {
     final Simple configuration = factory.create( Sources.newSource( "string = foo" ) ) ;
 
     final Inspector< Simple > inspector = ConfigurationTools.inspector( configuration ) ;
-    configuration.number() ; {
-      assertThat( inspector.lastAccessed().documentation() ).isEqualTo( "Some number." ) ;
-      assertThat( inspector.lastAccessed().defaultValue() ).isEqualTo( 1 ) ;
-      assertThat( inspector.usingDefault( inspector.lastAccessed() ) ).isTrue() ;
+
+    final ImmutableMap< String, Configuration.Property< Simple > > properties
+        = inspector.properties() ;
+    assertThat( properties ).hasSize( 2 ) ;
+    assertThat( properties.get( "number" ).name() ).isEqualTo( "number" ) ;
+    assertThat( properties.get( "string" ).name() ).isEqualTo( "string" ) ;
+
+    configuration.number() ;
+    {
+      final Configuration.Property< Simple > property = inspector.lastAccessed() ;
+      assertThat( property.name() ).isEqualTo( "number" ) ;
+      assertThat( property.documentation() ).isEqualTo( "Some number." ) ;
+      assertThat( property.defaultValue() ).isEqualTo( 1 ) ;
+      assertThat( inspector.usingDefault( property ) ).isTrue() ;
     }
     configuration.string() ; {
-      assertThat( inspector.lastAccessed().documentation() ).isEqualTo( "" ) ;
-      assertThat( inspector.lastAccessed().defaultValue() ).isNull() ;
-      assertThat( inspector.usingDefault( inspector.lastAccessed() ) ).isFalse() ;
+      final Configuration.Property< Simple > property = inspector.lastAccessed() ;
+      assertThat( property.name() ).isEqualTo( "string" ) ;
+      assertThat( property.documentation() ).isEqualTo( "" ) ;
+      assertThat( property.defaultValue() ).isNull() ;
+      assertThat( inspector.usingDefault( property ) ).isFalse() ;
     }
   }
 }

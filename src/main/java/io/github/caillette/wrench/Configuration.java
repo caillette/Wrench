@@ -2,25 +2,15 @@ package io.github.caillette.wrench;
 
 import com.google.common.collect.ImmutableMap;
 
-import java.lang.annotation.Documented;
-import java.lang.annotation.Retention;
-import java.lang.annotation.Target;
 import java.lang.reflect.Method;
 import java.util.Comparator;
-import java.util.Map;
 import java.util.regex.Pattern;
-
-import static java.lang.annotation.ElementType.METHOD;
-import static java.lang.annotation.ElementType.TYPE;
-import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
  * Tagging interface for interfaces defining a proxy-backed configuration.
  * Methods must have no parameter.
  * Each method represents a property, which has a
  * {@link io.github.caillette.wrench.Configuration.Property} and a value.
- *
- * @see io.github.caillette.wrench.Configuration.Annotations
  *
  */
 public interface Configuration {
@@ -167,7 +157,7 @@ public interface Configuration {
 
     /**
      * Returns a possibly obfuscated value if property was annotated with an
-     * {@link io.github.caillette.wrench.Configuration.Annotations.Obfuscator}.
+     * {@link io.github.caillette.wrench.Configuration.Property#obfuscatorPattern()}.
      */
     String safeValueOf( Property< C > property, String replacement ) ;
 
@@ -183,124 +173,17 @@ public interface Configuration {
 
   }
 
-  interface PropertySetup {
-
-    public final class DefaultValue< C extends Configuration, T > {
-
-      private final Property< C > lastAccessed ;
-      private final Map< Property< C >, Object > builder ;
-
-      public DefaultValue(
-          final Property< C > lastAccessed,
-          final Map< Property< C >, Object > builder
-      ) {
-        this.lastAccessed = lastAccessed ;
-        this.builder = builder ;
-      }
-
-      public void defaultValue( T value ) {
-        builder.put( lastAccessed, value ) ;
-      }
-    }
-
-  }
-
-
-  interface Annotations {
-
-    /**
-     * Default value to be used if no property is found.
-     * No quoting (other than normal Java string quoting) is done.
-     * Mutually exclusive with {@link DefaultNull}.
-     */
-    @Retention( RUNTIME )
-    @Target( METHOD )
-    @Documented
-    @interface DefaultValue {
-      String value() ;
-    }
-
-    /**
-     * Means nullable.
-     * Mutually exclusive with {@link DefaultValue}.
-     */
-    @Retention( RUNTIME )
-    @Target( METHOD )
-    @Documented
-    @interface DefaultNull { }
-
-    /**
-     * The exact property used for lookup for the property.
-     * If not present, the property will be generated based on the unqualified method name.
-     * Mutually exclusive with {@link TransformName} if applies at method level.
-     */
-    @Retention( RUNTIME )
-    @Target( METHOD )
-    @Documented
-    @interface Name {
-      String value() ;
-    }
-
-    /**
-     * References the {@link NameTransformer} to apply to method names.
-     * Mutually exclusive with {@link Name} if {@link TransformName} applies at method level.
-     */
-    @Retention( RUNTIME )
-    @Target( { METHOD, TYPE } )
-    @Documented
-    @interface TransformName {
-      Class< ? extends NameTransformer > value() ;
-    }
-
-    /**
-     * References the {@link Validator} for a freshly-created {@link Configuration} object.
-     */
-    @Retention( RUNTIME )
-    @Target( { TYPE } )
-    @Documented
-    @interface ValidateWith {
-      Class< ? extends Validator > value() ;
-    }
-
-    /**
-     * Human-readable text to explain the role of the property.
-     */
-    @Retention( RUNTIME )
-    @Target( METHOD )
-    @Documented
-    @interface Documentation {
-      String value() ;
-    }
-
-    /**
-     * Dedicated {@link Converter}.
-     */
-    @Retention( RUNTIME )
-    @Target( METHOD )
-    @Documented
-    @interface Convert {
-      Class< ? extends Converter > value() ;
-    }
-
-    /**
-     * Regular expression to obfuscate password or other sensitive information.
-     */
-    @Retention( RUNTIME )
-    @Target( METHOD )
-    @Documented
-    @interface Obfuscator {
-      String value() ;
-    }
-
-  }
-
-  public final class PropertySetup2< C extends Configuration, T > {
+  /**
+   * Builder-like object to use after a call to
+   * {@link io.github.caillette.wrench.TemplateBasedFactory#on(Object)}.
+   */
+  public final class PropertySetup< C extends Configuration, T > {
 
     private final Method lastAccessed ;
     private final SetupAcceptor setupAcceptor ;
 
 
-    public PropertySetup2(
+    public PropertySetup(
         final Method lastAccessed,
         final SetupAcceptor setupAcceptor
     ) {
@@ -308,10 +191,7 @@ public interface Configuration {
       this.setupAcceptor = setupAcceptor ;
     }
 
-    /**
-     * Don't call this after calling {@link #mandatory()}.
-     */
-    public PropertySetup2< C, T > defaultValue( T value ) {
+    public PropertySetup< C, T > defaultValue( T value ) {
       setupAcceptor.accept(
           lastAccessed,
           Feature.DEFAULT_VALUE,
@@ -324,7 +204,7 @@ public interface Configuration {
      * Don't call this after calling
      * {@link #nameTransformer(io.github.caillette.wrench.Configuration.NameTransformer)}.
      */
-    public PropertySetup2< C, T > name( final String name ) {
+    public PropertySetup< C, T > name( final String name ) {
       setupAcceptor.accept( lastAccessed, Feature.NAME, name ) ;
       return this ;
     }
@@ -332,38 +212,27 @@ public interface Configuration {
     /**
      * Don't call this after calling {@link #name(String)}.
      */
-    public PropertySetup2< C, T > nameTransformer( final NameTransformer nameTransformer ) {
+    public PropertySetup< C, T > nameTransformer( final NameTransformer nameTransformer ) {
       setupAcceptor.accept( lastAccessed, Feature.NAME_TRANSFORMER, nameTransformer ) ;
       return this ;
     }
 
-    /**
-     * Don't call this after calling {@link #mandatory()}.
-     */
-    public PropertySetup2< C, T > maybeNull() {
+    public PropertySetup< C, T > maybeNull() {
       setupAcceptor.accept( lastAccessed, Feature.MAYBE_NULL, true ) ;
       return this ;
     }
 
-    /**
-     * Don't call this after calling {@link #defaultValue(Object)} or {@link #maybeNull()}.
-     */
-    public PropertySetup2< C, T > mandatory() {
-      setupAcceptor.accept( lastAccessed, Feature.MANDATORY, true ) ;
-      return this ;
-    }
-
-    public PropertySetup2< C, T > converter( final Converter converter ) {
+    public PropertySetup< C, T > converter( final Converter converter ) {
       setupAcceptor.accept( lastAccessed, Feature.CONVERTER, converter ) ;
       return this ;
     }
 
-    public PropertySetup2< C, T > obfuscator( final Pattern pattern ) {
+    public PropertySetup< C, T > obfuscator( final Pattern pattern ) {
       setupAcceptor.accept( lastAccessed, Feature.OBFUSCATOR, pattern ) ;
       return this ;
     }
 
-    public PropertySetup2< C, T > documentation( final String text ) {
+    public PropertySetup< C, T > documentation( final String text ) {
       setupAcceptor.accept( lastAccessed, Feature.DOCUMENTATION, text ) ;
       return this ;
     }
@@ -371,7 +240,7 @@ public interface Configuration {
     /**
      * Call only after a call to {@link #defaultValue(Object)}.
      */
-    public PropertySetup2< C, T > stringValueForDefault( final String text ) {
+    public PropertySetup< C, T > stringValueForDefault( final String text ) {
       setupAcceptor.accept( lastAccessed, Feature.DEFAULT_VALUE_AS_STRING, text ) ;
       return this ;
     }
@@ -381,7 +250,6 @@ public interface Configuration {
       NAME,
       NAME_TRANSFORMER,
       MAYBE_NULL,
-      MANDATORY,
       CONVERTER,
       OBFUSCATOR,
       DOCUMENTATION,

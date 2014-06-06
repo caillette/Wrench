@@ -10,10 +10,10 @@ public class ConfigurationException extends Exception {
   }
 
   public ConfigurationException( Iterable< ConfigurationException > causes ) {
-    super( "Exception list: " + asSingleMessage( causes ) ) ;
+    super( "Exception list: " + singleMessageFromExceptions( causes ) ) ;
   }
 
-  private static String asSingleMessage( Iterable< ConfigurationException > causes ) {
+  private static String singleMessageFromExceptions( Iterable< ConfigurationException > causes ) {
     final StringBuilder stringBuilder = new StringBuilder() ;
     for( final ConfigurationException configurationException : causes ) {
       stringBuilder.append( "\n    " ) ;
@@ -30,5 +30,26 @@ public class ConfigurationException extends Exception {
 
   public ConfigurationException( Throwable cause ) {
     super( cause );
+  }
+
+  protected static String singleMessageFromInfrigements( Iterable< Validator.Infrigement > causes ) {
+    final StringBuilder stringBuilder = new StringBuilder() ;
+    for( final Validator.Infrigement infrigement : causes ) {
+      stringBuilder.append( "\n    " ) ;
+      if( infrigement.property != null ) {
+        stringBuilder.append( infrigement.property.name() ) ;
+        stringBuilder.append( " -> '" ) ;
+        stringBuilder.append( infrigement.propertyValue ) ;
+        stringBuilder.append( "' - " ) ;
+      }
+      stringBuilder.append( infrigement.message ) ;
+      if( infrigement.source == null ) {
+        stringBuilder.append( " - No source " ) ;
+      } else {
+        stringBuilder.append( " - Source: " ) ;
+        stringBuilder.append( infrigement.source.sourceName() ) ;
+      }
+    }
+    return stringBuilder.toString() ;
   }
 }

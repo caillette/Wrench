@@ -18,4 +18,11 @@ public class DeclarationException extends ConfigurationException {
   public DeclarationException( final Iterable< ConfigurationException > causes ) {
     super( causes ) ;
   }
+
+  public static DeclarationException throwWith( Iterable< Validator.Infrigement > causes )
+      throws DeclarationException
+  {
+    throw new DeclarationException( singleMessageFromInfrigements( causes ) ) ;
+  }
+
 }

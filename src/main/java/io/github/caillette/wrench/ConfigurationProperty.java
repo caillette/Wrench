@@ -24,44 +24,6 @@ class ConfigurationProperty< C extends Configuration >
   private final Pattern obfuscatorPattern ;
   private final String documentation ;
 
-  @Deprecated
-  ConfigurationProperty(
-      final Method method,
-      final String name,
-      final Configuration.Converter converter,
-      final String defaultValueAsString,
-      final boolean maybeNull,
-      final Pattern obfuscatorPattern
-  ) throws ConvertException {
-
-    this.method = checkNotNull( method ) ;
-
-    checkArgument( ! Strings.isNullOrEmpty( name ) ) ;
-    this.name = name ;
-
-    this.converter = checkNotNull( converter ) ;
-
-    this.defaultValueAsString = defaultValueAsString ;
-
-    if( defaultValueAsString == null ) {
-      defaultValue = null ;
-    } else {
-      try {
-        defaultValue = converter.convert( method, defaultValueAsString ) ;
-      } catch ( final ConvertException e ) {
-        throw e ;
-      } catch ( Exception e ) {
-        throw ConvertException.toConvertException( e, converter, method ) ;
-      }
-      checkArgument( ! maybeNull ) ;
-    }
-
-    this.maybeNull = maybeNull ;
-
-    this.obfuscatorPattern = obfuscatorPattern ;
-
-    this.documentation = null ;
-  }
   ConfigurationProperty(
       final Method method,
       final String name,
