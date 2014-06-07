@@ -10,7 +10,7 @@ import static org.fest.assertions.Assertions.assertThat;
 public class SimplestUsage {
 
   public interface Simple extends Configuration {
-    Integer myNumber() ;
+    int myNumber() ;
     String myString() ;
   }
 

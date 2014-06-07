@@ -19,7 +19,7 @@ Declare an interface like this:
 
 ```java
 public interface Simple extends Configuration {
-  Integer myNumber() ;
+  int myNumber() ;
   String myString() ;
 }
 ```
