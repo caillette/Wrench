@@ -1,5 +1,11 @@
 package io.github.caillette.wrench;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import static io.github.caillette.wrench.Configuration.Property;
+import static io.github.caillette.wrench.Configuration.Source;
+
 /**
  * Base class for exceptions thrown when something goes bad.
  */
@@ -32,23 +38,36 @@ public class ConfigurationException extends Exception {
     super( cause );
   }
 
-  protected static String singleMessageFromInfrigements( Iterable<Validator.Bad> causes ) {
+  public static String singleMessageFromInfrigements( final Iterable< Validator.Bad > causes ) {
+    final Map< Property, Source > valuedPropertiesWithSource = new HashMap<>() ;
     final StringBuilder stringBuilder = new StringBuilder() ;
     for( final Validator.Bad bad : causes ) {
       stringBuilder.append( "\n    " ) ;
-      if( bad.property != null ) {
+      for( final ValuedProperty valuedProperty : bad.properties ) {
+        if( valuedProperty.source != Sources.UNDEFINED  ) {
+          valuedPropertiesWithSource.put( valuedProperty.property, valuedProperty.source ) ;
+        }
         stringBuilder.append( "[ " ) ;
-        stringBuilder.append( bad.property.name() ) ;
-        stringBuilder.append( " -> " ) ;
-        stringBuilder.append( bad.propertyValue ) ;
+        stringBuilder.append( valuedProperty.property.name() ) ;
+        if( valuedProperty.resolvedValue != ValuedProperty.NO_VALUE ) {
+          stringBuilder.append( " = " ) ;
+          stringBuilder.append( valuedProperty.resolvedValue == ValuedProperty.NULL_VALUE
+              ? null : valuedProperty.resolvedValue ) ;
+        }
         stringBuilder.append( " ] " ) ;
       }
       stringBuilder.append( bad.message ) ;
-      if( bad.source == null ) {
-        stringBuilder.append( " - No source " ) ;
-      } else {
-        stringBuilder.append( " - Source: " ) ;
-        stringBuilder.append( bad.source.sourceName() ) ;
+
+    }
+    if( ! valuedPropertiesWithSource.isEmpty() ) {
+      stringBuilder.append( "\n    Sources:" ) ;
+      for( final Map.Entry< Property, Source > entries : valuedPropertiesWithSource.entrySet() ) {
+        stringBuilder
+            .append( "\n      " )
+            .append( entries.getKey().name() )
+            .append( " <- " )
+            .append( entries.getValue()
+            ) ;
       }
     }
     return stringBuilder.toString() ;

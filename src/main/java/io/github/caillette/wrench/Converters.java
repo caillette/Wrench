@@ -3,6 +3,7 @@ package io.github.caillette.wrench;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 
+import java.io.File;
 import java.lang.reflect.Method;
 
 import static io.github.caillette.wrench.Configuration.Converter;
@@ -23,14 +24,16 @@ public final class Converters {
     }
   }
 
-  public static class IntoString extends AbstractConverter< String > {
+  public static final Converter< String > INTO_STRING = new AbstractConverter< String >() {
     @Override
     public String convert( Method definingMethod, String input ) {
       return input ;
     }
-  }
+  } ;
 
-  public static class IntoIntegerPrimitive extends AbstractConverter< Integer > {
+  public static final Converter< Integer > INTO_INTEGER_PRIMITIVE
+      = new AbstractConverter< Integer >()
+  {
     @Override
     public Integer convert( Method definingMethod, String input ) throws ConvertException {
       try {
@@ -39,9 +42,11 @@ public final class Converters {
         throw new ConvertException( "Can't parse '" + input + "'" ) ;
       }
     }
-  }
+  } ;
 
-  public static class IntoIntegerObject extends AbstractConverter< Integer > {
+  public static final Converter< Integer > INTO_INTEGER_OBJECT
+      = new AbstractConverter< Integer >()
+  {
     @Override
     public Integer convert( Method definingMethod, String input ) throws Exception {
       if( Strings.isNullOrEmpty( input ) ) {
@@ -53,13 +58,24 @@ public final class Converters {
         throw new ConvertException( "Can't parse '" + input + "'" ) ;
       }
     }
-  }
+  } ;
+
+  public static final Converter< File > INTO_FILE = new AbstractConverter< File >() {
+    @Override
+    public File convert( Method definingMethod, String input ) throws Exception {
+      if( Strings.isNullOrEmpty( input ) ) {
+        return null ;
+      }
+      return new File( input ) ;
+    }
+  } ;
 
   public static final ImmutableMap< Class< ? >, Converter > DEFAULTS
       = ImmutableMap.of(
-          ( Class< ? > ) String.class, ( Converter ) new IntoString(),
-          Integer.TYPE, new IntoIntegerPrimitive(),
-          Integer.class, new IntoIntegerObject()
+          ( Class< ? > ) String.class, ( Converter ) INTO_STRING,
+          Integer.TYPE, INTO_INTEGER_PRIMITIVE,
+          Integer.class, INTO_INTEGER_OBJECT,
+          File.class, INTO_FILE
       )
   ;
 

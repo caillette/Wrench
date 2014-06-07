@@ -51,7 +51,8 @@ public class DeclarationFailures {
       factory.create( newSource( "" ) ) ;
       fail( "Should have thrown an exception" ) ;
     } catch ( final DeclarationException e ) {
-      assertThat( e.getMessage() ).contains( "[ number -> null ] No value set - No source" ) ;
+      System.out.println( e.getMessage() ) ;
+      assertThat( e.getMessage() ).contains( "[ number ] No value set" ) ;
     }
   }
 

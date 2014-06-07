@@ -1,9 +1,10 @@
 package io.github.caillette.wrench;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.base.Preconditions.checkState;
+import static io.github.caillette.wrench.ConfigurationTools.newInspector;
 
 /**
  * Validates a whole {@link Configuration} before a {@link Configuration.Factory}
@@ -14,40 +15,19 @@ public interface Validator< C extends Configuration > {
   /**
    * @return a non-{@code null} object.
    */
-  ImmutableSet< Bad< C > > validate( C configuration ) ;
+  ImmutableSet< Bad > validate( C configuration ) ;
 
-  class Bad< C extends Configuration > {
-    public final Configuration.Property< C > property ;
-    public final String propertyValue ;
+  class Bad {
+    final ImmutableList< ValuedProperty > properties ;
     public final String message ;
-    public final Configuration.Source source ;
 
-    public Bad(
-        final Configuration.Property< C > property,
-        final String propertyValue,
-        final Configuration.Source source,
-        final String message
-    ) {
-      this.property = checkNotNull( property ) ;
-      this.propertyValue = propertyValue ;
-      this.source = checkNotNull( source ) ;
-      this.message = message ;
-    }
-
-    public Bad(
-        final Configuration.Property< C > property,
-        final String message
-    ) {
-      this.property = checkNotNull( property ) ;
-      this.propertyValue = null ;
-      this.source = null ;
+    public Bad( final ImmutableList< ValuedProperty > properties, final String message ) {
+      this.properties = checkNotNull( properties ) ;
       this.message = message ;
     }
 
     public Bad( final String message ) {
-      this.property = null ;
-      this.propertyValue = null ;
-      this.source = null ;
+      this.properties = ImmutableList.of() ;
       this.message = message ;
     }
 
@@ -58,16 +38,16 @@ public interface Validator< C extends Configuration > {
    */
   class Accumulator< C extends Configuration > {
 
-    private final ImmutableSet.Builder< Bad< C > > builder
+    private final ImmutableSet.Builder< Bad > builder
         = ImmutableSet.builder() ;
 
-    private final Configuration.Inspector< C > inspector;
+    private final ConfigurationInspector< C > inspector ;
 
     public Accumulator( C configuration ) {
-      this.inspector = ConfigurationTools.inspector( configuration ) ;
+      this.inspector = ( ConfigurationInspector< C > ) newInspector( configuration ) ;
     }
 
-    public ImmutableSet< Bad< C > > done() {
+    public ImmutableSet< Bad > done() {
       return builder.build() ;
     }
 
@@ -98,7 +78,7 @@ public interface Validator< C extends Configuration > {
 
 
     public Accumulator< C > justAdd( String message ) {
-      builder.add( new Bad< C >( message ) ) ;
+      builder.add( new Bad( message ) ) ;
       return this ;
     }
 
@@ -108,6 +88,7 @@ public interface Validator< C extends Configuration > {
       if( ! mustBeTrue ) {
         add( null ) ;
       }
+      inspector.clearLastAccessed() ;
       return this ;
     }
 
@@ -115,37 +96,45 @@ public interface Validator< C extends Configuration > {
       if( ! mustBeTrue ) {
         add( message ) ;
       }
+      inspector.clearLastAccessed() ;
       return this ;
     }
 
     public Accumulator< C > add( String message ) {
-      final Configuration.Property< C > property = inspector.lastAccessed() ;
-      return add( property, message ) ;
+      return add( resolveValuedProperties( inspector.lastAccessed() ), message ) ;
+    }
+
+    private ImmutableList< ValuedProperty > resolveValuedProperties(
+        final ImmutableList< Configuration.Property< C > > properties
+    ) {
+      final ImmutableList.Builder< ValuedProperty > builder = ImmutableList.builder() ;
+      for( final Configuration.Property< C > property : properties ) {
+        final ValuedProperty valuedProperty = inspector.valuedProperty( property ) ;
+        if ( valuedProperty == null ) {
+          builder.add( new ValuedProperty( property ) ) ;
+        } else {
+          builder.add( valuedProperty ) ;
+        }
+      }
+      return builder.build() ;
     }
 
     public Accumulator< C > add(
-        final Configuration.Property<C> property,
+        final ImmutableList< ValuedProperty > property,
         String message
     ) {
-      checkState( property != null ) ;
-      builder.add( new Bad<>(
+      builder.add( new Bad(
           property,
-          inspector.stringValueOf( property ),
-          inspector.sourceOf( property ),
           message
       ) ) ;
       return this ;
     }
 
     Accumulator< C > addInfrigementForNullity(
-        final Configuration.Property< C > property,
+        final ImmutableList< Configuration.Property< C > > properties,
         String message
     ) {
-      checkState( property != null ) ;
-      builder.add( new Bad<>(
-          property,
-          message
-      ) ) ;
+      builder.add( new Bad( resolveValuedProperties( properties ), message ) ) ;
       return this ;
     }
 

@@ -6,7 +6,7 @@ import org.junit.Test;
 
 import java.util.regex.Pattern;
 
-import static io.github.caillette.wrench.ConfigurationTools.inspector;
+import static io.github.caillette.wrench.ConfigurationTools.newInspector;
 import static io.github.caillette.wrench.Sources.newSource;
 import static org.fest.assertions.Assertions.assertThat;
 
@@ -29,10 +29,10 @@ public class Obfuscation {
     System.out.println( "Properties: " + factory.properties() ) ;
 
     final Obfuscated obfuscated = factory.create( newSource( "credential = foo:bar" ) ) ;
-    final Configuration.Inspector< Obfuscated > inspector = inspector( obfuscated ) ;
+    final Configuration.Inspector< Obfuscated > inspector = newInspector( obfuscated ) ;
 
     assertThat( obfuscated.credential() ).isEqualTo( "foo:bar" ) ;
-    assertThat( inspector.safeValueOf( inspector.lastAccessed(), "[undisclosed]" ) )
+    assertThat( inspector.safeValueOf( inspector.lastAccessed().get( 0 ), "[undisclosed]" ) )
         .isEqualTo( "foo:[undisclosed]" ) ;
 
 

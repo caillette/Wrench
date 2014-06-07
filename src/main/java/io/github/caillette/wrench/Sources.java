@@ -33,5 +33,11 @@ public final class Sources {
     return new PropertiesFileSource( file ) ;
   }
 
+  static final Configuration.Source UNDEFINED = new Configuration.Source() {
+    @Override
+    public String sourceName() {
+      return "undefined" ;
+    }
+  } ;
 
 }

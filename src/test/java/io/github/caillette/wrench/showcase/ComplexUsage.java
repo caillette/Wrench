@@ -45,7 +45,7 @@ public class ComplexUsage {
       }
 
       @Override
-      protected ImmutableSet< Bad< Simple > > validate( final Simple configuration ) {
+      protected ImmutableSet< Bad > validate( final Simple configuration ) {
         final Accumulator< Simple > accumulator = new Accumulator<>( configuration ) ;
         if( configuration.myNumber() != null ) {
           accumulator.verify( configuration.myNumber() > 0, "Must be > 0" ) ;
@@ -61,13 +61,14 @@ public class ComplexUsage {
     final Simple configuration = factory.create( Sources.newSource(
         "my-binary-number = 1111011" ) ) ;
 
-    final Inspector< Simple > inspector = ConfigurationTools.inspector( configuration ) ;
+    final Inspector< Simple > inspector = ConfigurationTools.newInspector( configuration ) ;
     assertThat( configuration.myNumber() ).isEqualTo( 123 ) ;
-    assertThat( inspector.usingDefault( inspector.lastAccessed() ) ).isFalse() ;
+    assertThat( inspector.usingDefault( inspector.lastAccessed().get( 0 ) ) ).isFalse() ;
     assertThat( configuration.myString() ).isEqualTo( "FOO" ) ;
-    assertThat( inspector.usingDefault( inspector.lastAccessed() ) ).isTrue() ;
-    assertThat( inspector.lastAccessed().name() ).isEqualTo( "my-string" ) ;
-    assertThat( inspector.safeValueOf( inspector.lastAccessed(), "*" ) ).isEqualTo( "F*" ) ;
+    assertThat( inspector.usingDefault( inspector.lastAccessed().get( 0 ) ) ).isTrue() ;
+    assertThat( inspector.lastAccessed().get( 0 ).name() ).isEqualTo( "my-string" ) ;
+    assertThat( inspector.safeValueOf( inspector.lastAccessed().get( 0 ), "*" ) )
+        .isEqualTo( "F*" ) ;
   }
 
 

@@ -29,7 +29,7 @@ public class Inspection {
     } ;
     final Simple configuration = factory.create( Sources.newSource( "string = foo" ) ) ;
 
-    final Inspector< Simple > inspector = ConfigurationTools.inspector( configuration ) ;
+    final Inspector< Simple > inspector = ConfigurationTools.newInspector( configuration ) ;
 
     final ImmutableMap< String, Configuration.Property< Simple > > properties
         = inspector.properties() ;
@@ -39,14 +39,14 @@ public class Inspection {
 
     configuration.number() ;
     {
-      final Configuration.Property< Simple > property = inspector.lastAccessed() ;
+      final Configuration.Property< Simple > property = inspector.lastAccessed().get( 0 ) ;
       assertThat( property.name() ).isEqualTo( "number" ) ;
       assertThat( property.documentation() ).isEqualTo( "Some number." ) ;
       assertThat( property.defaultValue() ).isEqualTo( 1 ) ;
       assertThat( inspector.usingDefault( property ) ).isTrue() ;
     }
     configuration.string() ; {
-      final Configuration.Property< Simple > property = inspector.lastAccessed() ;
+      final Configuration.Property< Simple > property = inspector.lastAccessed().get( 0 ) ;
       assertThat( property.name() ).isEqualTo( "string" ) ;
       assertThat( property.documentation() ).isEqualTo( "" ) ;
       assertThat( property.defaultValue() ).isNull() ;

@@ -1,5 +1,6 @@
 package io.github.caillette.wrench;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
 import java.lang.reflect.Method;
@@ -163,13 +164,19 @@ public interface Configuration {
 
     /**
      * Returns the {@link io.github.caillette.wrench.Configuration.Property} corresponding
-     * to the last property-related method call on a {@link Configuration} object.
+     * to every property-related method call on a {@link Configuration} object that occured
+     * inside the thread in which this {@link Inspector} was created.
      * This makes this object mutable but in a way that does not affect its fundamental behavior.
      *
-     * @return a possibly {@code null} value that means that no call happened yet
-     *     in current thread.
+     * @return a non-null, possibly empty {@code List}.
      */
-    Property< C > lastAccessed() ;
+    ImmutableList< Property< C > > lastAccessed() ;
+
+    /**
+     * Clears last accessed Properties.
+     * Don't use outside of the thread used for creating this {@link Inspector} object.
+     */
+    void clearLastAccessed() ;
 
   }
 

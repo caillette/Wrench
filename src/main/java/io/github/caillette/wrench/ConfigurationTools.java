@@ -1,9 +1,13 @@
 package io.github.caillette.wrench;
 
+import java.util.*;
+
 import static io.github.caillette.wrench.Configuration.Factory;
+import static io.github.caillette.wrench.Configuration.Inspector;
+import static io.github.caillette.wrench.Configuration.Property;
 
 /**
- * Utility methods to create {@link Configuration.Factory} and {@link Configuration.Inspector}
+ * Utility methods to create {@link Configuration.Factory} and {@link Inspector}
  * objects.
  */
 public final class ConfigurationTools {
@@ -14,11 +18,35 @@ public final class ConfigurationTools {
     return new TemplateBasedFactory< C >( configurationClass ) { } ;
   }
 
-  @SuppressWarnings( "unchecked" )
-  public static < C extends Configuration > Configuration.Inspector< C > inspector(
+
+  /**
+   * Creates a new {@link Inspector}.
+   * Warning: during its lifetime, an {@link Inspector} keeps track of every method call on the
+   * {@link Configuration} object. For this reason, a too broadly scoped {@link Inspector}
+   * can lead to excessive memory consumption.
+   */
+  public static < C extends Configuration > Inspector< C > newInspector(
       final C configuration
   ) {
-    return ( ( ConfigurationInspector.InspectorEnabled ) configuration ).$$inspector$$() ;
+    final ConfigurationInspector.InspectorEnabled inspectorEnabled
+        = ( ConfigurationInspector.InspectorEnabled ) configuration ;
+    final ThreadLocal< Map< Inspector, List< Property > > > inspectorsThreadLocal
+        = inspectorEnabled.$$inspectors$$() ;
+    Map< Inspector, List< Property > > inspectors = inspectorsThreadLocal.get() ;
+    if( inspectors == null ) {
+      inspectors = new WeakHashMap<>() ;
+      inspectorsThreadLocal.set( inspectors ) ;
+    }
+    final List< Property > accessedProperties = new ArrayList<>() ;
+
+    @SuppressWarnings( "unchecked" )
+    final ConfigurationInspector< C > inspector = new ConfigurationInspector(
+        inspectorEnabled.$$properties$$(), accessedProperties ) ;
+    inspectors.put(
+        inspector,
+        accessedProperties
+    ) ;
+    return inspector ;
   }
   
 // ===============

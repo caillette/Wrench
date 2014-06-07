@@ -1,4 +1,4 @@
-package io.github.caillette.wrench;
+package io.github.caillette.wrench.source;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;

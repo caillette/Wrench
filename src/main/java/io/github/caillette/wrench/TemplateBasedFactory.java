@@ -1,9 +1,6 @@
 package io.github.caillette.wrench;
 
-import com.google.common.collect.ImmutableCollection;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.ImmutableSortedMap;
+import com.google.common.collect.*;
 import com.google.common.reflect.AbstractInvocationHandler;
 
 import java.lang.reflect.Method;
@@ -13,6 +10,8 @@ import java.util.regex.Pattern;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
+import static io.github.caillette.wrench.Configuration.Inspector;
+import static io.github.caillette.wrench.Configuration.Property;
 import static io.github.caillette.wrench.Configuration.Source;
 import static io.github.caillette.wrench.Configuration.Source.Stringified;
 
@@ -28,7 +27,7 @@ public abstract class TemplateBasedFactory< C extends Configuration >
   private final Class< C > configurationClass ;
   private ConstructionKit< C > constructionKit = new ConstructionKit<>() ;
   protected final C using;
-  private final ImmutableMap< String, Configuration.Property< C > > propertySet ;
+  private final ImmutableMap< String, Property< C > > propertySet ;
 
   protected TemplateBasedFactory( final Class< C > configurationClass ) throws DefinitionException {
     this.configurationClass = checkNotNull( configurationClass ) ;
@@ -135,14 +134,14 @@ public abstract class TemplateBasedFactory< C extends Configuration >
 // Building the map of properties
 // ==============================
 
-  private static< C extends Configuration > ImmutableMap< String, Configuration.Property< C > >
+  private static< C extends Configuration > ImmutableMap< String, Property< C > >
   buildPropertyMap(
       final Map< Method, Map<Configuration.PropertySetup.Feature, Object > > allFeatures,
       final ImmutableMap< Class< ? >, Configuration.Converter > defaultConverters,
       final Configuration.NameTransformer globalNameTransformer
   ) throws DefinitionException {
 
-    final Map< String, Configuration.Property< C > > propertyBuilder = new HashMap<>() ;
+    final Map< String, Property< C > > propertyBuilder = new HashMap<>() ;
 
     for( final Map.Entry< Method, Map< Configuration.PropertySetup.Feature, Object > > entry
         : allFeatures.entrySet()
@@ -181,10 +180,10 @@ public abstract class TemplateBasedFactory< C extends Configuration >
 
   private static < C extends Configuration > void checkUniqueName(
       final Method originatingMethod,
-      final Map< String, Configuration.Property< C > > propertyBuilder,
+      final Map< String, Property< C > > propertyBuilder,
       final String propertyName
   ) {
-    for( final Configuration.Property< C > property : propertyBuilder.values() ) {
+    for( final Property< C > property : propertyBuilder.values() ) {
       if( propertyName.equals( property.name() ) ) {
         throw new DefinitionException(
               "Duplicate name: property '" + propertyName
@@ -336,8 +335,8 @@ public abstract class TemplateBasedFactory< C extends Configuration >
       }
     }
 
-    for( final Map.Entry< String, Configuration.Property< C > > entry : propertySet.entrySet() ) {
-      final Configuration.Property< C > property = entry.getValue() ;
+    for( final Map.Entry< String, Property< C > > entry : propertySet.entrySet() ) {
+      final Property< C > property = entry.getValue() ;
       for( final Source source : sources ) {
         if( source instanceof Stringified ) {
           feedWithValue( ( Stringified ) source, values, property, exceptions ) ;
@@ -360,7 +359,7 @@ public abstract class TemplateBasedFactory< C extends Configuration >
 
     verifyNoUndefinedProperty( configuration, propertySet, valuedProperties ) ;
 
-    final ImmutableSet<Validator.Bad< C >> validation = validate( configuration ) ;
+    final ImmutableSet<Validator.Bad > validation = validate( configuration ) ;
     if( ! validation.isEmpty() ) {
       throw new ValidationException( ( Iterable<Validator.Bad> ) ( Object ) validation ) ;
     }
@@ -374,16 +373,16 @@ public abstract class TemplateBasedFactory< C extends Configuration >
   }
 
   @Override
-  public final ImmutableMap< String, Configuration.Property< C > > properties() {
-    final ImmutableMap.Builder< String, Configuration.Property< C > > builder
+  public final ImmutableMap< String, Property< C > > properties() {
+    final ImmutableMap.Builder< String, Property< C > > builder
         = ImmutableMap.builder() ;
-    for( final Configuration.Property< C > property : propertySet.values() ) {
+    for( final Property< C > property : propertySet.values() ) {
       builder.put( property.name(), property ) ;
     }
     return builder.build() ;
   }
 
-  protected ImmutableSet<Validator.Bad< C >> validate( final C configuration ) {
+  protected ImmutableSet< Validator.Bad > validate( final C configuration ) {
     return ImmutableSet.of() ;
   }
 
@@ -393,16 +392,16 @@ public abstract class TemplateBasedFactory< C extends Configuration >
 
   private static < C extends Configuration > void verifyNoUndefinedProperty(
       final C configuration,
-      final ImmutableMap< String, Configuration.Property< C > > properties,
+      final ImmutableMap< String, Property< C > > properties,
       final ImmutableSortedMap< String, ValuedProperty > valuedProperties
   ) throws DeclarationException {
     final Validator.Accumulator< C > accumulator = new Validator.Accumulator<>( configuration ) ;
-    for( final Configuration.Property< C > property : properties.values() ) {
+    for( final Property< C > property : properties.values() ) {
       final ValuedProperty valuedProperty = valuedProperties.get( property.name() ) ;
       if( valuedProperty == null
           && ! ( property.maybeNull() || property.defaultValue() == ValuedProperty.NULL_VALUE )
       ) {
-        accumulator.addInfrigementForNullity( property, "No value set" ) ;
+        accumulator.addInfrigementForNullity( ImmutableList.of( property ), "No value set" ) ;
       }
     }
     accumulator.throwDeclarationExceptionIfHasInfrigements() ;
@@ -410,9 +409,7 @@ public abstract class TemplateBasedFactory< C extends Configuration >
 
   @SuppressWarnings( "unchecked" )
   private C createProxy( final ImmutableSortedMap< String, ValuedProperty> properties ) {
-    final ThreadLocal< Configuration.Property< C > > lastAccessedProperty = new ThreadLocal<>() ;
-    final Configuration.Inspector inspector
-        = new ConfigurationInspector( properties, lastAccessedProperty ) ;
+    final ThreadLocal< Map< Inspector, List< Property > > > inspectors = new ThreadLocal<>() ;
     final ImmutableMap.Builder< Method, ValuedProperty > builder = ImmutableMap.builder() ;
     for( final ValuedProperty valuedProperty : properties.values() ) {
       builder.put( valuedProperty.property.declaringMethod(), valuedProperty ) ;
@@ -432,17 +429,24 @@ public abstract class TemplateBasedFactory< C extends Configuration >
             if ( method.getDeclaringClass()
                 .equals( ConfigurationInspector.InspectorEnabled.class )
             ) {
-              if ( "$$inspector$$".equals( method.getName() ) ) {
-                return inspector;
+              if ( "$$inspectors$$".equals( method.getName() ) ) {
+                return inspectors;
+              } else if ( "$$properties$$".equals( method.getName() ) ) {
+                return properties ;
               } else {
                 throw new UnsupportedOperationException( "Unsupported: "
-                    + method.getDeclaringClass() + "#" + method.getName() );
+                    + method.getDeclaringClass() + "#" + method.getName() ) ;
               }
             }
 
-            final ValuedProperty valuedProperty = valuedPropertiesByMethod.get( method );
-            lastAccessedProperty.set( valuedProperty.property );
-            return valuedProperty.resolvedValue;
+            final ValuedProperty valuedProperty = valuedPropertiesByMethod.get( method ) ;
+            final Map< Inspector, List< Property > > inspectorMap = inspectors.get() ;
+            if( inspectorMap != null ) {
+              for( final List< Property > lastAccessedProperties : inspectorMap.values() ) {
+                lastAccessedProperties.add( 0, valuedProperty.property ) ;
+              }
+            }
+            return valuedProperty.resolvedValue ;
           }
 
           @Override
@@ -459,7 +463,7 @@ public abstract class TemplateBasedFactory< C extends Configuration >
   private static boolean checkPropertyNamesAllDeclared(
       final Source source,
       final ImmutableSet< String > actualPropertyNames,
-      final ImmutableMap< String, ? extends Configuration.Property > declaredProperties,
+      final ImmutableMap< String, ? extends Property > declaredProperties,
       final List< ConfigurationException > exceptions
   ) {
     boolean good = true ;
@@ -475,12 +479,12 @@ public abstract class TemplateBasedFactory< C extends Configuration >
 
   private static< C extends Configuration > boolean checkPropertyNamesAllDeclared(
       final Source.Raw source,
-      final ImmutableSet<Configuration.Property< C > > actualProperties,
-      final ImmutableSet< Configuration.Property< C > > declaredProperties,
+      final ImmutableSet<Property< C > > actualProperties,
+      final ImmutableSet< Property< C > > declaredProperties,
       final List< ConfigurationException > exceptions
   ) {
     boolean good = true ;
-    for( final Configuration.Property actualProperty : actualProperties ) {
+    for( final Property actualProperty : actualProperties ) {
       if( ! declaredProperties.contains( actualProperty ) ) {
         exceptions.add( new DeclarationException(
             "Unknown property '" + actualProperty + "' "
@@ -513,7 +517,7 @@ public abstract class TemplateBasedFactory< C extends Configuration >
   private static< C extends Configuration > void feedWithValue(
       final Stringified source,
       final Map< String, ValuedProperty > values,
-      final Configuration.Property< C > property,
+      final Property< C > property,
       final List< ConfigurationException > exceptions
   ) {
     final String valueFromSource = source.map().get( property.name() ) ;
@@ -530,7 +534,7 @@ public abstract class TemplateBasedFactory< C extends Configuration >
   private static< C extends Configuration > void feedWithValue(
       final Source.Raw source,
       final Map< String, ValuedProperty > values,
-      final Configuration.Property< C > property,
+      final Property< C > property,
       final List< ConfigurationException > exceptions
   ) {
     if( source.map().containsKey( property ) ) {
@@ -559,7 +563,7 @@ public abstract class TemplateBasedFactory< C extends Configuration >
 
   private static Object convertSafe(
       final List< ConfigurationException > exceptions,
-      final Configuration.Property property,
+      final Property property,
       final String valueFromSource,
       final Source source
   ) {
