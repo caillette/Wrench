@@ -10,9 +10,7 @@ import java.util.regex.Pattern;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
-import static io.github.caillette.wrench.Configuration.Inspector;
-import static io.github.caillette.wrench.Configuration.Property;
-import static io.github.caillette.wrench.Configuration.Source;
+import static io.github.caillette.wrench.Configuration.*;
 import static io.github.caillette.wrench.Configuration.Source.Stringified;
 
 /**
@@ -418,45 +416,7 @@ public abstract class TemplateBasedFactory< C extends Configuration >
     return ( C ) Proxy.newProxyInstance(
         getClass().getClassLoader(),
         new Class[]{ configurationClass, ConfigurationInspector.InspectorEnabled.class },
-        new AbstractInvocationHandler() {
-          @SuppressWarnings( "NullableProblems" )
-          @Override
-          protected Object handleInvocation(
-              final Object proxy,
-              final Method method,
-              final Object[] args
-          ) throws Throwable {
-            if ( method.getDeclaringClass()
-                .equals( ConfigurationInspector.InspectorEnabled.class )
-            ) {
-              if ( "$$inspectors$$".equals( method.getName() ) ) {
-                return inspectors;
-              } else if ( "$$properties$$".equals( method.getName() ) ) {
-                return properties ;
-              } else {
-                throw new UnsupportedOperationException( "Unsupported: "
-                    + method.getDeclaringClass() + "#" + method.getName() ) ;
-              }
-            }
-
-            final ValuedProperty valuedProperty = valuedPropertiesByMethod.get( method ) ;
-            final Map< Inspector, List< Property > > inspectorMap = inspectors.get() ;
-            if( inspectorMap != null ) {
-              for( final List< Property > lastAccessedProperties : inspectorMap.values() ) {
-                lastAccessedProperties.add( 0, valuedProperty.property ) ;
-              }
-            }
-            return valuedProperty.resolvedValue ;
-          }
-
-          @Override
-          public String toString() {
-            return ConfigurationTools.getNiceName( configurationClass ) + "{"
-                + TemplateBasedFactory.toString( valuedPropertiesByMethod.values() )
-                + "}"
-                ;
-          }
-        }
+        new ConfigurationInvocationHandler( inspectors, properties, valuedPropertiesByMethod )
     ) ;
   }
 
@@ -584,4 +544,92 @@ public abstract class TemplateBasedFactory< C extends Configuration >
     }
   } ;
 
+  private class ConfigurationInvocationHandler
+      extends AbstractInvocationHandler
+      implements ConfigurationInspector.InspectorEnabled
+  {
+    private final ThreadLocal<Map<Inspector, List<Property>>> inspectors;
+    private final ImmutableSortedMap<String, ValuedProperty> properties;
+    private final ImmutableMap<Method, ValuedProperty> valuedPropertiesByMethod;
+
+    public ConfigurationInvocationHandler(
+        final ThreadLocal< Map< Inspector, List< Property > > > inspectors,
+        final ImmutableSortedMap<String, ValuedProperty > properties,
+        final ImmutableMap < Method, ValuedProperty > valuedPropertiesByMethod )
+    {
+      this.inspectors = inspectors;
+      this.properties = properties;
+      this.valuedPropertiesByMethod = valuedPropertiesByMethod;
+    }
+
+    @SuppressWarnings( "NullableProblems" )
+    @Override
+    protected Object handleInvocation(
+        final Object proxy,
+        final Method method,
+        final Object[] args
+    ) throws Throwable {
+      if ( method.getDeclaringClass()
+          .equals( ConfigurationInspector.InspectorEnabled.class )
+      ) {
+        if ( "$$inspectors$$".equals( method.getName() ) ) {
+          return inspectors;
+        } else if ( "$$properties$$".equals( method.getName() ) ) {
+          return properties;
+        } else {
+          throw new UnsupportedOperationException( "Unsupported: "
+              + method.getDeclaringClass() + "#" + method.getName() ) ;
+        }
+      }
+
+      final ValuedProperty valuedProperty = valuedPropertiesByMethod.get( method ) ;
+      final Map< Inspector, List< Property > > inspectorMap = inspectors.get() ;
+      if( inspectorMap != null ) {
+        for( final List<Property> lastAccessedProperties : inspectorMap.values() ) {
+          lastAccessedProperties.add( 0, valuedProperty.property ) ;
+        }
+      }
+      return valuedProperty.resolvedValue ;
+    }
+
+    @Override
+    public String toString() {
+      return ConfigurationTools.getNiceName( configurationClass ) + "{"
+          + TemplateBasedFactory.toString( valuedPropertiesByMethod.values() )
+          + "}"
+          ;
+    }
+
+    @Override
+    public boolean equals( final Object other ) {
+      if ( this == other ) {
+        return true ;
+      }
+      if ( other == null || getClass() != other.getClass() ) {
+        return false ;
+      }
+      final ConfigurationInspector.InspectorEnabled that
+        = ( ConfigurationInspector.InspectorEnabled ) other ;
+      return properties.equals( that.$$properties$$() ) ;
+    }
+
+    @Override
+    public int hashCode() {
+      return properties.hashCode() ;
+    }
+
+    @Override
+    public ThreadLocal<Map<Inspector, List< Property > > > $$inspectors$$() {
+      throw new UnsupportedOperationException(
+          "Don't call this method. Implementing "
+          + ConfigurationInspector.InspectorEnabled.class.getSimpleName()
+          + " is just a hack to make #equals(Object) work"
+      ) ;
+    }
+
+    @Override
+    public ImmutableSortedMap<String, ValuedProperty> $$properties$$() {
+      return properties ;
+    }
+  }
 }
