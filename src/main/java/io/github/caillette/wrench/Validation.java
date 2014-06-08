@@ -10,12 +10,7 @@ import static io.github.caillette.wrench.ConfigurationTools.newInspector;
  * Validates a whole {@link Configuration} before a {@link Configuration.Factory}
  * makes it available.
  */
-public interface Validator< C extends Configuration > {
-
-  /**
-   * @return a non-{@code null} object.
-   */
-  ImmutableSet< Bad > validate( C configuration ) ;
+public interface Validation {
 
   class Bad {
     final ImmutableList< ValuedProperty > properties ;
@@ -34,7 +29,7 @@ public interface Validator< C extends Configuration > {
   }
 
   /**
-   * Offers built-in validation methods that accumulate {@link io.github.caillette.wrench.Validator.Bad} instances.
+   * Offers built-in validation methods that accumulate {@link Validation.Bad} instances.
    */
   class Accumulator< C extends Configuration > {
 

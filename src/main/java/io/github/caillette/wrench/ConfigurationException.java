@@ -38,10 +38,10 @@ public class ConfigurationException extends Exception {
     super( cause );
   }
 
-  public static String singleMessageFromInfrigements( final Iterable< Validator.Bad > causes ) {
+  public static String singleMessageFromInfrigements( final Iterable< Validation.Bad > causes ) {
     final Map< Property, Source > valuedPropertiesWithSource = new HashMap<>() ;
     final StringBuilder stringBuilder = new StringBuilder() ;
-    for( final Validator.Bad bad : causes ) {
+    for( final Validation.Bad bad : causes ) {
       stringBuilder.append( "\n    " ) ;
       for( final ValuedProperty valuedProperty : bad.properties ) {
         if( valuedProperty.source != Sources.UNDEFINED  ) {

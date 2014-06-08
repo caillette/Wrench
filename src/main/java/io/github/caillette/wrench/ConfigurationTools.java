@@ -1,10 +1,11 @@
 package io.github.caillette.wrench;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.WeakHashMap;
 
-import static io.github.caillette.wrench.Configuration.Factory;
-import static io.github.caillette.wrench.Configuration.Inspector;
-import static io.github.caillette.wrench.Configuration.Property;
+import static io.github.caillette.wrench.Configuration.*;
 
 /**
  * Utility methods to create {@link Configuration.Factory} and {@link Inspector}

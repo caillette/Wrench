@@ -112,7 +112,8 @@ assertThat( inspector.usingDefault( inspector.lastAccessed().get( 0 ) ) ).isFals
 assertThat( configuration.myString() ).isEqualTo( "FOO" ) ;
 assertThat( inspector.usingDefault( inspector.lastAccessed().get( 0 ) ) ).isTrue() ;
 assertThat( inspector.lastAccessed().get( 0 ).name() ).isEqualTo( "my-string" ) ;
-assertThat( inspector.safeValueOf( inspector.lastAccessed().get( 0 ), "*" ) ) .isEqualTo( "F*" ) ;
+assertThat( inspector.safeValueOf( inspector.lastAccessed().get( 0 ), "*" ) )
+    .isEqualTo( "F*" ) ;
 }
 
 ```

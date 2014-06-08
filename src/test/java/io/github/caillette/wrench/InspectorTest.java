@@ -8,8 +8,8 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import static io.github.caillette.wrench.Configuration.Inspector;
 import static io.github.caillette.wrench.Configuration.Property;
-import static io.github.caillette.wrench.ConfigurationTools.newInspector;
 import static io.github.caillette.wrench.ConfigurationTools.newFactory;
+import static io.github.caillette.wrench.ConfigurationTools.newInspector;
 import static io.github.caillette.wrench.Sources.newSource;
 import static org.fest.assertions.Assertions.assertThat;
 

@@ -8,8 +8,8 @@ import java.lang.reflect.Method;
 import java.util.regex.Pattern;
 
 import static io.github.caillette.wrench.Configuration.Inspector;
-import static io.github.caillette.wrench.Validator.Accumulator;
-import static io.github.caillette.wrench.Validator.Bad;
+import static io.github.caillette.wrench.Validation.Accumulator;
+import static io.github.caillette.wrench.Validation.Bad;
 import static org.fest.assertions.Assertions.assertThat;
 
 public class ComplexUsage {
@@ -67,7 +67,8 @@ public class ComplexUsage {
     assertThat( configuration.myString() ).isEqualTo( "FOO" ) ;
     assertThat( inspector.usingDefault( inspector.lastAccessed().get( 0 ) ) ).isTrue() ;
     assertThat( inspector.lastAccessed().get( 0 ).name() ).isEqualTo( "my-string" ) ;
-    assertThat( inspector.safeValueOf( inspector.lastAccessed().get( 0 ), "*" ) ).isEqualTo( "F*" ) ;
+    assertThat( inspector.safeValueOf( inspector.lastAccessed().get( 0 ), "*" ) )
+        .isEqualTo( "F*" ) ;
   }
 
 

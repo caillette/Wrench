@@ -2,7 +2,6 @@ package io.github.caillette.wrench.source;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import io.github.caillette.wrench.source.DashedCommandLineSource;
 import org.junit.Test;
 
 import static org.fest.assertions.Assertions.assertThat;

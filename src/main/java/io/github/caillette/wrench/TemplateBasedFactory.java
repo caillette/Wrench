@@ -357,9 +357,9 @@ public abstract class TemplateBasedFactory< C extends Configuration >
 
     verifyNoUndefinedProperty( configuration, propertySet, valuedProperties ) ;
 
-    final ImmutableSet<Validator.Bad > validation = validate( configuration ) ;
+    final ImmutableSet<Validation.Bad > validation = validate( configuration ) ;
     if( ! validation.isEmpty() ) {
-      throw new ValidationException( ( Iterable<Validator.Bad> ) ( Object ) validation ) ;
+      throw new ValidationException( ( Iterable<Validation.Bad> ) ( Object ) validation ) ;
     }
 
     return configuration ;
@@ -380,7 +380,7 @@ public abstract class TemplateBasedFactory< C extends Configuration >
     return builder.build() ;
   }
 
-  protected ImmutableSet< Validator.Bad > validate( final C configuration ) {
+  protected ImmutableSet< Validation.Bad > validate( final C configuration ) {
     return ImmutableSet.of() ;
   }
 
@@ -393,7 +393,7 @@ public abstract class TemplateBasedFactory< C extends Configuration >
       final ImmutableMap< String, Property< C > > properties,
       final ImmutableSortedMap< String, ValuedProperty > valuedProperties
   ) throws DeclarationException {
-    final Validator.Accumulator< C > accumulator = new Validator.Accumulator<>( configuration ) ;
+    final Validation.Accumulator< C > accumulator = new Validation.Accumulator<>( configuration ) ;
     for( final Property< C > property : properties.values() ) {
       final ValuedProperty valuedProperty = valuedProperties.get( property.name() ) ;
       if( valuedProperty == null
