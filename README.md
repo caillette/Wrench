@@ -39,8 +39,7 @@ final Simple configuration = factory.create( Sources.newSource( new File( "my.pr
 
 assertThat( configuration.myNumber() ).isEqualTo( 43 ) ;
 assertThat( configuration.myString() ).isEqualTo( "Hello" ) ;
-assertThat( configuration.toString() )
-    .isEqualTo( "SimplestUsage$Simple{myNumber=43; myString=Hello}" ) ;
+assertThat( configuration.toString() ).isEqualTo( "Simple{myNumber=43; myString=Hello}" ) ;
 ```
 
 Got the idea? There is more.
