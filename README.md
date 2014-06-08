@@ -90,7 +90,7 @@ factory = new TemplateBasedFactory< Simple >( Simple.class ) {
   }
 
   @Override
-  protected ImmutableSet< Bad< Simple > > validate( final Simple configuration ) {
+  protected ImmutableSet< Bad > validate( final Simple configuration ) {
     final Accumulator< Simple > accumulator = new Accumulator<>( configuration ) ;
     if( configuration.myNumber() != null ) {
       accumulator.verify( configuration.myNumber() > 0, "Must be > 0" ) ;
@@ -112,8 +112,9 @@ assertThat( inspector.usingDefault( inspector.lastAccessed().get( 0 ) ) ).isFals
 assertThat( configuration.myString() ).isEqualTo( "FOO" ) ;
 assertThat( inspector.usingDefault( inspector.lastAccessed().get( 0 ) ) ).isTrue() ;
 assertThat( inspector.lastAccessed().get( 0 ).name() ).isEqualTo( "my-string" ) ;
-assertThat( inspector.safeValueOf( inspector.lastAccessed().get( 0 ), "*" ) )
-    .isEqualTo( "F*" ) ;
+assertThat( inspector.safeValueOf( inspector.lastAccessed().get( 0 ), "*" ) ) .isEqualTo( "F*" ) ;
+}
+
 ```
 
 All the magic lies in `using` and `inspector` objects that capture a method call to designate the property to use immediately after. It's not different of what [Mockito](http://mockito.org) and other testing frameworks do. 
