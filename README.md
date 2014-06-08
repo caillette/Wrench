@@ -48,18 +48,19 @@ Got the idea? There is more.
 Features
 --------
 
-- Compiler-checked default values.
+- Default values as statically typed Java objects.
 - Fail-fast on unknown property names.
 - Fail-fast on undefined properties.
-- Error messages with source location.
-- Raises as many errors as possible in a single run, for batched corrections.
 - Custom property names.
-- Default and custom converters to build objects from strings.
 - Bulk transformation of method names (`myName() -> 'my.name' or 'my-name'`).
+- Default and custom converters to build objects from strings.
 - Immutability wherever possible, using Guava's `Immutable*`. Wrench heavily relies on Guava.
 - Sources can be files, or command-line parameters, or anything. 
 - Property overriding when using multiple sources. So you can cascade several files and command-line parameters.
 - Bulk validation (applies to a whole `Configuration` object).
+- Validation may automatically capture last accessed properties to add their name to the message.
+- Error messages with source location.
+- Raises as many errors as possible in a single run, for batched corrections.
 - Pattern-based obfuscation of the string representation of sensible parts (like passwords).
 - Configuration object metadata (with the `Inspector`). 
 
