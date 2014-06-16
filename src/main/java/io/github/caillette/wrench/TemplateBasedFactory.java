@@ -9,13 +9,7 @@ import com.google.common.reflect.AbstractInvocationHandler;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Pattern;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -130,6 +124,16 @@ public abstract class TemplateBasedFactory< C extends Configuration >
   }
 
   protected void initialize() { }
+
+
+  /**
+   * Override this method to hack values as
+   * @param configuration a {@link Configuration}
+   * @return
+   */
+  protected ImmutableMap< Property< C >, TweakedValue > tweak( final C configuration ) {
+    return ImmutableMap.of() ;
+  }
 
   protected final < T > Configuration.PropertySetup< C, T > property(
       final T templateCallResult
@@ -333,8 +337,7 @@ public abstract class TemplateBasedFactory< C extends Configuration >
 
     for( final Source source : sources ) {
       if( source instanceof Stringified ) {
-        final Stringified stringified
-            = ( Stringified ) source ;
+        final Stringified stringified = ( Stringified ) source ;
         checkPropertyNamesAllDeclared(
             stringified, stringified.map().keySet(), propertySet, exceptions ) ;
       } else if( source instanceof Source.Raw ) {
@@ -367,10 +370,21 @@ public abstract class TemplateBasedFactory< C extends Configuration >
       throw new DeclarationException( this, ImmutableList.copyOf( exceptions ) ) ;
     }
 
-    final ImmutableSortedMap< String, ValuedProperty > valuedProperties
-        = ImmutableSortedMap.copyOf( values ) ;
-
-    final C configuration = createProxy( valuedProperties ) ;
+    final ImmutableSortedMap< String, ValuedProperty > valuedProperties ;
+    final C configuration ;
+    {
+      final ImmutableSortedMap< String, ValuedProperty > untweakedValuedProperties
+          = ImmutableSortedMap.copyOf( values ) ;
+      final C untweakedConfiguration = createProxy( untweakedValuedProperties ) ;
+      final ImmutableMap< Property< C >, TweakedValue > tweak = tweak( untweakedConfiguration ) ;
+      if ( tweak == null || tweak.isEmpty() ) {
+        valuedProperties = untweakedValuedProperties ;
+        configuration = untweakedConfiguration ;
+      } else {
+        valuedProperties = verifyTweak( untweakedValuedProperties, tweak ) ;
+        configuration = createProxy( valuedProperties ) ;
+      }
+    }
 
     verifyNoUndefinedProperty( configuration, propertySet, valuedProperties ) ;
 
@@ -380,6 +394,60 @@ public abstract class TemplateBasedFactory< C extends Configuration >
     }
 
     return configuration ;
+  }
+
+  private ImmutableSortedMap< String, ValuedProperty > verifyTweak(
+      final ImmutableSortedMap< String, ValuedProperty > untweakedValuedProperties,
+      final ImmutableMap< Property< C >, TweakedValue> tweak
+  ) throws DeclarationException {
+    final Set< Validation.Bad > exceptions = new HashSet<>() ;
+    final SortedMap< String, ValuedProperty > builder = new TreeMap<>() ;
+    builder.putAll( untweakedValuedProperties ) ;
+    for( final Map.Entry< Property< C >, TweakedValue > tweakedEntry : tweak.entrySet() ) {
+      final Property< C > property = tweakedEntry.getKey() ;
+      final TweakedValue tweakedValue = tweakedEntry.getValue() ;
+      final Property< C > existingProperty = propertySet.get( property.name() );
+      if( existingProperty == null || existingProperty != property ) {
+        addBadTweakedEntry( propertySet, exceptions, tweakedEntry,
+            "No defined property " + property + " for value '" + tweakedValue.stringValue + "'" ) ;
+      }
+      if( tweakedValue.resolvedValue != null
+          && ! property.type().isAssignableFrom( tweakedValue.resolvedValue.getClass() )
+      ) {
+        addBadTweakedEntry(
+            propertySet,
+            exceptions,
+            tweakedEntry,
+            "Can't assign a value of type " + tweakedValue.resolvedValue.getClass().getName()
+                + " to a property of type " + property.type().getName()
+        ) ;
+      }
+      builder.put(
+          property.name(),
+          new ValuedProperty(
+              property,
+              Sources.TWEAKING,
+              tweakedValue.stringValue,
+              tweakedValue.resolvedValue,
+              true
+          ) ) ;
+    }
+    if( ! exceptions.isEmpty() ) {
+      throw new DeclarationException( this, ImmutableList.copyOf( exceptions ) ) ;
+    }
+    return ImmutableSortedMap.copyOf( builder ) ;
+  }
+
+  private static< C extends Configuration > void addBadTweakedEntry(
+      final ImmutableMap<String, Property<C>> definedProperties,
+      final Set<Validation.Bad> exceptions,
+      final Map.Entry<Property<C>, TweakedValue> tweakedEntry,
+      final String message
+  ) {
+    final ValuedProperty tweakedValuedProperty
+        = new ValuedProperty( definedProperties.get( tweakedEntry.getKey().name() ) ) ;
+    exceptions.add(
+        new Validation.Bad( ImmutableList.of( tweakedValuedProperty ), message ) ) ;
   }
 
   @Override
@@ -578,7 +646,7 @@ public abstract class TemplateBasedFactory< C extends Configuration >
     private final ThreadLocal< Map< Inspector, List< Property > > > inspectors ;
     private final ImmutableSortedMap<String, ValuedProperty> properties ;
     private final Factory factory ;
-    private final ImmutableMap<Method, ValuedProperty> valuedPropertiesByMethod ;
+    private final ImmutableMap< Method, ValuedProperty> valuedPropertiesByMethod ;
 
     public ConfigurationInvocationHandler(
         final ThreadLocal< Map< Inspector, List< Property > > > inspectors,
@@ -614,14 +682,36 @@ public abstract class TemplateBasedFactory< C extends Configuration >
         }
       }
 
-      final ValuedProperty valuedProperty = valuedPropertiesByMethod.get( method ) ;
+      ValuedProperty valuedProperty = valuedPropertiesByMethod.get( method ) ;
       final Map< Inspector, List< Property > > inspectorMap = inspectors.get() ;
+      final boolean unresolvedProperty = valuedProperty == null ;
       if( inspectorMap != null ) {
-        for( final List<Property> lastAccessedProperties : inspectorMap.values() ) {
+        for( final List< Property > lastAccessedProperties : inspectorMap.values() ) {
+          if( unresolvedProperty ) {
+            for( final Property property
+                : ( ( ImmutableMap< String, Property > ) factory.properties() ).values()
+            ) {
+              if( method.equals( property.declaringMethod() ) ) {
+                valuedProperty = new ValuedProperty( property ) ;
+              }
+            }
+            if( valuedProperty == null ) {
+              throw new IllegalStateException(
+                  "Failed to generate a dumb " + ValuedProperty.class.getSimpleName()
+                      + " object. This is annoying. Dumb " + ValuedProperty.class.getSimpleName()
+                      + " object solves the case of uninitialized property when using "
+                      + TemplateBasedFactory.class.getSimpleName() + "#tweak()"
+              ) ;
+            }
+          }
           lastAccessedProperties.add( 0, valuedProperty.property ) ;
         }
       }
-      return valuedProperty.resolvedValue ;
+      if( unresolvedProperty ) {
+        return safeNull( valuedProperty.property.type() ) ;
+      } else {
+        return valuedProperty.resolvedValue ;
+      }
     }
 
     @Override
@@ -668,5 +758,24 @@ public abstract class TemplateBasedFactory< C extends Configuration >
     public Factory $$factory$$() {
       return factory ;
     }
+  }
+
+  private static Object safeNull( Class propertyType ) {
+    if( Integer.TYPE.equals( propertyType ) ) {
+      return 0 ;
+    } else if( Byte.TYPE.equals( propertyType ) ) {
+      return ( byte ) 0 ;
+    } else if( Short.TYPE.equals( propertyType ) ) {
+      return ( short ) 0 ;
+    } else if( Long.TYPE.equals( propertyType ) ) {
+      return ( long ) 0 ;
+    } else if( Double.TYPE.equals( propertyType ) ) {
+      return ( double ) 0 ;
+    } else if( Float.TYPE.equals( propertyType ) ) {
+      return ( float ) 0 ;
+    } else if( Character.TYPE.equals( propertyType ) ) {
+      return ( char ) 0 ;
+    }
+    return null ;
   }
 }

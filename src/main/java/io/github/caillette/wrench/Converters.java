@@ -51,6 +51,27 @@ public final class Converters {
     }
   } ;
 
+  public static final Converter< Boolean > INTO_BOOLEAN_PRIMITIVE
+      = new AbstractConverter< Boolean >()
+  {
+    @Override
+    public Boolean convert( final String input ) {
+        return Boolean.parseBoolean( input ) ;
+    }
+  } ;
+
+  public static final Converter< Boolean > INTO_BOOLEAN_OBJECT
+      = new AbstractConverter< Boolean >()
+  {
+    @Override
+    public Boolean convert( final String input ) throws Exception {
+      if( Strings.isNullOrEmpty( input ) ) {
+        return null ;
+      }
+      return Boolean.parseBoolean( input ) ;
+    }
+  } ;
+
   public static final Converter< File > INTO_FILE = new AbstractConverter< File >() {
     @Override
     public File convert( final String input ) throws Exception {
@@ -62,12 +83,14 @@ public final class Converters {
   } ;
 
   public static final ImmutableMap< Class< ? >, Converter > DEFAULTS
-      = ImmutableMap.of(
-          ( Class< ? > ) String.class, ( Converter ) INTO_STRING,
-          Integer.TYPE, INTO_INTEGER_PRIMITIVE,
-          Integer.class, INTO_INTEGER_OBJECT,
-          File.class, INTO_FILE
-      )
+      = ImmutableMap.< Class< ? >, Converter >builder()
+          .put( String.class, ( Converter ) INTO_STRING )
+          .put( Integer.TYPE, INTO_INTEGER_PRIMITIVE )
+          .put( Integer.class, INTO_INTEGER_OBJECT )
+          .put( Boolean.TYPE, INTO_BOOLEAN_PRIMITIVE )
+          .put( Boolean.class, INTO_BOOLEAN_OBJECT )
+          .put( File.class, INTO_FILE )
+          .build()
   ;
 
 }

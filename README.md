@@ -63,6 +63,7 @@ Features
 - Pattern-based obfuscation of the string representation of sensible parts (like passwords).
 - Configuration object metadata (with the `Inspector`). 
 - Automatic online help with property names, default values, and arbitrary text.
+- Calculated properties using (typesafe) custom code .
 
 The snippet below illustrates some of those features.
 

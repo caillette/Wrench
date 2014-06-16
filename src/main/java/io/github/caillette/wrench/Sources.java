@@ -40,4 +40,11 @@ public final class Sources {
     }
   } ;
 
+  static final Configuration.Source TWEAKING = new Configuration.Source() {
+    @Override
+    public String sourceName() {
+      return TemplateBasedFactory.class.getSimpleName() + "#tweak" ;
+    }
+  } ;
+
 }

@@ -35,6 +35,30 @@ class ValuedProperty {
     this.usingDefault = usingDefault ;
   }
 
+  public ValuedProperty(
+      final Configuration.Property property,
+      final Configuration.Source source,
+      final String stringValue,
+      final Object resolvedValue,
+      final boolean usingDefault
+  ) {
+    this.property = checkNotNull( property ) ;
+    this.source = checkNotNull( source ) ;
+    this.stringValue = stringValue ;
+    this.resolvedValue = resolvedValue ;
+    this.usingDefault = usingDefault ;
+  }
+
+  @Override
+  public String toString() {
+    return getClass().getSimpleName() + "{"
+        + "property.name()=" + property.name() + "; "
+        + "stringValue=" + stringValue + "; "
+        + "source=" + source.sourceName()
+        + "}"
+    ;
+  }
+
   @Override
   public boolean equals( final Object other ) {
     if ( this == other ) {

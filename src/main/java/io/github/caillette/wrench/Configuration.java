@@ -43,6 +43,13 @@ public interface Configuration {
     interface Raw< C extends Configuration > extends Source {
       ImmutableMap< Property< C >, Object > map() ;
     }
+
+    /**
+     * Hook to tweak values in other sources.
+     */
+    interface Transforming< C extends Configuration > extends Source {
+      ImmutableMap< Property< C >, Object > map( ImmutableMap< Property< C >, Object > others ) ;
+    }
   }
 
 
