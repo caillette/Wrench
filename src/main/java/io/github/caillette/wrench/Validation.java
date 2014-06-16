@@ -81,7 +81,7 @@ public interface Validation {
 
     private final ConfigurationInspector< C > inspector ;
 
-    public Accumulator( C configuration ) {
+    public Accumulator( final C configuration ) {
       this.inspector = ( ConfigurationInspector< C > ) newInspector( configuration ) ;
     }
 
@@ -97,7 +97,7 @@ public interface Validation {
     }
 
 
-    public Accumulator< C > justVerify( final boolean mustBeTrue, String message ) {
+    public Accumulator< C > justVerify( final boolean mustBeTrue, final String message ) {
       if( ! mustBeTrue ) {
         justAdd( message ) ;
       }
@@ -106,7 +106,7 @@ public interface Validation {
 
 
 
-    public Accumulator< C > justAdd( String message ) {
+    public Accumulator< C > justAdd( final String message ) {
       builder.add( new Bad( message ) ) ;
       return this ;
     }
@@ -121,7 +121,7 @@ public interface Validation {
       return this ;
     }
 
-    public Accumulator< C > verify( final boolean mustBeTrue, String message ) {
+    public Accumulator< C > verify( final boolean mustBeTrue, final String message ) {
       if( ! mustBeTrue ) {
         add( message ) ;
       }
@@ -129,7 +129,7 @@ public interface Validation {
       return this ;
     }
 
-    public Accumulator< C > add( String message ) {
+    public Accumulator< C > add( final String message ) {
       return add( resolveValuedProperties( inspector.lastAccessed() ), message ) ;
     }
 

@@ -34,7 +34,7 @@ public final class PropertySetupCollector< C extends Configuration> {
   }
 
   public final < T > Configuration.PropertySetup< C, T > on(
-      @SuppressWarnings( "UnusedParameters" ) T methodCallResult
+      @SuppressWarnings( "UnusedParameters" ) final T methodCallResult
   ) {
     return new Configuration.PropertySetup<>( lastAccessed, setupAcceptor ) ;
   }

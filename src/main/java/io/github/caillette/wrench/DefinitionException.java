@@ -5,15 +5,8 @@ package io.github.caillette.wrench;
  * (this includes the annotations).
  */
 public class DefinitionException extends RuntimeException {
-  public DefinitionException( String message ) {
+  public DefinitionException( final String message ) {
     super( message );
   }
 
-  public DefinitionException( Exception e ) {
-    super( e ) ;
-  }
-
-  public DefinitionException( String message, Throwable cause ) {
-    super( message, cause );
-  }
 }

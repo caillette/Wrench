@@ -3,18 +3,18 @@ package io.github.caillette.wrench;
 import java.lang.reflect.Method;
 
 public class ConvertException extends ConfigurationException {
-  public ConvertException( String message ) {
+  public ConvertException( final String message ) {
     super( message ) ;
   }
 
-  public ConvertException( String message, Throwable cause ) {
+  public ConvertException( final String message, final Throwable cause ) {
     super( message, cause ) ;
   }
 
   static ConvertException toConvertException(
       final Exception e,
-      Configuration.Property property,
-      Configuration.Source source
+      final Configuration.Property property,
+      final Configuration.Source source
   ) {
     return new ConvertException(
         "From " + property.converter().toString() + ": "

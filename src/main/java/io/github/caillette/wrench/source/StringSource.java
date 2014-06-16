@@ -30,15 +30,15 @@ public class StringSource implements Configuration.Source.Stringified {
     return "java:" + getClass().getName() ;
   }
 
-  public static ImmutableMap< String, String > buildMap( String string ) {
+  public static ImmutableMap< String, String > buildMap( final String string ) {
     try {
       return buildMap( new StringReader( string ) ) ;
-    } catch ( IOException e ) {
+    } catch ( final IOException e ) {
       throw new RuntimeException( e ) ;
     }
   }
 
-  public static ImmutableMap< String, String > buildMap( Reader reader ) throws IOException {
+  public static ImmutableMap< String, String > buildMap( final Reader reader ) throws IOException {
     final Properties properties = new Properties() ;
     properties.load( reader ) ;
     final ImmutableMap.Builder< String, String > builder = ImmutableMap.builder() ;

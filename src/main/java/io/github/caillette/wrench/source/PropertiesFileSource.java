@@ -17,7 +17,7 @@ public class PropertiesFileSource implements Configuration.Source.Stringified {
   private final ImmutableMap<String, String> map ;
   private final File source ;
 
-  public PropertiesFileSource( File file ) throws IOException {
+  public PropertiesFileSource( final File file ) throws IOException {
     this.map = StringSource.buildMap( Files.newReader( file, Charsets.UTF_8 ) ) ;
     this.source = file ;
   }

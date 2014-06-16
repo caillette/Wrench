@@ -57,12 +57,12 @@ class ConfigurationInspector< C extends Configuration > implements Inspector< C 
   }
 
   @Override
-  public boolean usingDefault( Property< C > property ) {
+  public boolean usingDefault( final Property< C > property ) {
     return valuedSlot( property ).usingDefault ;
   }
 
   @Override
-  public Configuration.Source sourceOf( Property< C > property ) {
+  public Configuration.Source sourceOf( final Property< C > property ) {
     return valuedSlot( property ).source ;
   }
 
@@ -104,7 +104,7 @@ class ConfigurationInspector< C extends Configuration > implements Inspector< C 
 // Boring
 // ======
 
-  private ValuedProperty valuedSlot( Property< C > property ) {
+  private ValuedProperty valuedSlot( final Property< C > property ) {
     final ValuedProperty valuedProperty = valuedProperties.get( property.name() ) ;
     if( valuedProperty == null ) {
       throw new IllegalArgumentException( "Unknown: " + property ) ;

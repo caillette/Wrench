@@ -34,12 +34,8 @@ public final class Converters {
       = new AbstractConverter< Integer >()
   {
     @Override
-    public Integer convert( String input ) throws ConvertException {
-//      try {
+    public Integer convert( final String input ) throws ConvertException {
         return Integer.parseInt( input ) ;
-//      } catch ( NumberFormatException e ) {
-//        throw new ConvertException( "Can't parse '" + input + "'" ) ;
-//      }
     }
   } ;
 
@@ -47,21 +43,17 @@ public final class Converters {
       = new AbstractConverter< Integer >()
   {
     @Override
-    public Integer convert( String input ) throws Exception {
+    public Integer convert( final String input ) throws Exception {
       if( Strings.isNullOrEmpty( input ) ) {
         return null ;
       }
-//      try {
-        return Integer.parseInt( input ) ;
-//      } catch ( NumberFormatException e ) {
-//        throw new ConvertException( "Can't parse '" + input + "'" ) ;
-//      }
+      return Integer.parseInt( input ) ;
     }
   } ;
 
   public static final Converter< File > INTO_FILE = new AbstractConverter< File >() {
     @Override
-    public File convert( String input ) throws Exception {
+    public File convert( final String input ) throws Exception {
       if( Strings.isNullOrEmpty( input ) ) {
         return null ;
       }

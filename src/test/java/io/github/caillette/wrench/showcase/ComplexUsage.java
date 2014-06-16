@@ -9,7 +9,7 @@ import java.util.regex.Pattern;
 import static io.github.caillette.wrench.Configuration.Inspector;
 import static io.github.caillette.wrench.Validation.Accumulator;
 import static io.github.caillette.wrench.Validation.Bad;
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class ComplexUsage {
 
@@ -29,7 +29,7 @@ public class ComplexUsage {
             .maybeNull()
             .converter( new Configuration.Converter< Integer >() {
               @Override
-              public Integer convert( String input ) {
+              public Integer convert( final String input ) {
                 return input == null ? null : Integer.parseInt( input, 2 ) ;
               }
             } )

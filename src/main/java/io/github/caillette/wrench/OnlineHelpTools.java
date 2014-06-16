@@ -11,7 +11,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
-public class OnlineHelpTools {
+public final class OnlineHelpTools {
 
   private OnlineHelpTools() { }
 
@@ -29,7 +29,7 @@ public class OnlineHelpTools {
     final StringWriter stringWriter = new StringWriter() ;
     try {
       writeHelp( stringWriter, factory, indent, lineLength ) ;
-    } catch ( IOException e ) {
+    } catch ( final IOException e ) {
       throw new RuntimeException( "Can't happen", e ) ;
     }
     return stringWriter.toString() ;
@@ -49,7 +49,7 @@ public class OnlineHelpTools {
     final StringWriter stringWriter = new StringWriter() ;
     try {
       writeErrorMessageAndHelp( stringWriter, declarationException, indent, lineLength ) ;
-    } catch ( IOException e ) {
+    } catch ( final IOException e ) {
       throw new RuntimeException( "Can't happen", e ) ;
     }
     return stringWriter.toString() ;
@@ -205,7 +205,7 @@ public class OnlineHelpTools {
 
   private static final CharMatcher LINEBREAK_MATCHER = new CharMatcher() {
     @Override
-    public boolean matches( char c ) {
+    public boolean matches( final char c ) {
       return ( c == '\n' || c == '\r' ) ;
     }
   } ;

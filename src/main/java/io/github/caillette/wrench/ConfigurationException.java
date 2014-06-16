@@ -11,15 +11,13 @@ import static io.github.caillette.wrench.Configuration.Source;
  */
 public class ConfigurationException extends Exception {
 
-  public ConfigurationException( String message ) {
+  public ConfigurationException( final String message ) {
     super( message ) ;
   }
 
-  public ConfigurationException( Iterable< ConfigurationException > causes ) {
-    super( "Exception list: " + singleMessageFromExceptions( causes ) ) ;
-  }
-
-  private static String singleMessageFromExceptions( Iterable< ConfigurationException > causes ) {
+  private static String singleMessageFromExceptions(
+      final Iterable< ConfigurationException > causes
+  ) {
     final StringBuilder stringBuilder = new StringBuilder() ;
     for( final ConfigurationException configurationException : causes ) {
       stringBuilder.append( "\n    " ) ;
@@ -30,11 +28,11 @@ public class ConfigurationException extends Exception {
     return stringBuilder.toString() ;
   }
 
-  public ConfigurationException( String message, Throwable cause ) {
-    super( message, cause );
+  public ConfigurationException( final String message, final Throwable cause ) {
+    super( message, cause ) ;
   }
 
-  public ConfigurationException( Throwable cause ) {
+  public ConfigurationException( final Throwable cause ) {
     super( cause );
   }
 

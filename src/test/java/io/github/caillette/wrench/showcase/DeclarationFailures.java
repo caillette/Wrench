@@ -7,7 +7,7 @@ import io.github.caillette.wrench.Sources;
 import org.junit.Test;
 
 import static io.github.caillette.wrench.Sources.newSource;
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 
 public class DeclarationFailures {
@@ -24,7 +24,7 @@ public class DeclarationFailures {
     try {
       factory.create( Sources.newSource( "number = unparseable" ) ) ;
       fail( "Should have thrown an exception" ) ;
-    } catch ( DeclarationException e ) {
+    } catch ( final DeclarationException e ) {
       assertThat( e.getMessage() ).contains(
           "Conversion failed on property 'number': java.lang.NumberFormatException, "
               + "For input string: \"unparseable\""
@@ -39,7 +39,7 @@ public class DeclarationFailures {
     try {
       factory.create( Sources.newSource( "unknown = -" ) ) ;
       fail( "Should have thrown an exception" ) ;
-    } catch ( DeclarationException e ) {
+    } catch ( final DeclarationException e ) {
       assertThat( e.getMessage() ).contains( "Unknown property name 'unknown'" ) ;
     }
   }

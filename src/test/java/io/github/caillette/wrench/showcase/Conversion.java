@@ -9,7 +9,7 @@ import java.util.regex.Pattern;
 import static io.github.caillette.wrench.Configuration.Converter;
 import static io.github.caillette.wrench.Configuration.Factory;
 import static io.github.caillette.wrench.Sources.newSource;
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class Conversion {
 

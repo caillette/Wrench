@@ -1,16 +1,29 @@
 package io.github.caillette.wrench;
 
-import com.google.common.collect.*;
+import com.google.common.collect.ImmutableCollection;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.ImmutableSortedMap;
 import com.google.common.reflect.AbstractInvocationHandler;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
-import static io.github.caillette.wrench.Configuration.*;
+import static io.github.caillette.wrench.Configuration.Factory;
+import static io.github.caillette.wrench.Configuration.Inspector;
+import static io.github.caillette.wrench.Configuration.Property;
+import static io.github.caillette.wrench.Configuration.Source;
 import static io.github.caillette.wrench.Configuration.Source.Stringified;
 
 /**
@@ -58,6 +71,7 @@ public abstract class TemplateBasedFactory< C extends Configuration >
         }
     ) ;
     using = constructionKit.collector.template ;
+    //noinspection OverridableMethodCallDuringObjectConstruction
     initialize() ;
     propertySet = buildPropertyMap(
         constructionKit.features,
@@ -70,7 +84,7 @@ public abstract class TemplateBasedFactory< C extends Configuration >
   private static class ConstructionKit< C extends Configuration > {
     private final Map< Method, Map< Configuration.PropertySetup.Feature, Object > > features
         = new HashMap<>() ;
-    public PropertySetupCollector< C > collector ;
+    public PropertySetupCollector< C > collector = null ;
     public ImmutableMap< Class< ? >, Configuration.Converter > transientConverters
         = Converters.DEFAULTS ;
     public Configuration.NameTransformer transientNameTransformer = NameTransformers.IDENTITY ;
@@ -261,7 +275,7 @@ public abstract class TemplateBasedFactory< C extends Configuration >
   private static boolean resolveMayBeNull(
       final Map< Configuration.PropertySetup.Feature, Object > features
   ) {
-    boolean maybeNull;
+    final boolean maybeNull ;
     final Boolean explicitMayBeNull = ( Boolean ) features.get(
         Configuration.PropertySetup.Feature.MAYBE_NULL ) ;
     maybeNull = explicitMayBeNull != null && explicitMayBeNull ;
@@ -271,7 +285,7 @@ public abstract class TemplateBasedFactory< C extends Configuration >
   private static Pattern resolveObfuscatorPattern(
       final Map< Configuration.PropertySetup.Feature, Object > features
   ) {
-    Pattern obfuscatorPattern;
+    final Pattern obfuscatorPattern ;
     final Pattern explicitPattern =  ( Pattern ) features.get(
         Configuration.PropertySetup.Feature.OBFUSCATOR ) ;
     obfuscatorPattern = explicitPattern ;
@@ -281,12 +295,15 @@ public abstract class TemplateBasedFactory< C extends Configuration >
   private static String resolveDocumentation(
       final Map< Configuration.PropertySetup.Feature, Object > features
   ) {
-    String documentation = ( String ) features.get(
+    final String documentation = ( String ) features.get(
         Configuration.PropertySetup.Feature.DOCUMENTATION ) ;
     return documentation ;
   }
 
-  private static String resolveDefaultValueAsString( Map<Configuration.PropertySetup.Feature, Object> features, Object defaultValue ) {
+  private static String resolveDefaultValueAsString(
+      final Map< Configuration.PropertySetup.Feature, Object > features,
+      final Object defaultValue
+  ) {
     final String defaultValueAsString ;
     final String explicitValueAsString = ( String ) features.get(
         Configuration.PropertySetup.Feature.DEFAULT_VALUE_AS_STRING ) ;
@@ -303,8 +320,8 @@ public abstract class TemplateBasedFactory< C extends Configuration >
 // ======================
 
   @Override
-  public final C create( Source source1, Source... others )
-      throws ConfigurationException
+  public final C create( final Source source1, final Source... others )
+      throws DeclarationException
   {
     final List< Source > sources = new ArrayList<>( others.length + 2 ) ;
     sources.add( new PropertyDefaultSource< C >( ImmutableSet.copyOf( propertySet.values() ) ) ) ;
@@ -346,7 +363,7 @@ public abstract class TemplateBasedFactory< C extends Configuration >
       }
     }
 
-    if( exceptions.size() > 0 ) {
+    if( ! exceptions.isEmpty() ) {
       throw new DeclarationException( this, ImmutableList.copyOf( exceptions ) ) ;
     }
 
@@ -359,7 +376,7 @@ public abstract class TemplateBasedFactory< C extends Configuration >
 
     final ImmutableList< Validation.Bad > validation = validate( configuration ) ;
     if( ! validation.isEmpty() ) {
-      throw new ValidationException( validation ) ;
+      throw new ValidationException( this, validation ) ;
     }
 
     return configuration ;

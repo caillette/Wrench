@@ -6,7 +6,7 @@ import io.github.caillette.wrench.Sources;
 import io.github.caillette.wrench.TemplateBasedFactory;
 import org.junit.Test;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class CustomPropertyNames {
 

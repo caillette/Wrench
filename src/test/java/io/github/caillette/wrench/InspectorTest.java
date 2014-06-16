@@ -11,7 +11,7 @@ import static io.github.caillette.wrench.Configuration.Property;
 import static io.github.caillette.wrench.ConfigurationTools.newFactory;
 import static io.github.caillette.wrench.ConfigurationTools.newInspector;
 import static io.github.caillette.wrench.Sources.newSource;
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class InspectorTest {
 

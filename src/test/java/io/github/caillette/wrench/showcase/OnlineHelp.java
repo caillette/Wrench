@@ -37,7 +37,7 @@ public class OnlineHelp {
     try {
       factory.create( Sources.newSource( "bad source" ) ) ;
       fail( "Should have thrown an exception" ) ;
-    } catch ( DeclarationException e ) {
+    } catch ( final DeclarationException e ) {
       final String help = OnlineHelpTools.errorMessageAndHelpAsString( e ) ;
       System.out.println( help ) ;
     }

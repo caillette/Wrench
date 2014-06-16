@@ -5,7 +5,7 @@ import io.github.caillette.wrench.*;
 import org.junit.Test;
 
 import static io.github.caillette.wrench.Validation.Accumulator;
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 
 public class LightweightValidation {
@@ -34,7 +34,7 @@ public class LightweightValidation {
     try {
       factory.create( Sources.newSource( "x = 12", "y = -1" ) ) ;
       fail( "Should have thrown an exception" ) ;
-    } catch ( ConfigurationException e ) {
+    } catch ( final ValidationException e ) {
       System.out.println( e.getMessage() ) ;
       assertThat( e.getMessage() ).contains( "[ y = -1 ] Must be >= 0" ) ;
       assertThat( e.getMessage() ).contains( "[ y = -1 ] [ x = 12 ] Sum must be < 10" ) ;

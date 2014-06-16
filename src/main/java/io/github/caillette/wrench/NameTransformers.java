@@ -12,12 +12,12 @@ public final class NameTransformers {
   public static class WithCaseFormat implements Configuration.NameTransformer {
     private final CaseFormat caseFormat ;
 
-    protected WithCaseFormat( CaseFormat caseFormat ) {
+    protected WithCaseFormat( final CaseFormat caseFormat ) {
       this.caseFormat = caseFormat ;
     }
 
     @Override
-    public String transform( String javaMethodName ) {
+    public String transform( final String javaMethodName ) {
       return CaseFormat.LOWER_CAMEL.to( caseFormat, javaMethodName ) ;
     }
   }
@@ -35,7 +35,7 @@ public final class NameTransformers {
   public static class LowerDot implements Configuration.NameTransformer {
     private static final Configuration.NameTransformer LOWER_HYPHEN = new LowerHyphen() ;
     @Override
-    public String transform( String javaMethodName ) {
+    public String transform( final String javaMethodName ) {
       return LOWER_HYPHEN.transform( javaMethodName ).replace( '-', '.' ) ;
     }
   }
