@@ -1,7 +1,6 @@
 package io.github.caillette.wrench.showcase;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
 import io.github.caillette.wrench.*;
 import org.junit.Test;
 

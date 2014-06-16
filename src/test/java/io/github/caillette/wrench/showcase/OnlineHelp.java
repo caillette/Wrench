@@ -3,7 +3,6 @@ package io.github.caillette.wrench.showcase;
 import io.github.caillette.wrench.*;
 import org.junit.Test;
 
-import static org.fest.assertions.Assertions.assertThat;
 import static org.junit.Assert.fail;
 
 public class OnlineHelp {
