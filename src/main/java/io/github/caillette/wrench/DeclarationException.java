@@ -17,7 +17,7 @@ public class DeclarationException extends ConfigurationException {
       final Configuration.Factory factory,
       final ImmutableList< Validation.Bad > causes
   ) {
-    super( singleMessageFromInfrigements( causes ) ) ;
+    super( OnlineHelpTools.causesAsMultilineString( causes ) ) ;
     this.factory = checkNotNull( factory ) ;
     this.causes = checkNotNull( causes ) ;
   }

@@ -34,7 +34,7 @@ public final class Converters {
       = new AbstractConverter< Integer >()
   {
     @Override
-    public Integer convert( final String input ) throws ConvertException {
+    public Integer convert( final String input ) {
         return Integer.parseInt( input ) ;
     }
   } ;

@@ -3,13 +3,12 @@ package io.github.caillette.wrench;
 import com.google.common.base.CharMatcher;
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableList;
 
 import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Set;
+import java.util.*;
 
 public final class OnlineHelpTools {
 
@@ -80,6 +79,28 @@ public final class OnlineHelpTools {
     writeHelp( writer, declarationException.factory, indent, lineLength ) ;
   }
 
+  public static String exceptionAsMultilineString(
+      final DeclarationException declarationException
+  ) {
+    final StringWriter writer = new StringWriter() ;
+    try {
+      writeExceptionOnly( writer, declarationException, 0, LINE_LENGTH ) ;
+    } catch ( IOException e ) {
+      throw new RuntimeException( "Should not happen", e ) ;
+    }
+    return writer.toString() ;
+  }
+
+  public static String causesAsMultilineString( final ImmutableList< Validation.Bad > causes ) {
+    final StringWriter writer = new StringWriter() ;
+    try {
+      writeWrapped( writer, causes, 0, LINE_LENGTH ) ;
+    } catch ( IOException e ) {
+      throw new RuntimeException( "Should not happen", e ) ;
+    }
+    return writer.toString() ;
+  }
+
   private static void writeExceptionOnly(
       final Writer writer,
       final DeclarationException declarationException,
@@ -89,28 +110,54 @@ public final class OnlineHelpTools {
     if( declarationException.causes.isEmpty() ) {
       writeWrapped( writer, declarationException.getMessage(), indent, lineLength ) ;
     } else {
-      final Set< Configuration.Source > sources = new HashSet<>() ;
-      for( final Validation.Bad bad : declarationException.causes ) {
-        writeWrapped( writer, bad.message, indent, lineLength ) ;
-        for( final Configuration.Source source : bad.sources ) {
-          sources.add( source ) ;
+      final ImmutableList< Validation.Bad > causes = declarationException.causes ;
+      writeWrapped( writer, causes, indent, lineLength ) ;
+    }
+  }
+
+  private static void writeWrapped(
+      final Writer writer,
+      final ImmutableList< Validation.Bad > causes,
+      final int indent,
+      final int lineLength
+  ) throws IOException {
+    final Map< Configuration.Property, Configuration.Source > valuedPropertiesWithSource
+        = new HashMap<>() ;
+    for( final Validation.Bad bad : causes ) {
+      final StringBuilder lineBuilder = new StringBuilder() ;
+      for( final ValuedProperty valuedProperty : bad.properties ) {
+        if( valuedProperty.source != Sources.UNDEFINED  ) {
+          valuedPropertiesWithSource.put( valuedProperty.property, valuedProperty.source ) ;
         }
+        lineBuilder.append( "[ " ) ;
+        lineBuilder.append( valuedProperty.property.name() ) ;
+        if( valuedProperty.resolvedValue != ValuedProperty.NO_VALUE ) {
+          lineBuilder.append( " = " ) ;
+          lineBuilder.append( valuedProperty.resolvedValue == ValuedProperty.NULL_VALUE
+              ? "null" : valuedProperty.stringValue ) ;
+        }
+        lineBuilder.append( " ] " ) ;
       }
-      if( ! sources.isEmpty() ) {
+      lineBuilder.append( bad.message ) ;
+      writeWrapped( writer, lineBuilder.toString(), indent, lineLength ) ;
+
+    }
+    if( ! valuedPropertiesWithSource.isEmpty() ) {
+      writeWrapped(
+          writer,
+          "\nSource" + ( valuedPropertiesWithSource.entrySet().size() > 1 ? "s:" : ":" ),
+          indent,
+          lineLength
+      ) ;
+      for( final Map.Entry<Configuration.Property, Configuration.Source> entries
+          : valuedPropertiesWithSource.entrySet()
+          ) {
         writeWrapped(
             writer,
-            "\nSource" + ( sources.size() > 1 ? "s:" : ":" ),
-            indent,
+            entries.getKey().name() + " <- " + entries.getValue().sourceName(),
+            indent * 2,
             lineLength
         ) ;
-        for( final Configuration.Source source : sources ) {
-          writeWrapped(
-              writer,
-              source.sourceName(),
-              indent * 2,
-              lineLength
-          ) ;
-        }
       }
     }
   }
