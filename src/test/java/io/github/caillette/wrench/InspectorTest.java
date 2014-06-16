@@ -61,4 +61,17 @@ public class InspectorTest {
     assertThat( inspector2.lastAccessed() ).containsExactly( numberProperty, stringProperty ) ;
     assertThat( lastAccessed3.get() ).containsExactly( fileProperty ) ;
   }
+
+  @Test
+  public void factory() throws Exception {
+    final Configuration.Factory< Simple > factory = newFactory( Simple.class ) ;
+    final Simple configuration = factory.create( newSource(
+        "string = s",
+        "number = 1",
+        "file = f"
+    ) ) ;
+    final Inspector< Simple > inspector = newInspector( configuration ) ;
+    assertThat( inspector.factory() ).isSameAs( factory ) ;
+  }
+
 }

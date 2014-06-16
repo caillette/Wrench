@@ -42,7 +42,7 @@ public final class ConfigurationTools {
 
     @SuppressWarnings( "unchecked" )
     final ConfigurationInspector< C > inspector = new ConfigurationInspector(
-        inspectorEnabled.$$properties$$(), accessedProperties ) ;
+        inspectorEnabled.$$factory$$(), inspectorEnabled.$$properties$$(), accessedProperties ) ;
     inspectors.put(
         inspector,
         accessedProperties

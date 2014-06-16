@@ -312,7 +312,7 @@ public abstract class TemplateBasedFactory< C extends Configuration >
     Collections.addAll( sources, others ) ;
 
     final Map< String, ValuedProperty> values = new HashMap<>() ;
-    final List< ConfigurationException > exceptions = new ArrayList<>() ;
+    final Set< Validation.Bad > exceptions = new HashSet<>() ;
 
     for( final Source source : sources ) {
       if( source instanceof Stringified ) {
@@ -347,7 +347,7 @@ public abstract class TemplateBasedFactory< C extends Configuration >
     }
 
     if( exceptions.size() > 0 ) {
-      throw new DeclarationException( exceptions ) ;
+      throw new DeclarationException( this, ImmutableList.copyOf( exceptions ) ) ;
     }
 
     final ImmutableSortedMap< String, ValuedProperty > valuedProperties
@@ -357,9 +357,9 @@ public abstract class TemplateBasedFactory< C extends Configuration >
 
     verifyNoUndefinedProperty( configuration, propertySet, valuedProperties ) ;
 
-    final ImmutableSet<Validation.Bad > validation = validate( configuration ) ;
+    final ImmutableList< Validation.Bad > validation = validate( configuration ) ;
     if( ! validation.isEmpty() ) {
-      throw new ValidationException( ( Iterable<Validation.Bad> ) ( Object ) validation ) ;
+      throw new ValidationException( validation ) ;
     }
 
     return configuration ;
@@ -380,8 +380,8 @@ public abstract class TemplateBasedFactory< C extends Configuration >
     return builder.build() ;
   }
 
-  protected ImmutableSet< Validation.Bad > validate( final C configuration ) {
-    return ImmutableSet.of() ;
+  protected ImmutableList< Validation.Bad > validate( final C configuration ) {
+    return ImmutableList.of() ;
   }
 
 // ============
@@ -416,39 +416,43 @@ public abstract class TemplateBasedFactory< C extends Configuration >
     return ( C ) Proxy.newProxyInstance(
         getClass().getClassLoader(),
         new Class[]{ configurationClass, ConfigurationInspector.InspectorEnabled.class },
-        new ConfigurationInvocationHandler( inspectors, properties, valuedPropertiesByMethod )
+        new ConfigurationInvocationHandler(
+            inspectors, this, properties, valuedPropertiesByMethod )
     ) ;
   }
 
-  private static boolean checkPropertyNamesAllDeclared(
+  private boolean checkPropertyNamesAllDeclared(
       final Source source,
       final ImmutableSet< String > actualPropertyNames,
       final ImmutableMap< String, ? extends Property > declaredProperties,
-      final List< ConfigurationException > exceptions
+      final Set< Validation.Bad > exceptions
   ) {
     boolean good = true ;
     for( final String actualPropertyName : actualPropertyNames ) {
       if( ! declaredProperties.containsKey( actualPropertyName ) ) {
-        exceptions.add( new DeclarationException(
-            "Unknown property name '" + actualPropertyName + "' from " + source.sourceName() ) ) ;
+        exceptions.add( new Validation.Bad(
+            "Unknown property name '" + actualPropertyName + "'",
+            ImmutableSet.of( source )
+        ) ) ;
         good = false ;
       }
     }
     return good ;
   }
 
-  private static< C extends Configuration > boolean checkPropertyNamesAllDeclared(
+  private boolean checkPropertyNamesAllDeclared(
       final Source.Raw source,
       final ImmutableSet<Property< C > > actualProperties,
       final ImmutableSet< Property< C > > declaredProperties,
-      final List< ConfigurationException > exceptions
+      final Set< Validation.Bad > exceptions
   ) {
     boolean good = true ;
     for( final Property actualProperty : actualProperties ) {
       if( ! declaredProperties.contains( actualProperty ) ) {
-        exceptions.add( new DeclarationException(
-            "Unknown property '" + actualProperty + "' "
-                + "from " + source.sourceName() ) ) ;
+        exceptions.add( new Validation.Bad(
+            "Unknown property '" + actualProperty.name() + "'",
+            ImmutableSet.< Source >of( source )
+        ) ) ;
         good = false ;
       }
     }
@@ -478,7 +482,7 @@ public abstract class TemplateBasedFactory< C extends Configuration >
       final Stringified source,
       final Map< String, ValuedProperty > values,
       final Property< C > property,
-      final List< ConfigurationException > exceptions
+      final Set< Validation.Bad > exceptions
   ) {
     final String valueFromSource = source.map().get( property.name() ) ;
     if ( valueFromSource != null || source.map().containsKey( property.name() )) {
@@ -491,25 +495,27 @@ public abstract class TemplateBasedFactory< C extends Configuration >
     }
   }
 
-  private static< C extends Configuration > void feedWithValue(
+  private void feedWithValue(
       final Source.Raw source,
       final Map< String, ValuedProperty > values,
       final Property< C > property,
-      final List< ConfigurationException > exceptions
+      final Set< Validation.Bad > exceptions
   ) {
     if( source.map().containsKey( property ) ) {
       final boolean usingDefault = source instanceof PropertyDefaultSource;
       final Object value ;
       {
         final Object valueFromSource = source.map().get( property ) ;
-        value = valueFromSource == ValuedProperty.NULL_VALUE ? null : valueFromSource;
+        value = valueFromSource == ValuedProperty.NULL_VALUE ? null : valueFromSource ;
       }
       if( value != null
           && ! property.declaringMethod().getReturnType()
               .isAssignableFrom( value.getClass() )
       ) {
-        exceptions.add( new DeclarationException(
-            "Can't use '" + value + "' as a value for " + property ) ) ;
+        exceptions.add( new Validation.Bad(
+            "Can't use '" + value + "' as a value for " + property.name(),
+            ImmutableSet.< Source >of( source )
+        ) ) ;
       }
       final ValuedProperty valuedProperty = new ValuedProperty(
           property,
@@ -522,7 +528,7 @@ public abstract class TemplateBasedFactory< C extends Configuration >
   }
 
   private static Object convertSafe(
-      final List< ConfigurationException > exceptions,
+      final Set< Validation.Bad > exceptions,
       final Property property,
       final String valueFromSource,
       final Source source
@@ -532,7 +538,11 @@ public abstract class TemplateBasedFactory< C extends Configuration >
         return property.converter().convert( valueFromSource ) ;
       }
     } catch ( final Exception e ) {
-      exceptions.add( ConvertException.toConvertException( e, property, source ) ) ;
+      exceptions.add( new Validation.Bad(
+          "Conversion failed on property '" + property.name() + "': "
+              + e.getClass().getName() + ", " + e.getMessage(),
+          ImmutableSet.of( source )
+      ) ) ;
     }
     return CONVERSION_FAILED ;
   }
@@ -548,18 +558,21 @@ public abstract class TemplateBasedFactory< C extends Configuration >
       extends AbstractInvocationHandler
       implements ConfigurationInspector.InspectorEnabled
   {
-    private final ThreadLocal<Map<Inspector, List<Property>>> inspectors;
-    private final ImmutableSortedMap<String, ValuedProperty> properties;
-    private final ImmutableMap<Method, ValuedProperty> valuedPropertiesByMethod;
+    private final ThreadLocal< Map< Inspector, List< Property > > > inspectors ;
+    private final ImmutableSortedMap<String, ValuedProperty> properties ;
+    private final Factory factory ;
+    private final ImmutableMap<Method, ValuedProperty> valuedPropertiesByMethod ;
 
     public ConfigurationInvocationHandler(
         final ThreadLocal< Map< Inspector, List< Property > > > inspectors,
-        final ImmutableSortedMap<String, ValuedProperty > properties,
-        final ImmutableMap < Method, ValuedProperty > valuedPropertiesByMethod )
+        final Factory factory,
+        final ImmutableSortedMap< String, ValuedProperty > properties,
+        final ImmutableMap< Method, ValuedProperty > valuedPropertiesByMethod )
     {
-      this.inspectors = inspectors;
-      this.properties = properties;
-      this.valuedPropertiesByMethod = valuedPropertiesByMethod;
+      this.inspectors = inspectors ;
+      this.factory = factory ;
+      this.properties = properties ;
+      this.valuedPropertiesByMethod = valuedPropertiesByMethod ;
     }
 
     @SuppressWarnings( "NullableProblems" )
@@ -573,9 +586,11 @@ public abstract class TemplateBasedFactory< C extends Configuration >
           .equals( ConfigurationInspector.InspectorEnabled.class )
       ) {
         if ( "$$inspectors$$".equals( method.getName() ) ) {
-          return inspectors;
+          return inspectors ;
         } else if ( "$$properties$$".equals( method.getName() ) ) {
-          return properties;
+          return properties ;
+        } else if ( "$$factory$$".equals( method.getName() ) ) {
+          return factory ;
         } else {
           throw new UnsupportedOperationException( "Unsupported: "
               + method.getDeclaringClass() + "#" + method.getName() ) ;
@@ -630,6 +645,11 @@ public abstract class TemplateBasedFactory< C extends Configuration >
     @Override
     public ImmutableSortedMap<String, ValuedProperty> $$properties$$() {
       return properties ;
+    }
+
+    @Override
+    public Factory $$factory$$() {
+      return factory ;
     }
   }
 }

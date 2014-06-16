@@ -14,18 +14,62 @@ public interface Validation {
 
   class Bad {
     final ImmutableList< ValuedProperty > properties ;
+    final ImmutableSet< Configuration.Source > sources ;
     public final String message ;
 
     public Bad( final ImmutableList< ValuedProperty > properties, final String message ) {
       this.properties = checkNotNull( properties ) ;
-      this.message = message ;
+      this.message = checkNotNull( message ) ;
+      final ImmutableSet.Builder< Configuration.Source > builder = ImmutableSet.builder() ;
+      for( final ValuedProperty property : properties ) {
+        builder.add( property.source ) ;
+      }
+      this.sources = builder.build() ;
     }
 
     public Bad( final String message ) {
       this.properties = ImmutableList.of() ;
-      this.message = message ;
+      this.sources = ImmutableSet.of() ;
+      this.message = checkNotNull( message ) ;
     }
 
+    public Bad( final String message, final ImmutableSet< Configuration.Source > sources ) {
+      this.properties = ImmutableList.of() ;
+      this.sources = checkNotNull( sources ) ;
+      this.message = checkNotNull( message ) ;
+    }
+
+    @Override
+    public boolean equals( final Object other ) {
+      if ( this == other ) {
+        return true  ;
+      }
+      if ( other == null || getClass() != other.getClass() ) {
+        return false ;
+      }
+
+      Bad bad = ( Bad ) other ;
+
+      if ( ! message.equals( bad.message ) ) {
+        return false ;
+      }
+      if ( ! properties.equals( bad.properties ) ) {
+        return false ;
+      }
+      if ( ! sources.equals( bad.sources ) ) {
+        return false ;
+      }
+
+      return true;
+    }
+
+    @Override
+    public int hashCode() {
+      int result = properties.hashCode() ;
+      result = 31 * result + sources.hashCode() ;
+      result = 31 * result + message.hashCode() ;
+      return result ;
+    }
   }
 
   /**
@@ -33,8 +77,7 @@ public interface Validation {
    */
   class Accumulator< C extends Configuration > {
 
-    private final ImmutableSet.Builder< Bad > builder
-        = ImmutableSet.builder() ;
+    private final ImmutableList.Builder< Bad > builder = ImmutableList.builder() ;
 
     private final ConfigurationInspector< C > inspector ;
 
@@ -42,23 +85,14 @@ public interface Validation {
       this.inspector = ( ConfigurationInspector< C > ) newInspector( configuration ) ;
     }
 
-    public ImmutableSet< Bad > done() {
+    public ImmutableList< Bad > done() {
       return builder.build() ;
     }
 
-    public void throwValidationExceptionIfHasInfrigements() throws ValidationException {
-      final ImmutableSet<Bad> done
-          = ( ImmutableSet<Bad>  ) ( ImmutableSet ) done() ;
-      if( done.size() > 0 ) {
-        throw new ValidationException( done ) ;
-      }
-    }
-
     public void throwDeclarationExceptionIfHasInfrigements() throws DeclarationException {
-      final ImmutableSet<Bad> done
-          = ( ImmutableSet<Bad>  ) ( ImmutableSet ) done() ;
+      final ImmutableList< Bad > done = done() ;
       if( done.size() > 0 ) {
-        DeclarationException.throwWith( done ) ;
+        throw new DeclarationException( inspector.factory(), done ) ;
       }
     }
 

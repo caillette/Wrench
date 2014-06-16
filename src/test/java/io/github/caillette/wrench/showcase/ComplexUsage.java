@@ -1,5 +1,6 @@
 package io.github.caillette.wrench.showcase;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import io.github.caillette.wrench.*;
 import org.junit.Test;
@@ -44,7 +45,7 @@ public class ComplexUsage {
       }
 
       @Override
-      protected ImmutableSet< Bad > validate( final Simple configuration ) {
+      protected ImmutableList< Bad > validate( final Simple configuration ) {
         final Accumulator< Simple > accumulator = new Accumulator<>( configuration ) ;
         if( configuration.myNumber() != null ) {
           accumulator.verify( configuration.myNumber() > 0, "Must be > 0" ) ;

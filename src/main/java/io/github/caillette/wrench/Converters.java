@@ -35,11 +35,11 @@ public final class Converters {
   {
     @Override
     public Integer convert( String input ) throws ConvertException {
-      try {
+//      try {
         return Integer.parseInt( input ) ;
-      } catch ( NumberFormatException e ) {
-        throw new ConvertException( "Can't parse '" + input + "'" ) ;
-      }
+//      } catch ( NumberFormatException e ) {
+//        throw new ConvertException( "Can't parse '" + input + "'" ) ;
+//      }
     }
   } ;
 
@@ -51,11 +51,11 @@ public final class Converters {
       if( Strings.isNullOrEmpty( input ) ) {
         return null ;
       }
-      try {
+//      try {
         return Integer.parseInt( input ) ;
-      } catch ( NumberFormatException e ) {
-        throw new ConvertException( "Can't parse '" + input + "'" ) ;
-      }
+//      } catch ( NumberFormatException e ) {
+//        throw new ConvertException( "Can't parse '" + input + "'" ) ;
+//      }
     }
   } ;
 

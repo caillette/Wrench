@@ -13,7 +13,9 @@ import static io.github.caillette.wrench.Configuration.Property;
 
 class ConfigurationInspector< C extends Configuration > implements Inspector< C > {
 
-  private final ImmutableSortedMap< String, ValuedProperty > valuedProperties;
+  private final Configuration.Factory< C > factory ;
+
+  private final ImmutableSortedMap< String, ValuedProperty > valuedProperties ;
 
   /**
    * Mutable object.
@@ -21,9 +23,11 @@ class ConfigurationInspector< C extends Configuration > implements Inspector< C 
   private final List< Property< C > > lastAccessed ;
 
   public ConfigurationInspector(
+      final Configuration.Factory< C > factory,
       final ImmutableSortedMap< String, ValuedProperty > valuedProperties,
       final List< Property< C > > lastAccessed
   ) {
+    this.factory = checkNotNull( factory ) ;
     this.valuedProperties = checkNotNull( valuedProperties ) ;
     this.lastAccessed = checkNotNull( lastAccessed ) ;
   }
@@ -35,6 +39,7 @@ class ConfigurationInspector< C extends Configuration > implements Inspector< C 
   interface InspectorEnabled {
     ThreadLocal< Map< Inspector, List< Property > > > $$inspectors$$() ;
     ImmutableSortedMap< String, ValuedProperty > $$properties$$() ;
+    Configuration.Factory $$factory$$() ;
   }
 
 // =======
@@ -88,6 +93,11 @@ class ConfigurationInspector< C extends Configuration > implements Inspector< C 
   @Override
   public void clearLastAccessed() {
     lastAccessed.clear() ;
+  }
+
+  @Override
+  public Configuration.Factory< C > factory() {
+    return factory ;
   }
 
   // ======

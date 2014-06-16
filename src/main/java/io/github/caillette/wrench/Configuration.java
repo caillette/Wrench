@@ -166,6 +166,7 @@ public interface Configuration {
      * to every property-related method call on a {@link Configuration} object that occured
      * inside the thread in which this {@link Inspector} was created.
      * This makes this object mutable but in a way that does not affect its fundamental behavior.
+     * Don't use this method outside of the thread used for creating this {@link Inspector} object.
      *
      * @return a non-null, possibly empty {@code List}.
      */
@@ -173,9 +174,11 @@ public interface Configuration {
 
     /**
      * Clears last accessed Properties.
-     * Don't use outside of the thread used for creating this {@link Inspector} object.
+     * Don't use this method outside of the thread used for creating this {@link Inspector} object.
      */
     void clearLastAccessed() ;
+
+    Factory< C > factory() ;
 
   }
 

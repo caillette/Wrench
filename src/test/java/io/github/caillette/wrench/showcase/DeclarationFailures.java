@@ -25,7 +25,10 @@ public class DeclarationFailures {
       factory.create( Sources.newSource( "number = unparseable" ) ) ;
       fail( "Should have thrown an exception" ) ;
     } catch ( DeclarationException e ) {
-      assertThat( e.getMessage() ).contains( "Can't parse 'unparseable' for property 'number'" ) ;
+      assertThat( e.getMessage() ).contains(
+          "Conversion failed on property 'number': java.lang.NumberFormatException, "
+              + "For input string: \"unparseable\""
+      ) ;
     }
   }
 
