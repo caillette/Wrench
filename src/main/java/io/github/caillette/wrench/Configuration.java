@@ -29,7 +29,7 @@ public interface Configuration {
 
     /**
      * Contains {@code String}s to
-     * {@link io.github.caillette.wrench.Configuration.Converter#convert(java.lang.reflect.Method, String) convert}
+     * {@link io.github.caillette.wrench.Configuration.Converter#convert(String) convert}
      * into expected type.
      */
     interface Stringified extends Source {
@@ -123,12 +123,11 @@ public interface Configuration {
    */
   public static interface Converter< T > {
     /**
-     * @param definingMethod the defining method, could help in some cases.
      * @param input a possibly null {@code String}
      * @return the converted value, that can also be {@code null}.
      * @throws Exception if any problem occured.
      */
-    T convert( Method definingMethod, String input ) throws Exception ;
+    T convert( String input ) throws Exception ;
   }
 
 

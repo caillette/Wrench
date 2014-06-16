@@ -4,7 +4,6 @@ import io.github.caillette.wrench.Configuration;
 import io.github.caillette.wrench.TemplateBasedFactory;
 import org.junit.Test;
 
-import java.lang.reflect.Method;
 import java.util.regex.Pattern;
 
 import static io.github.caillette.wrench.Configuration.Converter;
@@ -20,7 +19,7 @@ public class Conversion {
 
   private static final Converter CONVERTER_INTO_PATTERN = new Converter< Pattern >() {
     @Override
-    public Pattern convert( Method definingMethod, String input ) {
+    public Pattern convert( String input ) {
       return Pattern.compile( input ) ;
     }
   } ;

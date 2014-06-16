@@ -75,7 +75,7 @@ factory = new TemplateBasedFactory< Simple >( Simple.class ) {
         .maybeNull()
         .converter( new Configuration.Converter< Integer >() {
           @Override
-          public Integer convert( Method definingMethod, String input ) {
+          public Integer convert( String input ) {
             return input == null ? null : Integer.parseInt( input, 2 ) ;
           }
         } )

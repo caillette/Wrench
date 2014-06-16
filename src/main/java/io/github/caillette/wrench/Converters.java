@@ -4,7 +4,6 @@ import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 
 import java.io.File;
-import java.lang.reflect.Method;
 
 import static io.github.caillette.wrench.Configuration.Converter;
 
@@ -26,7 +25,7 @@ public final class Converters {
 
   public static final Converter< String > INTO_STRING = new AbstractConverter< String >() {
     @Override
-    public String convert( Method definingMethod, String input ) {
+    public String convert( String input ) {
       return input ;
     }
   } ;
@@ -35,7 +34,7 @@ public final class Converters {
       = new AbstractConverter< Integer >()
   {
     @Override
-    public Integer convert( Method definingMethod, String input ) throws ConvertException {
+    public Integer convert( String input ) throws ConvertException {
       try {
         return Integer.parseInt( input ) ;
       } catch ( NumberFormatException e ) {
@@ -48,7 +47,7 @@ public final class Converters {
       = new AbstractConverter< Integer >()
   {
     @Override
-    public Integer convert( Method definingMethod, String input ) throws Exception {
+    public Integer convert( String input ) throws Exception {
       if( Strings.isNullOrEmpty( input ) ) {
         return null ;
       }
@@ -62,7 +61,7 @@ public final class Converters {
 
   public static final Converter< File > INTO_FILE = new AbstractConverter< File >() {
     @Override
-    public File convert( Method definingMethod, String input ) throws Exception {
+    public File convert( String input ) throws Exception {
       if( Strings.isNullOrEmpty( input ) ) {
         return null ;
       }

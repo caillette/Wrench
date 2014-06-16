@@ -529,7 +529,7 @@ public abstract class TemplateBasedFactory< C extends Configuration >
   ) {
     try {
       if( valueFromSource != null ) {
-        return property.converter().convert( property.declaringMethod(), valueFromSource ) ;
+        return property.converter().convert( valueFromSource ) ;
       }
     } catch ( final Exception e ) {
       exceptions.add( ConvertException.toConvertException( e, property, source ) ) ;

@@ -4,7 +4,6 @@ import com.google.common.collect.ImmutableSet;
 import io.github.caillette.wrench.*;
 import org.junit.Test;
 
-import java.lang.reflect.Method;
 import java.util.regex.Pattern;
 
 import static io.github.caillette.wrench.Configuration.Inspector;
@@ -30,7 +29,7 @@ public class ComplexUsage {
             .maybeNull()
             .converter( new Configuration.Converter< Integer >() {
               @Override
-              public Integer convert( Method definingMethod, String input ) {
+              public Integer convert( String input ) {
                 return input == null ? null : Integer.parseInt( input, 2 ) ;
               }
             } )
