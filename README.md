@@ -62,6 +62,7 @@ Features
 - Raises as many errors as possible in a single run, for batched corrections.
 - Pattern-based obfuscation of the string representation of sensible parts (like passwords).
 - Configuration object metadata (with the `Inspector`). 
+- Automatic online help with property names, default values, and arbitrary text.
 
 The snippet below illustrates some of those features.
 
