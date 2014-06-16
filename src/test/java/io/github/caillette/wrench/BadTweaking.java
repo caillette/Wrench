@@ -35,7 +35,7 @@ public class BadTweaking {
     } catch ( final DeclarationException e ) {
       System.out.println( e.getMessage() ) ;
       assertThat( e.getMessage() ).contains(
-          "[ number ] Can't assign a value of type java.lang.String to a property of type\nint" ) ;
+          "[ number ] Can't assign a value of type java.lang.String to a property of type int" ) ;
     }
 
   }

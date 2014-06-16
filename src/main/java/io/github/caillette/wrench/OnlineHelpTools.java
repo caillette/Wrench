@@ -94,11 +94,11 @@ public final class OnlineHelpTools {
   public static String causesAsMultilineString( final ImmutableList< Validation.Bad > causes ) {
     final StringWriter writer = new StringWriter() ;
     try {
-      writeWrapped( writer, causes, 0, LINE_LENGTH ) ;
+      writeWrapped( writer, causes, 0, Integer.MAX_VALUE ) ;
     } catch ( IOException e ) {
       throw new RuntimeException( "Should not happen", e ) ;
     }
-    return writer.toString() ;
+    return writer.toString().replaceAll( "\\n$", "" ) ;
   }
 
   private static void writeExceptionOnly(
