@@ -7,6 +7,7 @@ import org.junit.Test;
 import static io.github.caillette.wrench.Configuration.Factory;
 import static io.github.caillette.wrench.Configuration.Inspector;
 import static io.github.caillette.wrench.Configuration.Property;
+import static io.github.caillette.wrench.ConfigurationTools.newInspector;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class Tweaking {
@@ -29,10 +30,10 @@ public class Tweaking {
       protected ImmutableMap< Property< Simple >, TweakedValue > tweak(
           final Simple configuration
       ) {
-        final Inspector<Simple> inspector = ConfigurationTools.newInspector( configuration );
+        final Inspector< Simple > inspector = newInspector( configuration ) ;
         final int number = configuration.number() ;
         final Boolean sign = configuration.positive() ;
-        final Property< Simple > stringProperty = inspector.lastAccessed().get( 0 ) ;
+        final Property< Simple > positiveProperty = inspector.lastAccessed().get( 0 ) ;
         if ( sign == null ) {
           final TweakedValue tweakedValue ;
           if ( number > 0 ) {
@@ -42,7 +43,7 @@ public class Tweaking {
           } else {
             tweakedValue = new TweakedValue( null, "0" ) ;
           }
-          return ImmutableMap.of( stringProperty, tweakedValue ) ;
+          return ImmutableMap.of( positiveProperty, tweakedValue ) ;
         }
         return null ;
       }
@@ -51,5 +52,8 @@ public class Tweaking {
 
     assertThat( configuration.number( ) ).isEqualTo( -1 ) ;
     assertThat( configuration.positive() ).isEqualTo( Boolean.FALSE ) ;
+
+    final Inspector< Simple > inspector = newInspector( configuration ) ;
+    assertThat( inspector.stringValueOf( inspector.lastAccessed().get( 0 ) ) ).isEqualTo( "-1" ) ;
   }
 }

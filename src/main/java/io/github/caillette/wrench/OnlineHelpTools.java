@@ -160,6 +160,7 @@ public final class OnlineHelpTools {
         ) ;
       }
     }
+    writer.flush() ;
   }
 
   public static void writeHelp(
@@ -200,6 +201,7 @@ public final class OnlineHelpTools {
         writeWrapped( writer, documentation, indent * 2, lineLength ) ;
       }
     }
+    writer.flush() ;
   }
 
   private static void writeWrapped(

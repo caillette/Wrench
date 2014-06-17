@@ -314,7 +314,7 @@ public abstract class TemplateBasedFactory< C extends Configuration >
     if( explicitValueAsString == null && defaultValue != null ) {
       defaultValueAsString = defaultValue.toString() ;
     } else {
-      defaultValueAsString = null ;
+      defaultValueAsString = explicitValueAsString ;
     }
     return defaultValueAsString ;
   }
@@ -760,7 +760,7 @@ public abstract class TemplateBasedFactory< C extends Configuration >
     }
   }
 
-  private static Object safeNull( Class propertyType ) {
+  static Object safeNull( final Class propertyType ) {
     if( Integer.TYPE.equals( propertyType ) ) {
       return 0 ;
     } else if( Byte.TYPE.equals( propertyType ) ) {
