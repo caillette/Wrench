@@ -34,6 +34,16 @@ public final class CommandLineSources {
 
   public static < C extends Configuration > C createConfiguration(
       final Configuration.Factory< C > factory,
+      final String... filenamesAndCommandLineArguments
+  ) throws ConfigurationException, IOException {
+    return createConfiguration(
+        factory,
+        ImmutableList.copyOf( filenamesAndCommandLineArguments )
+    ) ;
+  }
+
+  public static < C extends Configuration > C createConfiguration(
+      final Configuration.Factory< C > factory,
       final ImmutableList< String > filenamesAndCommandLineArguments
   ) throws ConfigurationException, IOException {
     return createConfiguration(
@@ -78,7 +88,7 @@ public final class CommandLineSources {
     checkArgument( ! Strings.isNullOrEmpty( fileListArgumentName ) ) ;
     checkArgument( ! Strings.isNullOrEmpty( propertyNameMarker ) ) ;
     checkArgument( ! Strings.isNullOrEmpty( argumentListEndMarker ) ) ;
-    final ImmutableList.Builder<File> filesBuilder = ImmutableList.builder() ;
+    final ImmutableList.Builder< File > filesBuilder = ImmutableList.builder() ;
     final ImmutableList.Builder< String > overridingProperties = ImmutableList.builder() ;
     int index = 0 ;
     while( index < filenamesAndCommandLineArguments.size() ) {
@@ -96,11 +106,20 @@ public final class CommandLineSources {
           argument = filenamesAndCommandLineArguments.get( ++ index ) ;
         }
       }
-      while( index < filenamesAndCommandLineArguments.size()
-          && ! argumentListEndMarker.equals( argument )
+      while( true ) {
+        if( index < filenamesAndCommandLineArguments.size()
+            && ! argumentListEndMarker.equals( argument )
+        ) {
+          overridingProperties.add( argument ) ;
+          index ++ ;
+          if( index < filenamesAndCommandLineArguments.size()
+              && ! argumentListEndMarker.equals( argument )
           ) {
-        overridingProperties.add( argument ) ;
-        argument = filenamesAndCommandLineArguments.get( ++ index ) ;
+            argument = filenamesAndCommandLineArguments.get( index ) ;
+          }
+        } else {
+          break ;
+        }
       }
     }
 

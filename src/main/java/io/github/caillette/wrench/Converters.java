@@ -17,6 +17,20 @@ public final class Converters {
 
 
   public static abstract class AbstractConverter< T > implements Converter< T > {
+
+    @Override
+    public T convert( final String input ) throws Exception {
+      if( input == null ) {
+        return null ;
+      } else {
+        return convertFromNonNull( input ) ;
+      }
+    }
+
+    protected T convertFromNonNull( final String input ) throws Exception {
+      return null ;
+    }
+
     @Override
     public String toString() {
       return ConfigurationTools.getNiceName( getClass() ) ;

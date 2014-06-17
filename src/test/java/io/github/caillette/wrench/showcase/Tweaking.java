@@ -50,10 +50,10 @@ public class Tweaking {
     } ;
     final Simple configuration = factory.create( Sources.newSource( "number = -1" ) ) ;
 
+    final Inspector< Simple > inspector = newInspector( configuration ) ;
     assertThat( configuration.number( ) ).isEqualTo( -1 ) ;
     assertThat( configuration.positive() ).isEqualTo( Boolean.FALSE ) ;
 
-    final Inspector< Simple > inspector = newInspector( configuration ) ;
     assertThat( inspector.stringValueOf( inspector.lastAccessed().get( 0 ) ) ).isEqualTo( "-1" ) ;
   }
 }

@@ -26,7 +26,7 @@ public class DeclarationFailures {
       fail( "Should have thrown an exception" ) ;
     } catch ( final DeclarationException e ) {
       assertThat( e.getMessage() ).isEqualTo(
-          "Conversion failed on property 'number': java.lang.NumberFormatException, For "
+          "\nConversion failed on property 'number': java.lang.NumberFormatException, For "
               + "input string: \"unparseable\""
       ) ;
     }
