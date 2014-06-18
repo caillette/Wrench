@@ -1,10 +1,8 @@
 package io.github.caillette.wrench;
 
-import com.google.common.collect.ImmutableMap;
 import org.junit.Test;
 
 import static io.github.caillette.wrench.Configuration.Inspector;
-import static io.github.caillette.wrench.Configuration.Property.Origin;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class InspectorKnowsSources {

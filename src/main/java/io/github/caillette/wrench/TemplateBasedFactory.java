@@ -1,10 +1,6 @@
 package io.github.caillette.wrench;
 
-import com.google.common.collect.ImmutableCollection;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.ImmutableSortedMap;
+import com.google.common.collect.*;
 import com.google.common.reflect.AbstractInvocationHandler;
 
 import java.lang.reflect.Method;
@@ -13,10 +9,7 @@ import java.util.*;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
-import static io.github.caillette.wrench.Configuration.Factory;
-import static io.github.caillette.wrench.Configuration.Inspector;
-import static io.github.caillette.wrench.Configuration.Property;
-import static io.github.caillette.wrench.Configuration.Source;
+import static io.github.caillette.wrench.Configuration.*;
 import static io.github.caillette.wrench.Configuration.Source.Stringified;
 
 /**

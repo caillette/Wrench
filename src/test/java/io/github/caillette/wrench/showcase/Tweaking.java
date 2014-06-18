@@ -1,12 +1,13 @@
 package io.github.caillette.wrench.showcase;
 
 import com.google.common.collect.ImmutableMap;
-import io.github.caillette.wrench.*;
+import io.github.caillette.wrench.Configuration;
+import io.github.caillette.wrench.Sources;
+import io.github.caillette.wrench.TemplateBasedFactory;
+import io.github.caillette.wrench.TweakedValue;
 import org.junit.Test;
 
-import static io.github.caillette.wrench.Configuration.Factory;
-import static io.github.caillette.wrench.Configuration.Inspector;
-import static io.github.caillette.wrench.Configuration.Property;
+import static io.github.caillette.wrench.Configuration.*;
 import static io.github.caillette.wrench.ConfigurationTools.newInspector;
 import static org.assertj.core.api.Assertions.assertThat;
 

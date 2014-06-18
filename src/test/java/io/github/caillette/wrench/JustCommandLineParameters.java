@@ -1,18 +1,12 @@
 package io.github.caillette.wrench;
 
-import com.google.common.base.Charsets;
 import com.google.common.collect.ImmutableList;
-import com.google.common.io.Files;
 import io.github.caillette.wrench.source.CommandLineSources;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
-
-import java.io.File;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class CommandLineSourcesTest {
+public class JustCommandLineParameters {
 
   public interface Simple extends Configuration {
     int number() ;
