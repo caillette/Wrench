@@ -57,8 +57,8 @@ class ConfigurationInspector< C extends Configuration > implements Inspector< C 
   }
 
   @Override
-  public boolean usingDefault( final Property< C > property ) {
-    return valuedSlot( property ).usingDefault ;
+  public Property.Origin origin( final Property< C > property ) {
+    return valuedSlot( property ).origin ;
   }
 
   @Override
@@ -79,7 +79,7 @@ class ConfigurationInspector< C extends Configuration > implements Inspector< C 
   ) {
     final ValuedProperty valuedProperty = valuedSlot( property ) ;
     final String stringValue ;
-    if( valuedProperty.usingDefault ) {
+    if( valuedProperty.origin == Property.Origin.BUILTIN ) {
       stringValue = valuedProperty.property.defaultValueAsString() ;
     } else {
       stringValue = valuedProperty.stringValue ;

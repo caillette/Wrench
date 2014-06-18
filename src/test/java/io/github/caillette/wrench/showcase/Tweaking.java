@@ -54,6 +54,8 @@ public class Tweaking {
     assertThat( configuration.number( ) ).isEqualTo( -1 ) ;
     assertThat( configuration.positive() ).isEqualTo( Boolean.FALSE ) ;
 
-    assertThat( inspector.stringValueOf( inspector.lastAccessed().get( 0 ) ) ).isEqualTo( "-1" ) ;
+    final Property< Simple > positiveProperty = inspector.lastAccessed().get( 0 );
+    assertThat( inspector.stringValueOf( positiveProperty ) ).isEqualTo( "-1" ) ;
+    assertThat( inspector.origin( positiveProperty ) ).isEqualTo( Property.Origin.TWEAK ) ;
   }
 }

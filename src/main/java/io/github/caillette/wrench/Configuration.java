@@ -122,6 +122,10 @@ public interface Configuration {
 
 
     Comparator< Property > COMPARATOR = ConfigurationProperty.COMPARATOR ;
+
+    enum Origin {
+      BUILTIN, TWEAK, EXPLICIT
+    }
   }
 
   /**
@@ -168,7 +172,7 @@ public interface Configuration {
 
     public ImmutableMap< String, Property< C > > properties() ;
 
-    public boolean usingDefault( Property< C > property ) ;
+    public Property.Origin origin( Property< C > property ) ;
 
     Source sourceOf( Property< C > property ) ;
 

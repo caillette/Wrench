@@ -430,7 +430,7 @@ public abstract class TemplateBasedFactory< C extends Configuration >
               Sources.TWEAKING,
               tweakedValue.stringValue,
               tweakedValue.resolvedValue,
-              true
+              Property.Origin.TWEAK
           ) ) ;
     }
     if( ! exceptions.isEmpty() ) {
@@ -598,7 +598,7 @@ public abstract class TemplateBasedFactory< C extends Configuration >
       final Object convertedValue = convertSafe( exceptions, property, valueFromSource, source ) ;
       if( convertedValue != CONVERSION_FAILED ) {
         final ValuedProperty valuedProperty = new ValuedProperty(
-            property, source, valueFromSource, convertedValue, false ) ;
+            property, source, valueFromSource, convertedValue, Property.Origin.EXPLICIT ) ;
         values.put( property.name(), valuedProperty ) ;
       }
     }
@@ -630,7 +630,7 @@ public abstract class TemplateBasedFactory< C extends Configuration >
           property,
           source,
           value,
-          usingDefault
+          usingDefault ? Property.Origin.BUILTIN : Property.Origin.EXPLICIT
       ) ;
       values.put( property.name(), valuedProperty ) ;
     }
@@ -643,7 +643,7 @@ public abstract class TemplateBasedFactory< C extends Configuration >
         property,
         Sources.UNDEFINED,
         ValuedProperty.NULL_VALUE,
-        true
+        Property.Origin.BUILTIN
     ) ;
     values.put( property.name(), valuedProperty ) ;
   }

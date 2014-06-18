@@ -12,21 +12,21 @@ class ValuedProperty {
   public final Configuration.Source source ;
   public final String stringValue ;
   public final Object resolvedValue ;
-  public final boolean usingDefault ;
+  public final Configuration.Property.Origin origin ;
 
   public ValuedProperty( final Configuration.Property property ) {
     this.property = checkNotNull( property ) ;
     this.source = Sources.UNDEFINED ;
     this.stringValue = "<not-set>"  ;
     this.resolvedValue = NO_VALUE ;
-    this.usingDefault = false ;
+    this.origin = Configuration.Property.Origin.BUILTIN ;
   }
 
   public ValuedProperty(
       final Configuration.Property property,
       final Configuration.Source source,
       final Object resolvedValue,
-      final boolean usingDefault
+      final Configuration.Property.Origin origin
   ) {
     this.property = checkNotNull( property ) ;
     this.source = checkNotNull( source ) ;
@@ -36,7 +36,7 @@ class ValuedProperty {
         : resolvedValue.toString()
     ;
     this.resolvedValue = resolvedValue ;
-    this.usingDefault = usingDefault ;
+    this.origin = checkNotNull( origin ) ;
   }
 
   public ValuedProperty(
@@ -44,13 +44,13 @@ class ValuedProperty {
       final Configuration.Source source,
       final String stringValue,
       final Object resolvedValue,
-      final boolean usingDefault
+      final Configuration.Property.Origin origin
   ) {
     this.property = checkNotNull( property ) ;
     this.source = checkNotNull( source ) ;
     this.stringValue = stringValue ;
     this.resolvedValue = resolvedValue ;
-    this.usingDefault = usingDefault ;
+    this.origin = checkNotNull( origin ) ;
   }
 
 
@@ -94,7 +94,7 @@ class ValuedProperty {
 
     final ValuedProperty that = ( ValuedProperty ) other ;
 
-    if ( usingDefault != that.usingDefault ) {
+    if ( origin != that.origin ) {
       return false ;
     }
     if ( !property.equals( that.property ) ) {
@@ -123,7 +123,7 @@ class ValuedProperty {
     result = 31 * result + source.hashCode() ;
     result = 31 * result + ( stringValue != null ? stringValue.hashCode() : 0 ) ;
     result = 31 * result + ( resolvedValue != null ? resolvedValue.hashCode() : 0 ) ;
-    result = 31 * result + ( usingDefault ? 1 : 0 ) ;
+    result = ( 31 * result ) + origin.hashCode() ;
     return result ;
   }
 

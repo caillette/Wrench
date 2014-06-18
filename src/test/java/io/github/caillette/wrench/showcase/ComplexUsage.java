@@ -62,9 +62,11 @@ public class ComplexUsage {
 
     final Inspector< Simple > inspector = ConfigurationTools.newInspector( configuration ) ;
     assertThat( configuration.myNumber() ).isEqualTo( 123 ) ;
-    assertThat( inspector.usingDefault( inspector.lastAccessed().get( 0 ) ) ).isFalse() ;
+    assertThat( inspector.origin( inspector.lastAccessed().get( 0 ) ) )
+        .isEqualTo( Configuration.Property.Origin.EXPLICIT ) ;
     assertThat( configuration.myString() ).isEqualTo( "FOO" ) ;
-    assertThat( inspector.usingDefault( inspector.lastAccessed().get( 0 ) ) ).isTrue() ;
+    assertThat( inspector.origin( inspector.lastAccessed().get( 0 ) ) )
+        .isEqualTo( Configuration.Property.Origin.BUILTIN ) ;
     assertThat( inspector.lastAccessed().get( 0 ).name() ).isEqualTo( "my-string" ) ;
     assertThat( inspector.safeValueOf( inspector.lastAccessed().get( 0 ), "*" ) )
         .isEqualTo( "F*" ) ;
