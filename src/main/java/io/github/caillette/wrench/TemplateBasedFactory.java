@@ -598,7 +598,7 @@ public abstract class TemplateBasedFactory< C extends Configuration >
       final Object convertedValue = convertSafe( exceptions, property, valueFromSource, source ) ;
       if( convertedValue != CONVERSION_FAILED ) {
         final ValuedProperty valuedProperty = new ValuedProperty(
-            property, source, convertedValue, false ) ;
+            property, source, valueFromSource, convertedValue, false ) ;
         values.put( property.name(), valuedProperty ) ;
       }
     }
