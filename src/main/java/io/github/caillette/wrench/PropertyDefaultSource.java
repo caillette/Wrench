@@ -14,9 +14,11 @@ class PropertyDefaultSource< C extends Configuration > implements Configuration.
   private final ImmutableMap< Configuration.Property< C >, Object > map ;
 
   public PropertyDefaultSource(
+      final Class< C > configurationClass,
       final ImmutableSet< ? extends Configuration.Property< ? > > properties
   ) {
-    this.sourceName = "java:{" + TemplateBasedFactory.class.getSimpleName() + "}" ;
+    this.sourceName = "java:" + TemplateBasedFactory.class.getSimpleName()
+        + "{" + ConfigurationTools.getNiceName( configurationClass ) + "}" ;
 
     final ImmutableMap.Builder< Configuration.Property< C >, Object > builder
         = ImmutableMap.builder() ;

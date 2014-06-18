@@ -50,7 +50,7 @@ public class DashedCommandLineSource implements Configuration.Source.Stringified
 
   @Override
   public String sourceName() {
-    return "java:" + getClass().getName() ;
+    return "java:" + getClass().getSimpleName() ;
   }
 
 

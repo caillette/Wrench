@@ -329,7 +329,8 @@ public abstract class TemplateBasedFactory< C extends Configuration >
       throws DeclarationException
   {
     final List< Source > sources = new ArrayList<>( others.length + 2 ) ;
-    sources.add( new PropertyDefaultSource< C >( ImmutableSet.copyOf( propertySet.values() ) ) ) ;
+    sources.add( new PropertyDefaultSource<>(
+        configurationClass, ImmutableSet.copyOf( propertySet.values() ) ) ) ;
     sources.add( source1 ) ;
     Collections.addAll( sources, others ) ;
 
@@ -375,7 +376,8 @@ public abstract class TemplateBasedFactory< C extends Configuration >
     {
       final ImmutableSortedMap< String, ValuedProperty > untweakedValuedProperties
           = ImmutableSortedMap.copyOf( values ) ;
-      final C untweakedConfiguration = createProxy( untweakedValuedProperties ) ;
+      final C untweakedConfiguration = createProxy(
+          ImmutableSet.copyOf( sources ), untweakedValuedProperties ) ;
       final ImmutableMap< Property< C >, TweakedValue > tweak ;
       tweak = tweak( untweakedConfiguration ) ;
       if ( tweak == null || tweak.isEmpty() ) {
@@ -383,7 +385,7 @@ public abstract class TemplateBasedFactory< C extends Configuration >
         configuration = untweakedConfiguration ;
       } else {
         valuedProperties = verifyTweak( untweakedValuedProperties, tweak ) ;
-        configuration = createProxy( valuedProperties ) ;
+        configuration = createProxy( ImmutableSet.copyOf( sources ), valuedProperties ) ;
       }
     }
 
@@ -501,7 +503,10 @@ public abstract class TemplateBasedFactory< C extends Configuration >
   }
 
   @SuppressWarnings( "unchecked" )
-  private C createProxy( final ImmutableSortedMap< String, ValuedProperty> properties ) {
+  private C createProxy(
+      final ImmutableSet< Source > sources,
+      final ImmutableSortedMap< String, ValuedProperty > properties
+  ) {
     final ThreadLocal< Map< Inspector, List< Property > > > inspectors = new ThreadLocal<>() ;
     final ImmutableMap.Builder< Method, ValuedProperty > builder = ImmutableMap.builder() ;
     for( final ValuedProperty valuedProperty : sortByName( properties.values() ) ) {
@@ -512,7 +517,11 @@ public abstract class TemplateBasedFactory< C extends Configuration >
         getClass().getClassLoader(),
         new Class[]{ configurationClass, ConfigurationInspector.InspectorEnabled.class },
         new ConfigurationInvocationHandler(
-            inspectors, this, properties, valuedPropertiesByMethod )
+            inspectors,
+            this,
+            sources,
+            properties,
+            valuedPropertiesByMethod )
     ) ;
   }
 
@@ -680,18 +689,21 @@ public abstract class TemplateBasedFactory< C extends Configuration >
       implements ConfigurationInspector.InspectorEnabled
   {
     private final ThreadLocal< Map< Inspector, List< Property > > > inspectors ;
-    private final ImmutableSortedMap<String, ValuedProperty> properties ;
+    private final ImmutableSortedMap< String, ValuedProperty > properties ;
     private final Factory factory ;
+    private final ImmutableSet< Source > sources ;
     private final ImmutableMap< Method, ValuedProperty> valuedPropertiesByMethod ;
 
     public ConfigurationInvocationHandler(
         final ThreadLocal< Map< Inspector, List< Property > > > inspectors,
         final Factory factory,
+        final ImmutableSet< Source > sources,
         final ImmutableSortedMap< String, ValuedProperty > properties,
-        final ImmutableMap< Method, ValuedProperty > valuedPropertiesByMethod )
-    {
+        final ImmutableMap< Method, ValuedProperty > valuedPropertiesByMethod
+    ) {
       this.inspectors = inspectors ;
       this.factory = factory ;
+      this.sources = sources ;
       this.properties = properties ;
       this.valuedPropertiesByMethod = valuedPropertiesByMethod ;
     }
@@ -712,6 +724,8 @@ public abstract class TemplateBasedFactory< C extends Configuration >
           return properties ;
         } else if ( "$$factory$$".equals( method.getName() ) ) {
           return factory ;
+        } else if ( "$$sources$$".equals( method.getName() ) ) {
+          return sources ;
         } else {
           throw new UnsupportedOperationException( "Unsupported: "
               + method.getDeclaringClass() + "#" + method.getName() ) ;
@@ -781,7 +795,7 @@ public abstract class TemplateBasedFactory< C extends Configuration >
     }
 
     @Override
-    public ThreadLocal<Map<Inspector, List< Property > > > $$inspectors$$() {
+    public ThreadLocal< Map< Inspector, List< Property > > > $$inspectors$$() {
       throw new UnsupportedOperationException(
           "Don't call this method. Implementing "
           + ConfigurationInspector.InspectorEnabled.class.getSimpleName()
@@ -790,8 +804,13 @@ public abstract class TemplateBasedFactory< C extends Configuration >
     }
 
     @Override
-    public ImmutableSortedMap<String, ValuedProperty> $$properties$$() {
+    public ImmutableSortedMap< String, ValuedProperty > $$properties$$() {
       return properties ;
+    }
+
+    @Override
+    public ImmutableSet< Source > $$sources$$() {
+      return sources ;
     }
 
     @Override

@@ -2,6 +2,7 @@ package io.github.caillette.wrench;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 
 import java.lang.reflect.Method;
 import java.util.Comparator;
@@ -43,12 +44,6 @@ public interface Configuration {
       ImmutableMap< Property< C >, Object > map() ;
     }
 
-    /**
-     * Hook to tweak values in other sources.
-     */
-    interface Transforming< C extends Configuration > extends Source {
-      ImmutableMap< Property< C >, Object > map( ImmutableMap< Property< C >, Object > others ) ;
-    }
   }
 
 
@@ -175,6 +170,8 @@ public interface Configuration {
     public Property.Origin origin( Property< C > property ) ;
 
     Source sourceOf( Property< C > property ) ;
+
+    ImmutableSet< Source > sources() ;
 
     String stringValueOf( Property< C > property ) ;
 

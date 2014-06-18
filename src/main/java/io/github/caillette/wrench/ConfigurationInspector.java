@@ -2,6 +2,7 @@ package io.github.caillette.wrench;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ImmutableSortedMap;
 
 import java.util.List;
@@ -15,6 +16,8 @@ class ConfigurationInspector< C extends Configuration > implements Inspector< C 
 
   private final Configuration.Factory< C > factory ;
 
+  private final ImmutableSet< Configuration.Source > sources ;
+
   private final ImmutableSortedMap< String, ValuedProperty > valuedProperties ;
 
   /**
@@ -24,10 +27,12 @@ class ConfigurationInspector< C extends Configuration > implements Inspector< C 
 
   public ConfigurationInspector(
       final Configuration.Factory< C > factory,
+      final ImmutableSet< Configuration.Source > sources,
       final ImmutableSortedMap< String, ValuedProperty > valuedProperties,
       final List< Property< C > > lastAccessed
   ) {
     this.factory = checkNotNull( factory ) ;
+    this.sources = checkNotNull( sources ) ;
     this.valuedProperties = checkNotNull( valuedProperties ) ;
     this.lastAccessed = checkNotNull( lastAccessed ) ;
   }
@@ -39,6 +44,7 @@ class ConfigurationInspector< C extends Configuration > implements Inspector< C 
   interface InspectorEnabled {
     ThreadLocal< Map< Inspector, List< Property > > > $$inspectors$$() ;
     ImmutableSortedMap< String, ValuedProperty > $$properties$$() ;
+    ImmutableSet< Configuration.Source > $$sources$$() ;
     Configuration.Factory $$factory$$() ;
   }
 
@@ -64,6 +70,11 @@ class ConfigurationInspector< C extends Configuration > implements Inspector< C 
   @Override
   public Configuration.Source sourceOf( final Property< C > property ) {
     return valuedSlot( property ).source ;
+  }
+
+  @Override
+  public ImmutableSet< Configuration.Source > sources() {
+    return sources ;
   }
 
   @Override

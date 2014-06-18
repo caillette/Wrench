@@ -8,6 +8,7 @@ import io.github.caillette.wrench.TemplateBasedFactory;
 import org.junit.Test;
 
 import static io.github.caillette.wrench.Configuration.Inspector;
+import static io.github.caillette.wrench.Configuration.Property.Origin;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class Inspection {
@@ -43,16 +44,14 @@ public class Inspection {
       assertThat( property.name() ).isEqualTo( "number" ) ;
       assertThat( property.documentation() ).isEqualTo( "Some number." ) ;
       assertThat( property.defaultValue() ).isEqualTo( 1 ) ;
-      assertThat( inspector.origin( property ) )
-          .isEqualTo( Configuration.Property.Origin.BUILTIN ) ;
+      assertThat( inspector.origin( property ) ).isEqualTo( Origin.BUILTIN ) ;
     }
     configuration.string() ; {
       final Configuration.Property< Simple > property = inspector.lastAccessed().get( 0 ) ;
       assertThat( property.name() ).isEqualTo( "string" ) ;
       assertThat( property.documentation() ).isEqualTo( "" ) ;
       assertThat( property.defaultValue() ).isNull() ;
-      assertThat( inspector.origin( property ) )
-          .isEqualTo( Configuration.Property.Origin.EXPLICIT ) ;
+      assertThat( inspector.origin( property ) ).isEqualTo( Origin.EXPLICIT ) ;
     }
   }
 }

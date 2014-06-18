@@ -27,7 +27,7 @@ public class StringSource implements Configuration.Source.Stringified {
 
   @Override
   public String sourceName() {
-    return "java:" + getClass().getName() ;
+    return "java:" + getClass().getSimpleName() + '@' + System.identityHashCode( this ) ;
   }
 
   public static ImmutableMap< String, String > buildMap( final String string ) {
