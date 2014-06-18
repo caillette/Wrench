@@ -54,15 +54,6 @@ class ValuedProperty {
   }
 
 
-
-  static Object safeValue( final ValuedProperty valuedProperty ) {
-    if( valuedProperty.resolvedValue == NULL_VALUE ) {
-      return safeNull( valuedProperty.property.type() ) ;
-    } else {
-      return valuedProperty.resolvedValue ;
-    }
-  }
-
   static Object safeNull( final Class propertyType ) {
     if( Integer.TYPE.equals( propertyType ) ) {
       return 0 ;

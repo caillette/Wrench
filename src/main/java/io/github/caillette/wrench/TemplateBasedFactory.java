@@ -507,7 +507,7 @@ public abstract class TemplateBasedFactory< C extends Configuration >
   private C createProxy( final ImmutableSortedMap< String, ValuedProperty> properties ) {
     final ThreadLocal< Map< Inspector, List< Property > > > inspectors = new ThreadLocal<>() ;
     final ImmutableMap.Builder< Method, ValuedProperty > builder = ImmutableMap.builder() ;
-    for( final ValuedProperty valuedProperty : properties.values() ) {
+    for( final ValuedProperty valuedProperty : sortByName( properties.values() ) ) {
       builder.put( valuedProperty.property.declaringMethod(), valuedProperty ) ;
     }
     final ImmutableMap< Method, ValuedProperty > valuedPropertiesByMethod = builder.build() ;
@@ -517,6 +517,20 @@ public abstract class TemplateBasedFactory< C extends Configuration >
         new ConfigurationInvocationHandler(
             inspectors, this, properties, valuedPropertiesByMethod )
     ) ;
+  }
+
+  private static ImmutableList< ValuedProperty > sortByName(
+      final ImmutableCollection< ValuedProperty > properties
+  ) {
+    final List< ValuedProperty > list = new ArrayList<>( properties.size() ) ;
+    list.addAll( properties ) ;
+    Collections.sort( list, new Comparator<ValuedProperty>() {
+      @Override
+      public int compare( final ValuedProperty first, final ValuedProperty second ) {
+        return first.property.name().compareTo( second.property.name() ) ;
+      }
+    } ) ;
+    return ImmutableList.copyOf( list ) ;
   }
 
   private boolean checkPropertyNamesAllDeclared(
