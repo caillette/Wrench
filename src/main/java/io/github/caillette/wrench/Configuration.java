@@ -5,7 +5,6 @@ import com.google.common.collect.ImmutableMap;
 
 import java.lang.reflect.Method;
 import java.util.Comparator;
-import java.util.regex.Pattern;
 
 /**
  * Tagging interface for interfaces defining a proxy-backed configuration.
@@ -106,7 +105,7 @@ public interface Configuration {
      * @see io.github.caillette.wrench.Configuration.Inspector#safeValueOf(Configuration.Property, String)
      * @return a possibly {@code null} value.
      */
-    Pattern obfuscatorPattern() ;
+    Obfuscator obfuscator() ;
 
     Converter converter() ;
 
@@ -150,6 +149,19 @@ public interface Configuration {
   }
 
   /**
+   * Obfuscates a value for {@link Inspector#safeValueOf(Property, String)}.
+   */
+  interface Obfuscator {
+
+    /**
+     * @param propertyAsString a non-null {@code String}.
+     * @param replacement
+     */
+    String obfuscate( String propertyAsString, String replacement ) ;
+
+  }
+
+  /**
    * Exposes {@link Configuration} metadata.
    */
   public static interface Inspector< C extends Configuration > {
@@ -164,7 +176,7 @@ public interface Configuration {
 
     /**
      * Returns a possibly obfuscated value if property was annotated with an
-     * {@link io.github.caillette.wrench.Configuration.Property#obfuscatorPattern()}.
+     * {@link io.github.caillette.wrench.Configuration.Property#obfuscator()}.
      */
     String safeValueOf( Property< C > property, String replacement ) ;
 
@@ -243,8 +255,8 @@ public interface Configuration {
       return this ;
     }
 
-    public PropertySetup< C, T > obfuscator( final Pattern pattern ) {
-      setupAcceptor.accept( lastAccessed, Feature.OBFUSCATOR, pattern ) ;
+    public PropertySetup< C, T > obfuscator( final Obfuscator obfuscator ) {
+      setupAcceptor.accept( lastAccessed, Feature.OBFUSCATOR, obfuscator ) ;
       return this ;
     }
 

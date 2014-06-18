@@ -38,7 +38,7 @@ public class ComplexUsage {
         property( using.myString() )
             .defaultValue( "FOO" )
             .documentation( "Just a string." )
-            .obfuscator( Pattern.compile( "OO" ) )
+            .obfuscator( Obfuscators.from( Pattern.compile( "OO" ) ) )
         ;
         setGlobalNameTransformer( NameTransformers.LOWER_HYPHEN ) ;
       }

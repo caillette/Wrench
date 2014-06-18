@@ -81,10 +81,10 @@ class ConfigurationInspector< C extends Configuration > implements Inspector< C 
     if( stringValue == null ) {
       return "<null>" ;
     } else {
-      if( property.obfuscatorPattern() == null ) {
+      if( property.obfuscator() == null ) {
         return stringValue ;
       } else {
-        return property.obfuscatorPattern().matcher( stringValue ).replaceAll( replacement ) ;
+        return property.obfuscator().obfuscate( stringValue, replacement ) ;
       }
     }
   }

@@ -4,7 +4,6 @@ import com.google.common.base.Strings;
 
 import java.lang.reflect.Method;
 import java.util.Comparator;
-import java.util.regex.Pattern;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -21,7 +20,7 @@ class ConfigurationProperty< C extends Configuration >
   private final String defaultValueAsString ;
   private final Object defaultValue ;
   private final boolean maybeNull ;
-  private final Pattern obfuscatorPattern ;
+  private final Configuration.Obfuscator obfuscator;
   private final String documentation ;
 
   ConfigurationProperty(
@@ -31,7 +30,7 @@ class ConfigurationProperty< C extends Configuration >
       final String defaultValueAsString,
       final Configuration.Converter converter,
       final boolean maybeNull,
-      final Pattern obfuscatorPattern,
+      final Configuration.Obfuscator obfuscator,
       final String documentation
   ) {
     checkArgument( ! Strings.isNullOrEmpty( name ) ) ;
@@ -41,7 +40,7 @@ class ConfigurationProperty< C extends Configuration >
     this.defaultValueAsString = defaultValueAsString ;
     this.converter = checkNotNull( converter ) ;
     this.maybeNull = maybeNull ;
-    this.obfuscatorPattern = obfuscatorPattern ;
+    this.obfuscator = obfuscator ;
     this.documentation = documentation == null ? "" : documentation ;
   }
 
@@ -77,8 +76,8 @@ class ConfigurationProperty< C extends Configuration >
   }
 
   @Override
-  public Pattern obfuscatorPattern() {
-    return obfuscatorPattern ;
+  public Configuration.Obfuscator obfuscator() {
+    return obfuscator ;
   }
 
   @Override

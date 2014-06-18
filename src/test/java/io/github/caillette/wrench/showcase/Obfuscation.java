@@ -1,6 +1,7 @@
 package io.github.caillette.wrench.showcase;
 
 import io.github.caillette.wrench.Configuration;
+import io.github.caillette.wrench.Obfuscators;
 import io.github.caillette.wrench.TemplateBasedFactory;
 import org.junit.Test;
 
@@ -23,7 +24,9 @@ public class Obfuscation {
     {
       @Override
       protected void initialize() {
-        property( using.credential() ).obfuscator( Pattern.compile( "(?<=^.*:).*" ) ) ;
+        property( using.credential() ).obfuscator( Obfuscators.from(
+            Pattern.compile( "(?<=^.*:).*" )
+        ) ) ;
       }
     } ;
     System.out.println( "Properties: " + factory.properties() ) ;

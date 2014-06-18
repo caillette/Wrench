@@ -10,7 +10,6 @@ import com.google.common.reflect.AbstractInvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.*;
-import java.util.regex.Pattern;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
@@ -177,7 +176,7 @@ public abstract class TemplateBasedFactory< C extends Configuration >
       final String defaultValueAsString
           = resolveDefaultValueAsString( features, defaultValue ) ;
       final boolean maybeNull = resolveMayBeNull( features ) ;
-      final Pattern obfuscatorPattern = resolveObfuscatorPattern( features ) ;
+      final Configuration.Obfuscator obfuscator = resolveObfuscator( features ) ;
       final String documentation = resolveDocumentation( features ) ;
       final ConfigurationProperty< C > configurationProperty = new ConfigurationProperty<>(
           method,
@@ -186,7 +185,7 @@ public abstract class TemplateBasedFactory< C extends Configuration >
           defaultValueAsString,
           converter,
           maybeNull,
-          obfuscatorPattern,
+          obfuscator,
           documentation
       ) ;
       propertyBuilder.put( propertyName, configurationProperty ) ;
@@ -286,14 +285,12 @@ public abstract class TemplateBasedFactory< C extends Configuration >
     return maybeNull ;
   }
 
-  private static Pattern resolveObfuscatorPattern(
+  private static Configuration.Obfuscator resolveObfuscator(
       final Map< Configuration.PropertySetup.Feature, Object > features
   ) {
-    final Pattern obfuscatorPattern ;
-    final Pattern explicitPattern =  ( Pattern ) features.get(
+    final Configuration.Obfuscator obfuscator = ( Configuration.Obfuscator ) features.get(
         Configuration.PropertySetup.Feature.OBFUSCATOR ) ;
-    obfuscatorPattern = explicitPattern ;
-    return obfuscatorPattern;
+    return obfuscator;
   }
 
   private static String resolveDocumentation(
