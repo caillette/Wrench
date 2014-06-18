@@ -77,7 +77,13 @@ class ConfigurationInspector< C extends Configuration > implements Inspector< C 
       final Property< C > property,
       final String replacement
   ) {
-    final String stringValue = valuedSlot( property ).stringValue ;
+    final ValuedProperty valuedProperty = valuedSlot( property ) ;
+    final String stringValue ;
+    if( valuedProperty.usingDefault ) {
+      stringValue = valuedProperty.property.defaultValueAsString() ;
+    } else {
+      stringValue = valuedProperty.stringValue ;
+    }
     if( stringValue == null ) {
       return "<null>" ;
     } else {
