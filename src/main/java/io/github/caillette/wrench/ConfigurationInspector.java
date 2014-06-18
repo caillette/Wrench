@@ -85,7 +85,7 @@ class ConfigurationInspector< C extends Configuration > implements Inspector< C 
       stringValue = valuedProperty.stringValue ;
     }
     if( stringValue == null ) {
-      return "<null>" ;
+      return null ;
     } else {
       if( property.obfuscator() == null ) {
         return stringValue ;
@@ -110,7 +110,7 @@ class ConfigurationInspector< C extends Configuration > implements Inspector< C 
     return factory ;
   }
 
-  // ======
+// ======
 // Boring
 // ======
 

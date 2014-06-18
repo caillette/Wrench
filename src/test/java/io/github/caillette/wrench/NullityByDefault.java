@@ -28,7 +28,7 @@ public class NullityByDefault {
     assertThat( configuration.string() ).isNull() ;
     final Property< WithDefaults > stringProperty = inspector.lastAccessed().get( 0 ) ;
     assertThat( inspector.stringValueOf( stringProperty ) ).isNull() ;
-    assertThat( ConfigurationTools.lastValueAsString( inspector ) ).isEqualTo( "<null>" ) ;
+    assertThat( ConfigurationTools.lastValueAsString( inspector ) ).isNull() ;
 
   }
 }
