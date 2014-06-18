@@ -312,7 +312,11 @@ public abstract class TemplateBasedFactory< C extends Configuration >
     final String explicitValueAsString = ( String ) features.get(
         Configuration.PropertySetup.Feature.DEFAULT_VALUE_AS_STRING ) ;
     if( explicitValueAsString == null && defaultValue != null ) {
-      defaultValueAsString = defaultValue.toString() ;
+      if( defaultValue == ValuedProperty.NULL_VALUE ) {
+        defaultValueAsString = null ;
+      } else {
+        defaultValueAsString = defaultValue.toString() ;
+      }
     } else {
       defaultValueAsString = explicitValueAsString ;
     }
@@ -322,8 +326,6 @@ public abstract class TemplateBasedFactory< C extends Configuration >
 // ======================
 // public Factory methods
 // ======================
-
-  private boolean tweaking = false ;
 
   @Override
   public final C create( final Source source1, final Source... others )
@@ -378,12 +380,7 @@ public abstract class TemplateBasedFactory< C extends Configuration >
           = ImmutableSortedMap.copyOf( values ) ;
       final C untweakedConfiguration = createProxy( untweakedValuedProperties ) ;
       final ImmutableMap< Property< C >, TweakedValue > tweak ;
-      tweaking = true ;
-      try {
-        tweak = tweak( untweakedConfiguration );
-      } finally {
-        tweaking = false ;
-      }
+      tweak = tweak( untweakedConfiguration ) ;
       if ( tweak == null || tweak.isEmpty() ) {
         valuedProperties = untweakedValuedProperties ;
         configuration = untweakedConfiguration ;
@@ -713,33 +710,36 @@ public abstract class TemplateBasedFactory< C extends Configuration >
       ValuedProperty valuedProperty = valuedPropertiesByMethod.get( method ) ;
       final Map< Inspector, List< Property > > inspectorMap = inspectors.get() ;
       final boolean unresolvedProperty = valuedProperty == null ;
+      if( unresolvedProperty ) {
+        for( final Property property
+            : ( ( ImmutableMap< String, Property > ) factory.properties() ).values()
+        ) {
+          if( method.equals( property.declaringMethod() ) ) {
+            valuedProperty = new ValuedProperty( property ) ;
+            break ;
+          }
+        }
+        if( valuedProperty == null ) {
+          throw new IllegalStateException(
+              "Failed to generate a dumb " + ValuedProperty.class.getSimpleName()
+                  + " object. This is annoying. Dumb " + ValuedProperty.class.getSimpleName()
+                  + " object solves the case of uninitialized property when using "
+                  + TemplateBasedFactory.class.getSimpleName() + "#tweak()"
+          ) ;
+        }
+      }
       if( inspectorMap != null ) {
         for( final List< Property > lastAccessedProperties : inspectorMap.values() ) {
-          if( unresolvedProperty ) {
-            for( final Property property
-                : ( ( ImmutableMap< String, Property > ) factory.properties() ).values()
-            ) {
-              if( method.equals( property.declaringMethod() ) ) {
-                valuedProperty = new ValuedProperty( property ) ;
-              }
-            }
-            if( valuedProperty == null ) {
-              throw new IllegalStateException(
-                  "Failed to generate a dumb " + ValuedProperty.class.getSimpleName()
-                      + " object. This is annoying. Dumb " + ValuedProperty.class.getSimpleName()
-                      + " object solves the case of uninitialized property when using "
-                      + TemplateBasedFactory.class.getSimpleName() + "#tweak()"
-              ) ;
-            }
-          }
           lastAccessedProperties.add( 0, valuedProperty.property ) ;
         }
       }
-      if( tweaking && unresolvedProperty ) {
-        return safeNull( valuedProperty.property.type() ) ;
+      if( unresolvedProperty ) {
+        return ValuedProperty.safeNull( valuedProperty.property.type() ) ;
       } else {
         return valuedProperty.resolvedValue == ValuedProperty.NULL_VALUE
-            ? safeNull( valuedProperty.property.type() ) : valuedProperty.resolvedValue ;
+            ? ValuedProperty.safeNull( valuedProperty.property.type() )
+            : valuedProperty.resolvedValue
+        ;
       }
     }
 
@@ -789,22 +789,4 @@ public abstract class TemplateBasedFactory< C extends Configuration >
     }
   }
 
-  static Object safeNull( final Class propertyType ) {
-    if( Integer.TYPE.equals( propertyType ) ) {
-      return 0 ;
-    } else if( Byte.TYPE.equals( propertyType ) ) {
-      return ( byte ) 0 ;
-    } else if( Short.TYPE.equals( propertyType ) ) {
-      return ( short ) 0 ;
-    } else if( Long.TYPE.equals( propertyType ) ) {
-      return ( long ) 0 ;
-    } else if( Double.TYPE.equals( propertyType ) ) {
-      return ( double ) 0 ;
-    } else if( Float.TYPE.equals( propertyType ) ) {
-      return ( float ) 0 ;
-    } else if( Character.TYPE.equals( propertyType ) ) {
-      return ( char ) 0 ;
-    }
-    return null ;
-  }
 }

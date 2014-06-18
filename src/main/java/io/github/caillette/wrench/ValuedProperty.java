@@ -30,7 +30,11 @@ class ValuedProperty {
   ) {
     this.property = checkNotNull( property ) ;
     this.source = checkNotNull( source ) ;
-    this.stringValue = resolvedValue == null ? "<not-set>" : resolvedValue.toString() ;
+    this.stringValue =
+        ( resolvedValue == NULL_VALUE || resolvedValue == NO_VALUE || resolvedValue == null )
+        ? null
+        : resolvedValue.toString()
+    ;
     this.resolvedValue = resolvedValue ;
     this.usingDefault = usingDefault ;
   }
@@ -47,6 +51,35 @@ class ValuedProperty {
     this.stringValue = stringValue ;
     this.resolvedValue = resolvedValue ;
     this.usingDefault = usingDefault ;
+  }
+
+
+
+  static Object safeValue( final ValuedProperty valuedProperty ) {
+    if( valuedProperty.resolvedValue == NULL_VALUE ) {
+      return safeNull( valuedProperty.property.type() ) ;
+    } else {
+      return valuedProperty.resolvedValue ;
+    }
+  }
+
+  static Object safeNull( final Class propertyType ) {
+    if( Integer.TYPE.equals( propertyType ) ) {
+      return 0 ;
+    } else if( Byte.TYPE.equals( propertyType ) ) {
+      return ( byte ) 0 ;
+    } else if( Short.TYPE.equals( propertyType ) ) {
+      return ( short ) 0 ;
+    } else if( Long.TYPE.equals( propertyType ) ) {
+      return ( long ) 0 ;
+    } else if( Double.TYPE.equals( propertyType ) ) {
+      return ( double ) 0 ;
+    } else if( Float.TYPE.equals( propertyType ) ) {
+      return ( float ) 0 ;
+    } else if( Character.TYPE.equals( propertyType ) ) {
+      return ( char ) 0 ;
+    }
+    return null ;
   }
 
   @Override

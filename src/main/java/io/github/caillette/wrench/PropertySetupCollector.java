@@ -27,7 +27,7 @@ public final class PropertySetupCollector< C extends Configuration> {
               final Object[] args
           ) throws Throwable {
             lastAccessed = method ;
-            return TemplateBasedFactory.safeNull( method.getReturnType() ) ;
+            return ValuedProperty.safeNull( method.getReturnType() ) ;
           }
         }
     ) ;

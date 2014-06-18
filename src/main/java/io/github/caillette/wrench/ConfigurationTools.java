@@ -49,6 +49,12 @@ public final class ConfigurationTools {
     ) ;
     return inspector ;
   }
+
+  public static < C extends Configuration > String lastValueAsString(
+      final Inspector< C > inspector
+  ) {
+    return inspector.safeValueOf( inspector.lastAccessed().get( 0 ), "******" ) ;
+  }
   
 // ===============
 // Our own cooking

@@ -78,10 +78,14 @@ class ConfigurationInspector< C extends Configuration > implements Inspector< C 
       final String replacement
   ) {
     final String stringValue = valuedSlot( property ).stringValue ;
-    if( property.obfuscatorPattern() == null ) {
-      return stringValue ;
+    if( stringValue == null ) {
+      return "<null>" ;
     } else {
-      return property.obfuscatorPattern().matcher( stringValue ).replaceAll( replacement ) ;
+      if( property.obfuscatorPattern() == null ) {
+        return stringValue ;
+      } else {
+        return property.obfuscatorPattern().matcher( stringValue ).replaceAll( replacement ) ;
+      }
     }
   }
 

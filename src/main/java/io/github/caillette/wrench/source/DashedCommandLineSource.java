@@ -31,7 +31,8 @@ public class DashedCommandLineSource implements Configuration.Source.Stringified
   private final ImmutableMap< String, String > map ;
 
   public DashedCommandLineSource( final ImmutableList<String> arguments ) {
-    checkArgument( arguments.size() % 2 == 0, "" ) ;
+    checkArgument( arguments.size() % 2 == 0,
+        "Expecting an even number of arguments: " + arguments ) ;
     final ImmutableMap.Builder< String, String > builder = ImmutableMap.builder() ;
     for( int i = 0 ; i < arguments.size() ; i += 2 ) {
       final String propertyName = arguments.get( i ) ;
