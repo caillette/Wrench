@@ -323,6 +323,8 @@ public abstract class TemplateBasedFactory< C extends Configuration >
 // public Factory methods
 // ======================
 
+  private boolean tweaking = false ;
+
   @Override
   public final C create( final Source source1, final Source... others )
       throws DeclarationException
@@ -343,11 +345,7 @@ public abstract class TemplateBasedFactory< C extends Configuration >
       } else if( source instanceof Source.Raw ) {
         final Source.Raw raw = ( Source.Raw ) source ;
         checkPropertyNamesAllDeclared(
-            raw,
-            raw.map().keySet(),
-            ImmutableSet.copyOf( propertySet.values() ),
-            exceptions
-        ) ;
+            raw, raw.map().keySet(), ImmutableSet.copyOf( propertySet.values() ), exceptions ) ;
       } else {
         throw new IllegalArgumentException( "Unsupported: " + source ) ;
       }
@@ -355,6 +353,9 @@ public abstract class TemplateBasedFactory< C extends Configuration >
 
     for( final Map.Entry< String, Property< C > > entry : propertySet.entrySet() ) {
       final Property< C > property = entry.getValue() ;
+      if( property.maybeNull() ) {
+        feedWithDefaultNull( property, values ) ;
+      }
       for( final Source source : sources ) {
         if( source instanceof Stringified ) {
           feedWithValue( ( Stringified ) source, values, property, exceptions ) ;
@@ -376,7 +377,13 @@ public abstract class TemplateBasedFactory< C extends Configuration >
       final ImmutableSortedMap< String, ValuedProperty > untweakedValuedProperties
           = ImmutableSortedMap.copyOf( values ) ;
       final C untweakedConfiguration = createProxy( untweakedValuedProperties ) ;
-      final ImmutableMap< Property< C >, TweakedValue > tweak = tweak( untweakedConfiguration ) ;
+      final ImmutableMap< Property< C >, TweakedValue > tweak ;
+      tweaking = true ;
+      try {
+        tweak = tweak( untweakedConfiguration );
+      } finally {
+        tweaking = false ;
+      }
       if ( tweak == null || tweak.isEmpty() ) {
         valuedProperties = untweakedValuedProperties ;
         configuration = untweakedConfiguration ;
@@ -412,7 +419,7 @@ public abstract class TemplateBasedFactory< C extends Configuration >
             "No defined property " + property + " for value '" + tweakedValue.stringValue + "'" ) ;
       }
       if( tweakedValue.resolvedValue != null
-          && ! property.type().isAssignableFrom( tweakedValue.resolvedValue.getClass() )
+          && ! mayAssign( property.type(), tweakedValue.resolvedValue.getClass() )
       ) {
         addBadTweakedEntry(
             propertySet,
@@ -438,10 +445,19 @@ public abstract class TemplateBasedFactory< C extends Configuration >
     return ImmutableSortedMap.copyOf( builder ) ;
   }
 
+  private static boolean mayAssign(
+      final Class< ? > assigned,
+      final Class< ? > assignee
+  ) {
+    return assigned.isAssignableFrom( assignee )
+        || ( Integer.TYPE.equals( assigned ) && Integer.class.equals( assignee ) )
+    ;
+  }
+
   private static< C extends Configuration > void addBadTweakedEntry(
-      final ImmutableMap<String, Property<C>> definedProperties,
-      final Set<Validation.Bad> exceptions,
-      final Map.Entry<Property<C>, TweakedValue> tweakedEntry,
+      final ImmutableMap< String, Property< C > > definedProperties,
+      final Set< Validation.Bad > exceptions,
+      final Map.Entry< Property< C >, TweakedValue > tweakedEntry,
       final String message
   ) {
     final ValuedProperty tweakedValuedProperty
@@ -587,7 +603,7 @@ public abstract class TemplateBasedFactory< C extends Configuration >
       final Set< Validation.Bad > exceptions
   ) {
     if( source.map().containsKey( property ) ) {
-      final boolean usingDefault = source instanceof PropertyDefaultSource;
+      final boolean usingDefault = source instanceof PropertyDefaultSource ;
       final Object value ;
       {
         final Object valueFromSource = source.map().get( property ) ;
@@ -610,6 +626,18 @@ public abstract class TemplateBasedFactory< C extends Configuration >
       ) ;
       values.put( property.name(), valuedProperty ) ;
     }
+  }
+  private void feedWithDefaultNull(
+      final Property< C > property,
+      final Map< String, ValuedProperty > values
+  ) {
+    final ValuedProperty valuedProperty = new ValuedProperty(
+        property,
+        Sources.UNDEFINED,
+        ValuedProperty.NULL_VALUE,
+        true
+    ) ;
+    values.put( property.name(), valuedProperty ) ;
   }
 
   private static Object convertSafe(
@@ -707,10 +735,11 @@ public abstract class TemplateBasedFactory< C extends Configuration >
           lastAccessedProperties.add( 0, valuedProperty.property ) ;
         }
       }
-      if( unresolvedProperty ) {
+      if( tweaking && unresolvedProperty ) {
         return safeNull( valuedProperty.property.type() ) ;
       } else {
-        return valuedProperty.resolvedValue ;
+        return valuedProperty.resolvedValue == ValuedProperty.NULL_VALUE
+            ? safeNull( valuedProperty.property.type() ) : valuedProperty.resolvedValue ;
       }
     }
 
