@@ -30,6 +30,8 @@ import static com.google.common.base.Preconditions.checkArgument;
  */
 public final class CommandLineSources {
 
+  public static final String CONFIGURATIONFILES_DASHED_PARAMETER_NAME = "--configuration-files";
+
   private CommandLineSources() { }
 
   public static < C extends Configuration > C createConfiguration(
@@ -48,7 +50,7 @@ public final class CommandLineSources {
   ) throws ConfigurationException, IOException {
     return createConfiguration(
         factory,
-        "--configuration-files",
+        CONFIGURATIONFILES_DASHED_PARAMETER_NAME,
         "--",
         "--",
         filenamesAndCommandLineArguments

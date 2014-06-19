@@ -1,15 +1,31 @@
 package io.github.caillette.wrench;
 
-import com.google.common.collect.*;
+import com.google.common.collect.ImmutableCollection;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.ImmutableSortedMap;
 import com.google.common.reflect.AbstractInvocationHandler;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
-import static io.github.caillette.wrench.Configuration.*;
+import static io.github.caillette.wrench.Configuration.Factory;
+import static io.github.caillette.wrench.Configuration.Inspector;
+import static io.github.caillette.wrench.Configuration.Property;
+import static io.github.caillette.wrench.Configuration.Source;
 import static io.github.caillette.wrench.Configuration.Source.Stringified;
 
 /**
@@ -25,6 +41,7 @@ public abstract class TemplateBasedFactory< C extends Configuration >
   private ConstructionKit< C > constructionKit = new ConstructionKit<>() ;
   protected final C using;
   private final ImmutableMap< String, Property< C > > propertySet ;
+  private final boolean checkAllPropertiesDefined ;
 
   protected TemplateBasedFactory( final Class< C > configurationClass ) throws DefinitionException {
     this.configurationClass = checkNotNull( configurationClass ) ;
@@ -64,6 +81,7 @@ public abstract class TemplateBasedFactory< C extends Configuration >
         constructionKit.transientConverters,
         constructionKit.transientNameTransformer
     ) ;
+    this.checkAllPropertiesDefined = constructionKit.checkAllPropertiesDefined ;
     constructionKit = null ;
   }
 
@@ -74,6 +92,7 @@ public abstract class TemplateBasedFactory< C extends Configuration >
     public ImmutableMap< Class< ? >, Configuration.Converter > transientConverters
         = Converters.DEFAULTS ;
     public Configuration.NameTransformer transientNameTransformer = NameTransformers.IDENTITY ;
+    public boolean checkAllPropertiesDefined = true ;
   }
 
   private void acceptFeature(
@@ -102,6 +121,10 @@ public abstract class TemplateBasedFactory< C extends Configuration >
     constructionKit.transientConverters = checkNotNull( converters ) ;
   }
 
+  protected final void checkAllPropertiesDefined( final boolean check ) {
+    checkInitializing() ;
+    constructionKit.checkAllPropertiesDefined = check ;
+  }
 
   /**
    * Only call from {@link #initialize()}.
@@ -382,7 +405,9 @@ public abstract class TemplateBasedFactory< C extends Configuration >
       }
     }
 
-    verifyNoUndefinedProperty( configuration, propertySet, valuedProperties ) ;
+    if( checkAllPropertiesDefined ) {
+      verifyNoUndefinedProperty( configuration, propertySet, valuedProperties ) ;
+    }
 
     final ImmutableList< Validation.Bad > validation = validate( configuration ) ;
     if( ! validation.isEmpty() ) {

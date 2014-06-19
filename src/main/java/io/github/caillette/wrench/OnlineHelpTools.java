@@ -206,7 +206,22 @@ public final class OnlineHelpTools {
     writer.flush() ;
   }
 
-  private static void writeWrapped(
+  public static void writeWrapped(
+      final StringBuilder stringBuilder,
+      final String text,
+      final int indent,
+      final int width
+  ) {
+    final StringWriter writer = new StringWriter() ;
+    try {
+      writeWrapped( writer, text, indent, width ) ;
+    } catch( final IOException e ) {
+      throw new RuntimeException( "Can't happen", e ) ;
+    }
+    stringBuilder.append( writer.toString() ) ;
+  }
+
+  public static void writeWrapped(
       final Writer writer,
       final String text,
       final int indent,
