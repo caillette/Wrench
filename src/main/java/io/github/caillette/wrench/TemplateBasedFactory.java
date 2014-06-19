@@ -353,17 +353,19 @@ public abstract class TemplateBasedFactory< C extends Configuration >
     final Map< String, ValuedProperty> values = new HashMap<>() ;
     final Set< Validation.Bad > exceptions = new HashSet<>() ;
 
-    for( final Source source : sources ) {
-      if( source instanceof Stringified ) {
-        final Stringified stringified = ( Stringified ) source ;
-        checkPropertyNamesAllDeclared(
-            stringified, stringified.map().keySet(), propertySet, exceptions ) ;
-      } else if( source instanceof Source.Raw ) {
-        final Source.Raw raw = ( Source.Raw ) source ;
-        checkPropertyNamesAllDeclared(
-            raw, raw.map().keySet(), ImmutableSet.copyOf( propertySet.values() ), exceptions ) ;
-      } else {
-        throw new IllegalArgumentException( "Unsupported: " + source ) ;
+    if( checkAllPropertiesDefined ) {
+      for( final Source source : sources ) {
+        if( source instanceof Stringified ) {
+          final Stringified stringified = ( Stringified ) source ;
+          checkPropertyNamesAllDeclared(
+              stringified, stringified.map().keySet(), propertySet, exceptions ) ;
+        } else if( source instanceof Source.Raw ) {
+          final Source.Raw raw = ( Source.Raw ) source ;
+          checkPropertyNamesAllDeclared(
+              raw, raw.map().keySet(), ImmutableSet.copyOf( propertySet.values() ), exceptions ) ;
+        } else {
+          throw new IllegalArgumentException( "Unsupported: " + source ) ;
+        }
       }
     }
 
@@ -557,42 +559,36 @@ public abstract class TemplateBasedFactory< C extends Configuration >
     return ImmutableList.copyOf( list ) ;
   }
 
-  private boolean checkPropertyNamesAllDeclared(
+  private void checkPropertyNamesAllDeclared(
       final Source source,
       final ImmutableSet< String > actualPropertyNames,
       final ImmutableMap< String, ? extends Property > declaredProperties,
       final Set< Validation.Bad > exceptions
   ) {
-    boolean good = true ;
     for( final String actualPropertyName : actualPropertyNames ) {
       if( ! declaredProperties.containsKey( actualPropertyName ) ) {
         exceptions.add( new Validation.Bad(
             "Unknown property name '" + actualPropertyName + "'",
             ImmutableSet.of( source )
         ) ) ;
-        good = false ;
       }
     }
-    return good ;
   }
 
-  private boolean checkPropertyNamesAllDeclared(
+  private void checkPropertyNamesAllDeclared(
       final Source.Raw source,
-      final ImmutableSet<Property< C > > actualProperties,
+      final ImmutableSet< Property< C > > actualProperties,
       final ImmutableSet< Property< C > > declaredProperties,
       final Set< Validation.Bad > exceptions
   ) {
-    boolean good = true ;
     for( final Property actualProperty : actualProperties ) {
       if( ! declaredProperties.contains( actualProperty ) ) {
         exceptions.add( new Validation.Bad(
             "Unknown property '" + actualProperty.name() + "'",
-            ImmutableSet.< Source >of( source )
+            ImmutableSet.<Source>of( source )
         ) ) ;
-        good = false ;
       }
     }
-    return good ;
   }
 
 
