@@ -99,13 +99,18 @@ public final class CommandLineSources {
         break ;
       }
       if( index == 0 && fileListArgumentName.equals( argument ) ) {
-        argument = filenamesAndCommandLineArguments.get( ++ index ) ;
+        index ++ ;
         while( index < filenamesAndCommandLineArguments.size()
-            && ! argumentListEndMarker.equals( argument )
-            && ! argument.startsWith( propertyNameMarker )
         ) {
-          filesBuilder.add( new File( argument ) ) ;
-          argument = filenamesAndCommandLineArguments.get( ++ index ) ;
+          argument = filenamesAndCommandLineArguments.get( index ) ;
+          if( argumentListEndMarker.equals( argument )
+              || argument.startsWith( propertyNameMarker )
+          ) {
+            break ;
+          } else {
+            filesBuilder.add( new File( argument ) ) ;
+          }
+          index ++ ;
         }
       }
       while( true ) {
