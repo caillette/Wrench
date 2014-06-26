@@ -1,9 +1,11 @@
 package io.github.caillette.wrench;
 
+import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 
 import java.io.File;
+import java.util.function.Function;
 
 import static io.github.caillette.wrench.Configuration.Converter;
 
@@ -14,6 +16,22 @@ public final class Converters {
 
   private Converters() { }
 
+  /**
+   * @param function a function that doesn't have to support null input.
+   */
+  public static< T > Converter< T > from( Function< String, T > function ) {
+    Preconditions.checkNotNull( function ) ;
+    return new AbstractConverter< T >() {
+      @Override
+      protected T convertFromNonNull( String input ) throws Exception {
+        return function.apply( input ) ;
+      }
+      @Override
+      public String toString() {
+        return Converters.class.getSimpleName() + "$from{" + function + "}" ;
+      }
+    } ;
+  }
 
 
   public static abstract class AbstractConverter< T > implements Converter< T > {

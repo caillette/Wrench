@@ -27,12 +27,7 @@ public class ComplexUsage {
         property( using.myNumber() )
             .name( "my-binary-number" )
             .maybeNull()
-            .converter( new Configuration.Converter< Integer >() {
-              @Override
-              public Integer convert( final String input ) {
-                return input == null ? null : Integer.parseInt( input, 2 ) ;
-              }
-            } )
+            .converter( Converters.from( input -> Integer.parseInt( input, 2 ) ) )
             .documentation( "Just a number." )
         ;
         property( using.myString() )

@@ -7,7 +7,7 @@ Wrench started as a conceptual spin-off of the [OWNER](https://github.com/lviggi
 
 Wrench is tailored for usage in a closed-source project. So it's main purpose here on Github is to showcase a pair of coding ideas.
 
-Wrench relies on Java 7 syntax. 
+Wrench relies on Java 8 syntax.
  
 Feel free to use and fork Wrench under the terms of the Gnu Public License, version 3.
 
@@ -75,12 +75,7 @@ factory = new TemplateBasedFactory< Simple >( Simple.class ) {
     property( using.myNumber() )
         .name( "my-binary-number" )
         .maybeNull()
-        .converter( new Configuration.Converter< Integer >() {
-          @Override
-          public Integer convert( String input ) {
-            return input == null ? null : Integer.parseInt( input, 2 ) ;
-          }
-        } )
+        .converter( Converters.from( input -> Integer.parseInt( input, 2 ) ) )
         .documentation( "Just a number." )
     ;
     property( using.myString() )
@@ -134,6 +129,5 @@ Things that Wrench will never do:
 - Try to get famous.
 
 Things that it will probably do:
-- Use Java 8 closures and its first-class methods, if it makes sense.
 - Support nested `Configuration` objects.
 - Offer more default `Converter`s.
