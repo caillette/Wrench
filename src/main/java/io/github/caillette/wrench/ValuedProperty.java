@@ -69,6 +69,8 @@ class ValuedProperty {
       return ( float ) 0 ;
     } else if( Character.TYPE.equals( propertyType ) ) {
       return ( char ) 0 ;
+    } else if( Boolean.TYPE.equals( propertyType ) ) {
+      return false  ;
     }
     return null ;
   }

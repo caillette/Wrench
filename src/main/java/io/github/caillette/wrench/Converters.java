@@ -19,11 +19,11 @@ public final class Converters {
   /**
    * @param function a function that doesn't have to support null input.
    */
-  public static< T > Converter< T > from( Function< String, T > function ) {
+  public static< T > Converter< T > from( final Function< String, T > function ) {
     Preconditions.checkNotNull( function ) ;
     return new AbstractConverter< T >() {
       @Override
-      protected T convertFromNonNull( String input ) throws Exception {
+      protected T convertFromNonNull( final String input ) throws Exception {
         return function.apply( input ) ;
       }
       @Override

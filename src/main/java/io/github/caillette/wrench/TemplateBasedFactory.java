@@ -1,31 +1,15 @@
 package io.github.caillette.wrench;
 
-import com.google.common.collect.ImmutableCollection;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.ImmutableSortedMap;
+import com.google.common.collect.*;
 import com.google.common.reflect.AbstractInvocationHandler;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.SortedMap;
-import java.util.TreeMap;
+import java.util.*;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
-import static io.github.caillette.wrench.Configuration.Factory;
-import static io.github.caillette.wrench.Configuration.Inspector;
-import static io.github.caillette.wrench.Configuration.Property;
-import static io.github.caillette.wrench.Configuration.Source;
+import static io.github.caillette.wrench.Configuration.*;
 import static io.github.caillette.wrench.Configuration.Source.Stringified;
 
 /**
@@ -640,9 +624,7 @@ public abstract class TemplateBasedFactory< C extends Configuration >
         final Object valueFromSource = source.map().get( property ) ;
         value = valueFromSource == ValuedProperty.NULL_VALUE ? null : valueFromSource ;
       }
-      if( value != null
-          && ! property.declaringMethod().getReturnType()
-              .isAssignableFrom( value.getClass() )
+      if( value != null && ! mayAssign( property, value )
       ) {
         exceptions.add( new Validation.Bad(
             "Can't use '" + value + "' as a value for " + property.name(),
@@ -658,6 +640,34 @@ public abstract class TemplateBasedFactory< C extends Configuration >
       values.put( property.name(), valuedProperty ) ;
     }
   }
+
+  private boolean mayAssign( final Property< C > property, final Object value ) {
+    final Class< ? > propertyType = property.declaringMethod().getReturnType() ;
+    if( propertyType.isPrimitive() ) {
+      if( Integer.TYPE.equals( propertyType ) ) {
+        return value instanceof Integer ;
+      } else if ( Byte.TYPE.equals( propertyType ) ) {
+        return value instanceof Byte ;
+      } else if ( Short.TYPE.equals( propertyType ) ) {
+        return value instanceof Short ;
+      } else if ( Long.TYPE.equals( propertyType ) ) {
+        return value instanceof Long ;
+      } else if ( Double.TYPE.equals( propertyType ) ) {
+        return value instanceof Double ;
+      } else if ( Float.TYPE.equals( propertyType ) ) {
+        return value instanceof Float ;
+      } else if ( Character.TYPE.equals( propertyType ) ) {
+        return value instanceof Character ;
+      } else if ( Boolean.TYPE.equals( propertyType ) ) {
+        return value instanceof Boolean ;
+      }
+      throw new IllegalArgumentException( "This should not happen. "
+          + "Property: " + property + ", value: " + value ) ;
+    } else {
+      return propertyType.isAssignableFrom( value.getClass() );
+    }
+  }
+
   private void feedWithDefaultNull(
       final Property< C > property,
       final Map< String, ValuedProperty > values
