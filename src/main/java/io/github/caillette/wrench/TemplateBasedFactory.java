@@ -48,31 +48,13 @@ public abstract class TemplateBasedFactory< C extends Configuration >
 
     Class< ? > currentClass = configurationClass ;
     while( currentClass != null && ! currentClass.isAssignableFrom( Object.class ) ) {
-      final Method[] methods = currentClass.getDeclaredMethods() ;
-      for( final Method method : methods ) {
-        if( method.getParameterTypes().length == 0 ) {
-          constructionKit.features.put(
-              method, new HashMap< Configuration.PropertySetup.Feature, Object >() ) ;
-        } else {
-          throw new DefinitionException(
-              "Should have no parameters: " + method.toGenericString() ) ;
-        }
-      }
+      addClassMethodFeatures( currentClass ) ;
+      addInterfaceMethodFeatures( currentClass ) ;
       currentClass = currentClass.getSuperclass() ;
     }
-    constructionKit.collector = new PropertySetupCollector<>(
-        configurationClass,
-        new Configuration.PropertySetup.SetupAcceptor() {
-          @Override
-          public void accept(
-              final Method method,
-              final Configuration.PropertySetup.Feature feature,
-              final Object object
-          ) {
-            acceptFeature( method, feature, object ) ;
-          }
-        }
-    ) ;
+    constructionKit.collector
+        = new PropertySetupCollector<>( configurationClass, this::acceptFeature ) ;
+
     using = constructionKit.collector.template ;
     //noinspection OverridableMethodCallDuringObjectConstruction
     initialize() ;
@@ -83,6 +65,26 @@ public abstract class TemplateBasedFactory< C extends Configuration >
     ) ;
     this.checkAllPropertiesDefined = constructionKit.checkAllPropertiesDefined ;
     constructionKit = null ;
+  }
+
+  private void addInterfaceMethodFeatures( Class< ? > classOrInterface ) {
+    final Class< ? >[] interfaces = classOrInterface.getInterfaces() ;
+    for( final Class< ? > someInterface : interfaces ) {
+      addClassMethodFeatures( someInterface ) ;
+      addInterfaceMethodFeatures( someInterface ) ;
+    }
+  }
+
+  private void addClassMethodFeatures( Class< ? > currentClass ) {
+    final Method[] methods = currentClass.getDeclaredMethods() ;
+    for( final Method method : methods ) {
+      if( method.getParameterTypes().length == 0 ) {
+        constructionKit.features.put( method, new HashMap<>() ) ;
+      } else {
+        throw new DefinitionException(
+            "Should have no parameters: " + method.toGenericString() ) ;
+      }
+    }
   }
 
   private static class ConstructionKit< C extends Configuration > {
@@ -167,7 +169,7 @@ public abstract class TemplateBasedFactory< C extends Configuration >
 
   private static< C extends Configuration > ImmutableMap< String, Property< C > >
   buildPropertyMap(
-      final Map< Method, Map<Configuration.PropertySetup.Feature, Object > > allFeatures,
+      final Map< Method, Map< Configuration.PropertySetup.Feature, Object > > allFeatures,
       final ImmutableMap< Class< ? >, Configuration.Converter > defaultConverters,
       final Configuration.NameTransformer globalNameTransformer
   ) throws DefinitionException {
