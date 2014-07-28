@@ -1,6 +1,10 @@
 package io.github.caillette.wrench.showcase;
 
-import io.github.caillette.wrench.*;
+import io.github.caillette.wrench.Configuration;
+import io.github.caillette.wrench.DeclarationException;
+import io.github.caillette.wrench.OnlineHelpTools;
+import io.github.caillette.wrench.Sources;
+import io.github.caillette.wrench.TemplateBasedFactory;
 import org.junit.Test;
 
 import static org.junit.Assert.fail;

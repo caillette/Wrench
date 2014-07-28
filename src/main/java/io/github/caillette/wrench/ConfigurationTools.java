@@ -5,7 +5,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
 
-import static io.github.caillette.wrench.Configuration.*;
+import static io.github.caillette.wrench.Configuration.Factory;
+import static io.github.caillette.wrench.Configuration.Inspector;
+import static io.github.caillette.wrench.Configuration.Property;
 
 /**
  * Utility methods to create {@link Configuration.Factory} and {@link Inspector}

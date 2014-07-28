@@ -5,6 +5,7 @@ import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 
 import java.io.File;
+import java.net.URL;
 import java.util.function.Function;
 
 import static io.github.caillette.wrench.Configuration.Converter;
@@ -114,6 +115,16 @@ public final class Converters {
     }
   } ;
 
+  public static final Converter< URL > INTO_URL = new AbstractConverter< URL >() {
+    @Override
+    public URL convert( final String input ) throws Exception {
+      if( Strings.isNullOrEmpty( input ) ) {
+        return null ;
+      }
+      return new URL( input ) ;
+    }
+  } ;
+
   public static final ImmutableMap< Class< ? >, Converter > DEFAULTS
       = ImmutableMap.< Class< ? >, Converter >builder()
           .put( String.class, ( Converter ) INTO_STRING )
@@ -122,6 +133,7 @@ public final class Converters {
           .put( Boolean.TYPE, INTO_BOOLEAN_PRIMITIVE )
           .put( Boolean.class, INTO_BOOLEAN_OBJECT )
           .put( File.class, INTO_FILE )
+          .put( URL.class, INTO_URL )
           .build()
   ;
 

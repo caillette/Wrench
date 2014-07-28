@@ -91,7 +91,7 @@ public interface Validation {
 
     public void throwDeclarationExceptionIfHasInfrigements() throws DeclarationException {
       final ImmutableList< Bad > done = done() ;
-      if( done.size() > 0 ) {
+      if( ! done.isEmpty() ) {
         throw new DeclarationException( inspector.factory(), done ) ;
       }
     }
@@ -150,7 +150,7 @@ public interface Validation {
 
     public Accumulator< C > add(
         final ImmutableList< ValuedProperty > property,
-        String message
+        final String message
     ) {
       builder.add( new Bad(
           property,
@@ -161,7 +161,7 @@ public interface Validation {
 
     Accumulator< C > addInfrigementForNullity(
         final ImmutableList< Configuration.Property< C > > properties,
-        String message
+        final String message
     ) {
       builder.add( new Bad( resolveValuedProperties( properties ), message ) ) ;
       return this ;

@@ -1,7 +1,13 @@
 package io.github.caillette.wrench.showcase;
 
 import com.google.common.collect.ImmutableList;
-import io.github.caillette.wrench.*;
+import io.github.caillette.wrench.Configuration;
+import io.github.caillette.wrench.ConfigurationTools;
+import io.github.caillette.wrench.Converters;
+import io.github.caillette.wrench.NameTransformers;
+import io.github.caillette.wrench.Obfuscators;
+import io.github.caillette.wrench.Sources;
+import io.github.caillette.wrench.TemplateBasedFactory;
 import org.junit.Test;
 
 import java.util.regex.Pattern;

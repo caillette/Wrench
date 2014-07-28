@@ -1,7 +1,11 @@
 package io.github.caillette.wrench.showcase;
 
 import com.google.common.collect.ImmutableList;
-import io.github.caillette.wrench.*;
+import io.github.caillette.wrench.Configuration;
+import io.github.caillette.wrench.Sources;
+import io.github.caillette.wrench.TemplateBasedFactory;
+import io.github.caillette.wrench.Validation;
+import io.github.caillette.wrench.ValidationException;
 import org.junit.Test;
 
 import static io.github.caillette.wrench.Validation.Accumulator;
