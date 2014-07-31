@@ -111,22 +111,24 @@ public interface Validation {
       return this ;
     }
 
+    public Accumulator< C > clearLastAccessed() {
+      inspector.clearLastAccessed() ;
+      return this ;
+    }
 
 
     public Accumulator< C > verify( final boolean mustBeTrue ) {
       if( ! mustBeTrue ) {
         add( null ) ;
       }
-      inspector.clearLastAccessed() ;
-      return this ;
+      return clearLastAccessed() ;
     }
 
     public Accumulator< C > verify( final boolean mustBeTrue, final String message ) {
       if( ! mustBeTrue ) {
         add( message ) ;
       }
-      inspector.clearLastAccessed() ;
-      return this ;
+      return clearLastAccessed() ;
     }
 
     public Accumulator< C > add( final String message ) {

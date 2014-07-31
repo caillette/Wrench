@@ -28,11 +28,7 @@ public final class OnlineHelpTools {
       final int lineLength
   ) {
     final StringWriter stringWriter = new StringWriter() ;
-    try {
-      writeHelp( stringWriter, factory, indent, lineLength ) ;
-    } catch ( final IOException e ) {
-      throw new RuntimeException( "Can't happen", e ) ;
-    }
+    writeHelp( stringWriter, factory, indent, lineLength ) ;
     return stringWriter.toString() ;
   }
 
@@ -151,7 +147,7 @@ public final class OnlineHelpTools {
           indent,
           lineLength
       ) ;
-      for( final Map.Entry<Configuration.Property, Configuration.Source> entries
+      for( final Map.Entry< Configuration.Property, Configuration.Source > entries
           : valuedPropertiesWithSource.entrySet()
           ) {
         writeWrapped(
@@ -168,7 +164,7 @@ public final class OnlineHelpTools {
   public static void writeHelp(
       final Writer writer,
       final Configuration.Factory< ? > factory
-  ) throws IOException {
+  ) {
     writeHelp( writer, factory, INDENT, LINE_LENGTH ) ;
   }
 
@@ -177,33 +173,37 @@ public final class OnlineHelpTools {
       final Configuration.Factory< ? > factory,
       final int indent,
       final int lineLength
-  ) throws IOException {
+  ) {
     final String leftPadding1 = Strings.repeat( " ", indent ) ;
     final String leftPadding2 = Strings.repeat( " ", indent * 2 ) ;
 
-    for( final Configuration.Property< ? > property : factory.properties().values() ) {
-      writer.append( "\n" ) ;
-      writer.append( leftPadding1 ) ;
-      writer.append( property.name() ) ;
-      writer.append( "\n" ) ;
-      final String defaultValueAsString = property.defaultValueAsString() ;
-      if( defaultValueAsString != null ) {
-        writer.append( leftPadding2 ) ;
-        writer.append( "Default value: '" ) ;
-        writer.append( defaultValueAsString ) ;
-        writer.append( "'\n" ) ;
-      }
-      if( defaultValueAsString == null && ! property.maybeNull() ) {
-        writer.append( leftPadding2 ) ;
-        writer.append( "(Requires explicit value)" ) ;
+    try {
+      for( final Configuration.Property< ? > property : factory.properties().values() ) {
         writer.append( "\n" ) ;
+        writer.append( leftPadding1 ) ;
+        writer.append( property.name() ) ;
+        writer.append( "\n" ) ;
+        final String defaultValueAsString = property.defaultValueAsString() ;
+        if( defaultValueAsString != null ) {
+          writer.append( leftPadding2 ) ;
+          writer.append( "Default value: '" ) ;
+          writer.append( defaultValueAsString ) ;
+          writer.append( "'\n" ) ;
+        }
+        if( defaultValueAsString == null && ! property.maybeNull() ) {
+          writer.append( leftPadding2 ) ;
+          writer.append( "(Requires explicit value)" ) ;
+          writer.append( "\n" ) ;
+        }
+        final String documentation = property.documentation() ;
+        if( ! Strings.isNullOrEmpty( documentation ) ) {
+          writeWrapped( writer, documentation, indent * 2, lineLength ) ;
+        }
       }
-      final String documentation = property.documentation() ;
-      if( ! Strings.isNullOrEmpty( documentation ) ) {
-        writeWrapped( writer, documentation, indent * 2, lineLength ) ;
-      }
+      writer.flush() ;
+    } catch( final IOException e ) {
+      throw new RuntimeException( e ) ;
     }
-    writer.flush() ;
   }
 
   public static void writeWrapped(

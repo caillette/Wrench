@@ -8,6 +8,7 @@ import com.google.common.collect.ImmutableSortedMap;
 import com.google.common.reflect.AbstractInvocationHandler;
 
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -67,7 +68,7 @@ public abstract class TemplateBasedFactory< C extends Configuration >
     constructionKit = null ;
   }
 
-  private void addInterfaceMethodFeatures( Class< ? > classOrInterface ) {
+  private void addInterfaceMethodFeatures( final Class< ? > classOrInterface ) {
     final Class< ? >[] interfaces = classOrInterface.getInterfaces() ;
     for( final Class< ? > someInterface : interfaces ) {
       addClassMethodFeatures( someInterface ) ;
@@ -75,12 +76,12 @@ public abstract class TemplateBasedFactory< C extends Configuration >
     }
   }
 
-  private void addClassMethodFeatures( Class< ? > currentClass ) {
+  private void addClassMethodFeatures( final Class< ? > currentClass ) {
     final Method[] methods = currentClass.getDeclaredMethods() ;
     for( final Method method : methods ) {
       if( method.getParameterTypes().length == 0 ) {
         constructionKit.features.put( method, new HashMap<>() ) ;
-      } else {
+      } else if( ! Modifier.isStatic( method.getModifiers() ) ) {
         throw new DefinitionException(
             "Should have no parameters: " + method.toGenericString() ) ;
       }
@@ -409,9 +410,7 @@ public abstract class TemplateBasedFactory< C extends Configuration >
       }
     }
 
-    if( checkAllPropertiesDefined ) {
-      verifyNoUndefinedProperty( configuration, propertySet, valuedProperties ) ;
-    }
+    verifyNoUndefinedProperty( configuration, propertySet, valuedProperties ) ;
 
     final ImmutableList< Validation.Bad > validation = validate( configuration ) ;
     if( ! validation.isEmpty() ) {
